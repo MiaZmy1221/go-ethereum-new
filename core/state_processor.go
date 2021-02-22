@@ -132,8 +132,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// Set the receipt logs and create a bloom for filtering
 	receipt.Logs = statedb.GetLogs(tx.Hash())
 
-	fmt.printf("Tx hash %s", tx.Hash())
-	fmt.printf("Tx Logs %s", receipt.Logs)
+	fmt.Printf("Tx hash %s", tx.Hash())
+	fmt.Printf("Tx Logs %s", receipt.Logs)
 
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = statedb.BlockHash()
