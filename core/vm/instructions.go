@@ -838,10 +838,10 @@ func makeLog(size int) executionFunc {
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
 
-		print("Address ", callContext.contract.Address())
-		print("Topics ", topics)
-		print("Data ", d)
-		print("BlockNumber ", interpreter.evm.Context.BlockNumber.Uint64())
+		fmt.Printf("Address %s\n", callContext.contract.Address())
+		fmt.Printf("Topics %s\n", topics)
+		fmt.Printf("Data %s\n", d)
+		fmt.Printf("BlockNumber %d\n", interpreter.evm.Context.BlockNumber.Uint64())
 
 		interpreter.evm.StateDB.AddLog(&types.Log{
 			Address: callContext.contract.Address(),
