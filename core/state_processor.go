@@ -137,7 +137,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
 		fmt.Printf("Tx log data %s \n", tempt_log.Data)
 		fmt.Printf("Tx log address %s \n", tempt_log.Address)
-		fmt.Printf("Tx log blocknum %s \n", tempt_log.BlockNumber)
+		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
 
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})

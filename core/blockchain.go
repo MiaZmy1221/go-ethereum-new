@@ -1890,6 +1890,7 @@ func (bc *BlockChain) insertChain(chain types.Blocks, verifySeals bool) (int, er
 		substart := time.Now()
 		receipts, logs, usedGas, err := bc.processor.Process(block, statedb, bc.vmConfig)
 
+		// Non working
 		fmt.Printf("From blockchain.go\n")
 		for _, tempt_receipt := range receipts{
 			fmt.Printf("Tx hash %s \n", tempt_receipt.TxHash)
@@ -1897,7 +1898,7 @@ func (bc *BlockChain) insertChain(chain types.Blocks, verifySeals bool) (int, er
 				fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
 				fmt.Printf("Tx log data %s \n", tempt_log.Data)
 				fmt.Printf("Tx log address %s \n", tempt_log.Address)
-				fmt.Printf("Tx log blocknum %s \n", tempt_log.BlockNumber)
+				fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 			}
 		}
 
