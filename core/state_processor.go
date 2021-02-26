@@ -134,7 +134,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	fmt.Printf("Tx hash %s", tx.Hash())
 	fmt.Printf("Tx Logs %s", receipt.Logs)
-	for _, tempt_log := range receipt.logs{
+	for _, tempt_log := range receipt.Logs{
 		fmt.Printf("Tx log topics %s ", tempt_log.topics)
 		fmt.Printf("Tx log data %s ", tempt_log.data)
 	}
