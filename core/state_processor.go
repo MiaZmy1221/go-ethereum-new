@@ -132,11 +132,12 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// Set the receipt logs and create a bloom for filtering
 	receipt.Logs = statedb.GetLogs(tx.Hash())
 
-	fmt.Printf("Tx hash %s", tx.Hash())
-	fmt.Printf("Tx Logs %s", receipt.Logs)
+	fmt.Printf("From state_processor.go\n")
 	for _, tempt_log := range receipt.Logs{
-		fmt.Printf("Tx log topics %s ", tempt_log.Topics)
-		fmt.Printf("Tx log data %s ", tempt_log.Data)
+		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
+		fmt.Printf("Tx log data %s \n", tempt_log.Data)
+		fmt.Printf("Tx log address %s \n", tempt_log.Address)
+		fmt.Printf("Tx log blocknum %s \n", tempt_log.BlockNumber)
 	}
 
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
