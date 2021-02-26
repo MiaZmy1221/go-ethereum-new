@@ -83,6 +83,16 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
 	}
+
+	fmt.Printf("From state_processor.go\n")
+	fmt.Printf("From Process")
+	for _, tempt_log := range allLogs{
+		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
+		fmt.Printf("Tx log data %s \n", tempt_log.Data)
+		fmt.Printf("Tx log address %s \n", tempt_log.Address)
+		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
+	}
+
 	// Finalize the block, applying any consensus engine specific extras (e.g. block rewards)
 	p.engine.Finalize(p.bc, header, statedb, block.Transactions(), block.Uncles())
 
@@ -133,6 +143,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	receipt.Logs = statedb.GetLogs(tx.Hash())
 
 	fmt.Printf("From state_processor.go\n")
+	fmt.Printf("applyTransaction")
 	for _, tempt_log := range receipt.Logs{
 		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
 		fmt.Printf("Tx log data %s \n", tempt_log.Data)

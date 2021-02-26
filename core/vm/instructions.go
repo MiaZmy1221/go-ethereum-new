@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 	"golang.org/x/crypto/sha3"
-	// "fmt"
+	"fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
@@ -846,6 +846,9 @@ func makeLog(size int) executionFunc {
 			// core/state doesn't know the current block number.
 			BlockNumber: interpreter.evm.Context.BlockNumber.Uint64(),
 		})
+
+		fmt.Printf("instructions.go \n")
+		fmt.Printf("Data %s \n", d)
 
 		return nil, nil
 	}
