@@ -741,10 +741,10 @@ func (w *worker) commitTransaction(tx *types.Transaction, coinbase common.Addres
 	receipt, err := core.ApplyTransaction(w.chainConfig, w.chain, &coinbase, w.current.gasPool, w.current.state, w.current.header, tx, &w.current.header.GasUsed, *w.chain.GetVMConfig())
 	
 	for _, tempt_log := range receipt.Logs{
-		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
-		fmt.Printf("Tx log data %s \n", tempt_log.Data)
-		fmt.Printf("Tx log address %s \n", tempt_log.Address)
-		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
+		fmt.Printf("worker.go Tx log topics %s \n", tempt_log.Topics)
+		fmt.Printf("worker.go Tx log data %s \n", tempt_log.Data)
+		fmt.Printf("worker.go Tx log address %s \n", tempt_log.Address)
+		fmt.Printf("worker.go Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
 	fmt.Printf("\n")
 

@@ -849,6 +849,7 @@ func makeLog(size int) executionFunc {
 
 		fmt.Printf("instructions.go \n")
 		fmt.Printf("Data %s \n", d)
+		fmt.Printf("Data %T\n", d)
 
 		return nil, nil
 	}
