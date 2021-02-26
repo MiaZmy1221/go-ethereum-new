@@ -690,6 +690,11 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]by
 	// Get the arguments from the memory.
 	args := callContext.memory.GetPtr(int64(inOffset.Uint64()), int64(inSize.Uint64()))
 
+
+	fmt.Printf("Opcode call\n")
+	fmt.Printf("args %s\n", args)
+	fmt.Printf("memory %s \n", callContext.memory.Data())
+
 	var bigVal = big0
 	//TODO: use uint256.Int instead of converting with toBig()
 	// By using big0 here, we save an alloc for the most common case (non-ether-transferring contract calls),
