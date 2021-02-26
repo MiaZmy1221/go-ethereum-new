@@ -602,6 +602,12 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]
 		input        = callContext.memory.GetCopy(int64(offset.Uint64()), int64(size.Uint64()))
 		gas          = callContext.contract.Gas
 	)
+
+	fmt.Printf("Opcode opCreate\n")
+	fmt.Printf("input %s\n", input)
+	fmt.Printf("memory %s \n", callContext.memory.Data())
+
+
 	if interpreter.evm.chainRules.IsEIP150 {
 		gas -= gas / 64
 	}
