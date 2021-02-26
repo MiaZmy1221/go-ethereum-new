@@ -837,8 +837,8 @@ func makeLog(size int) executionFunc {
 		}
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
-		fmt.Printf("mStart %d \n", int64(mStart.Uint64())
-		fmt.Printf("mSize %d \n", int64(mSize.Uint64())
+		fmt.Printf("mStart %d \n", int64(mStart.Uint64()))
+		fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
 		fmt.Printf("memory %s \n", callContext.memory.Data())
 
 		interpreter.evm.StateDB.AddLog(&types.Log{
