@@ -75,8 +75,9 @@ func (m *Memory) GetCopy(offset, size int64) []byte {
 	}
  
 	if len(m.store) > int(offset) {
-		cpy = make([]byte, size)
+		cpy := make([]byte, size)
 		copy(cpy, m.store[offset:offset+size])
+		fmt.Printf("file memory.go\n")
 		fmt.Printf("in GetCopy function cpy % x \n", cpy)
 
 		return cpy

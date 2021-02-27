@@ -839,6 +839,7 @@ func makeLog(size int) executionFunc {
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
 		
+		fmt.Printf("file instructions.go\n")
 		fmt.Printf("\nmStart %d \n", int64(mStart.Uint64()))
 		fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
 		fmt.Printf("callContext memory %s \n", callContext.memory.Data())
