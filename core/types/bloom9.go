@@ -102,15 +102,10 @@ func (b *Bloom) UnmarshalText(input []byte) error {
 
 // CreateBloom creates a bloom filter out of the give Receipts (+Logs)
 func CreateBloom(receipts Receipts) Bloom {
-	fmt.Printf("bloom9.go CreateBloom\n")
 	buf := make([]byte, 6)
 	var bin Bloom
 	for _, receipt := range receipts {
 		for _, log := range receipt.Logs {
-			fmt.Printf("Data %s \n", log.Data)
-			fmt.Printf("Data %T\n", log.Data)
-			fmt.Printf("Topics %s\n", log.Topics)
-
 			bin.add(log.Address.Bytes(), buf)
 			for _, b := range log.Topics {
 				bin.add(b[:], buf)
