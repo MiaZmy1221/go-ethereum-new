@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
+	"fmt"
 )
 
 // emptyCodeHash is used by create to ensure deployment is disallowed to already
@@ -248,7 +249,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		evm.StateDB.CreateAccount(addr)
 	}
 
-	fmt.Printf("evm.go Call, Transfer is called. Caller Address: %s. Value is: %d \n", caller.Address(), value)
+	fmt.Printf("core/vm evm.go Call, Transfer is called. Caller Address: %s. Value is: %d \n", caller.Address(), value)
 	evm.Context.Transfer(evm.StateDB, caller.Address(), addr, value)
 
 	// Capture the tracer start/end events in debug mode
