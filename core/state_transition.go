@@ -217,6 +217,7 @@ func (st *StateTransition) preCheck() error {
 // However if any consensus issue encountered, return the error directly with
 // nil evm execution result.
 func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
+	fmt.Printf("state_transition.go TransitionDb\n")
 	// First check this message satisfies all consensus rules before
 	// applying the message. The rules include these clauses
 	//

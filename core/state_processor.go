@@ -100,6 +100,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+	fmt.Printf("state_processor.go applyTransaction\n")
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
 	// Add addresses to access list if applicable
@@ -149,9 +150,9 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log data 0x%x \n", tempt_log.Data)
 		fmt.Printf("Tx log address %s \n", tempt_log.Address)
 		fmt.Printf("Tx log removed %t \n", tempt_log.Removed)
-		fmt.Printf("Tx log blocknum %d \n\n", tempt_log.BlockNumber)
+		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
-	fmt.Printf("Tx status %d\n", receipt.Status)
+	fmt.Printf("Tx status %d\n\n", receipt.Status)
 
 
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})

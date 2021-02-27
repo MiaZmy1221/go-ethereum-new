@@ -140,6 +140,7 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 // considered a revert-and-consume-all-gas operation except for
 // ErrExecutionReverted which means revert-and-keep-gas-left.
 func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (ret []byte, err error) {
+	fmt.Printf("interpreter.go Run\n")
 
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
@@ -292,8 +293,8 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			fmt.Printf("From: %s\n", contract.CallerAddress)
 			fmt.Printf("To: %s\n", contract.Address())
 			fmt.Printf("Input: 0x%x\n", input)
-			fmt.Printf("Value: %d\n", contract.Value)
-			fmt.Printf("Index: 1\n")
+			fmt.Printf("Value: %d\n", )
+			fmt.Printf("TraceIndex: 1\n")
 			fmt.Printf("Type: CALL\n") // other types: suicide
 		}
 
