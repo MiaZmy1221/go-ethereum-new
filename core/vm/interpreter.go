@@ -23,6 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/log"
+	"fmt"
 )
 
 // Config are the configuration options for the Interpreter
@@ -285,6 +286,14 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 
 		// execute the operation
 		res, err = operation.execute(&pc, in, callContext)
+
+		
+		fmt.Printf("Opcode %s \n", op)
+		if op == LOG0 || op == LOG1 || op == LOG2 || op == LOG3 || op == LOG4{
+			fmt.Printf("callContext memory %s \n", callContext.memory)
+		}		
+
+
 		// if the operation clears the return data (e.g. it has returning data)
 		// set the last return to the result of the operation.
 		if operation.returns {

@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 	"golang.org/x/crypto/sha3"
-	"fmt"
+	// "fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
@@ -603,11 +603,6 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]
 		gas          = callContext.contract.Gas
 	)
 
-	fmt.Printf("Opcode opCreate\n")
-	fmt.Printf("input %s\n", input)
-	fmt.Printf("memory %s \n", callContext.memory.Data())
-
-
 	if interpreter.evm.chainRules.IsEIP150 {
 		gas -= gas / 64
 	}
@@ -689,11 +684,6 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]by
 	toAddr := common.Address(addr.Bytes20())
 	// Get the arguments from the memory.
 	args := callContext.memory.GetPtr(int64(inOffset.Uint64()), int64(inSize.Uint64()))
-
-
-	fmt.Printf("Opcode call\n")
-	fmt.Printf("args %s\n", args)
-	fmt.Printf("memory %s \n", callContext.memory.Data())
 
 	var bigVal = big0
 	//TODO: use uint256.Int instead of converting with toBig()
@@ -848,9 +838,9 @@ func makeLog(size int) executionFunc {
 		}
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
-		fmt.Printf("mStart %d \n", int64(mStart.Uint64()))
-		fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
-		fmt.Printf("memory %s \n", callContext.memory.Data())
+		// fmt.Printf("mStart %d \n", int64(mStart.Uint64()))
+		// fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
+		// fmt.Printf("memory %s \n", callContext.memory.Data())
 
 		interpreter.evm.StateDB.AddLog(&types.Log{
 			Address: callContext.contract.Address(),
@@ -861,9 +851,9 @@ func makeLog(size int) executionFunc {
 			BlockNumber: interpreter.evm.Context.BlockNumber.Uint64(),
 		})
 
-		fmt.Printf("instructions.go \n")
-		fmt.Printf("Data %s \n", d)
-		fmt.Printf("Data %T\n", d)
+		// fmt.Printf("instructions.go \n")
+		// fmt.Printf("Data %s \n", d)
+		// fmt.Printf("Data %T\n", d)
 
 		return nil, nil
 	}
