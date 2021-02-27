@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/trace"
 	"encoding/json"
 	"fmt"
+	"math/big"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -635,7 +636,7 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (st
 	callContext.contract.Gas += returnGas
 
 	if suberr == ErrExecutionReverted {
-		return res, nil
+		return "create", res, nil
 	}
 	return "create", nil, nil
 }
@@ -671,7 +672,7 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 	callContext.contract.Gas += returnGas
 
 	if suberr == ErrExecutionReverted {
-		return res, nil
+		return "create2", res, nil
 	}
 	return "create2", nil, nil
 }
@@ -719,7 +720,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				ToAddr: toAddr, 
 				Input: args,
 				Output: args, 
-				Value: value, 
+				Value: big.NewInt(value), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
