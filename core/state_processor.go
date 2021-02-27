@@ -152,11 +152,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log removed %t \n", tempt_log.Removed)
 		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
-	fmt.Printf("Tx status %d\n", receipt.Status)
-	fmt.Printf("Tx gas used %d\n")
-	fmt.Printf("Tx gas price %d \n\n")
-
-
+	fmt.Printf("Tx status %d\n\n", receipt.Status)
+	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = statedb.BlockHash()
 	receipt.BlockNumber = header.Number
