@@ -26,6 +26,7 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
 )
 
 // Config are the configuration options for the Interpreter
@@ -298,9 +299,22 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			fmt.Printf("Value: %d\n", contract.value)
 			fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
 			fmt.Printf("Type: CALL\n") // other types: suicide
-			fmt.Printf("Output: %x\n") // ????
+			fmt.Printf("Output: %x\n\n") // ????
+			
 			// wrong, use input as output
-			first_trace := trace.NewTraceN("CALL", contract.CallerAddress, contract.Address(), input, contract.value, trace.CurrentTraceIndex, "CALL", input)
+			first_trace := &trace.TraceN{
+				CallType: "CALL", 
+				FromAddr: contract.CallerAddress, 
+				ToAddr: contract.Address(), 
+				Input: input,
+				Output: input, 
+				Value: contract.value, 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+			fmt.Printf("test json\n")
+			json_first_trace, _ := json.Marshal(first_trace)
+    		fmt.Println(string(json_first_trace))
+
 			trace.Traces = append(trace.Traces, first_trace)
 		}
 

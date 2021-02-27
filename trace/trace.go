@@ -12,14 +12,14 @@ import (
 
 
 type TraceN struct{
-	CallType string
-	FromAddr common.Address
-	ToAddr common.Address
-	Input []byte
-	Output []byte
-	Value *big.Int
-	TraceIndex uint64
-	Type string
+	CallType string `json:"callType"`
+	FromAddr common.Address `json:"fromAddr"`
+	ToAddr common.Address `json:"toAddr"`
+	Input []byte `json:"input"`
+	Output []byte `json:"output"`
+	Value *big.Int `json:"value"`
+	TraceIndex uint64 `json:"traceIndex"`
+	Type string `json:"type"`
 }
 
 func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, Input []byte, Value *big.Int, TraceIndex uint64, Type string, Output []byte) *TraceN {
