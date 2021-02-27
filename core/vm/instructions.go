@@ -27,6 +27,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"encoding/hex"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -717,7 +718,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				CallType: "CALL", 
 				FromAddr: callContext.contract.CallerAddress, 
 				ToAddr: toAddr, 
-				Input: args,
+				Input: hex.EncodeToString(args),
 				Output: args, 
 				// Value: callContext.contract.Value, 
 				Value: new(big.Int).SetUint64(value.Uint64()), 

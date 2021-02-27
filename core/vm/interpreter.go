@@ -306,7 +306,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 				CallType: "CALL", 
 				FromAddr: contract.CallerAddress, 
 				ToAddr: contract.Address(), 
-				Input: input,
+				Input: hex.EncodeToString(input),
 				Output: input, 
 				Value: contract.value, 
 				TraceIndex: trace.CurrentTraceIndex, 
@@ -331,7 +331,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 
 
 		// Step 2: the following traces with category call
-		if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
+		if op == CALL || op == CALLCODE {
 			fmt.Printf("opcode: %s, opcode return trace: %s \n", op, test_trace_per_opcode)
 		}
 
