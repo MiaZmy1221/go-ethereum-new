@@ -711,7 +711,6 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 	}
 	callContext.contract.Gas += returnGas
 
-
 	// Trace
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{

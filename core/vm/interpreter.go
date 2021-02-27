@@ -327,15 +327,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		// 	fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
 		// }
 
-		fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
-
 		// res, err = operation.execute(&pc, in, callContext)	
 
 
 		// Step 2: the following traces with category call
-		// if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
-			
-		// }
+		if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
+			fmt.Printf("opcode: %s, opcode return trace: %s \n", op, test_trace_per_opcode)
+		}
 
 
 		// if the operation clears the return data (e.g. it has returning data)

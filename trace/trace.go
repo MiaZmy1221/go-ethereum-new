@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	// "math"
 	"math/big"
+	"encoding/hex"
 )
 
 
@@ -15,7 +16,7 @@ type TraceN struct{
 	CallType string `json:"callType"`
 	FromAddr common.Address `json:"fromAddr"`
 	ToAddr common.Address `json:"toAddr"`
-	Input []byte `json:"input"`
+	Input string `json:"input"`
 	Output []byte `json:"output"`
 	Value *big.Int `json:"value"`
 	TraceIndex uint64 `json:"traceIndex"`
@@ -27,7 +28,7 @@ func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, 
 	t.CallType = CallType
 	t.FromAddr = FromAddr
 	t.ToAddr = ToAddr
-	t.Input = Input
+	t.Input = hex.EncodeToString(Input)
 	t.Value = Value
 	t.TraceIndex = TraceIndex
 	t.Type = Type
