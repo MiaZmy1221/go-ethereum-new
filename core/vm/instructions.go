@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 	"golang.org/x/crypto/sha3"
-	// "fmt"
+	"fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
@@ -838,11 +838,13 @@ func makeLog(size int) executionFunc {
 		}
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
+		
 		fmt.Printf("\nmStart %d \n", int64(mStart.Uint64()))
 		fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
 		fmt.Printf("callContext memory %s \n", callContext.memory.Data())
 		fmt.Printf("Print function\n")
 		callContext.memory.Print()
+		fmt.Printf("Data  % x\n", d)
 
 		interpreter.evm.StateDB.AddLog(&types.Log{
 			Address: callContext.contract.Address(),
