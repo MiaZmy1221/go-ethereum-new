@@ -6,7 +6,7 @@ import (
 	// "gopkg.in/mgo.v2"
 	// "fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"math"
+	// "math"
 	"math/big"
 )
 
