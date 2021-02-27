@@ -249,7 +249,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		evm.StateDB.CreateAccount(addr)
 	}
 
-	fmt.Printf("core/vm evm.go Call, Transfer is called. Caller Address: %s. Value is: %d \n", caller.Address(), value)
+	fmt.Printf("core/vm evm.go Call, Transfer is called. Contract address: %s. Caller Address: %s. Value is: %d \n", addr, caller.Address(), value)
 	evm.Context.Transfer(evm.StateDB, caller.Address(), addr, value)
 
 	// Capture the tracer start/end events in debug mode
@@ -274,6 +274,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 			// The depth-check is already done, and precompiles handled above
 			contract := NewContract(caller, AccountRef(addrCopy), value, gas)
 			contract.SetCallCode(&addrCopy, evm.StateDB.GetCodeHash(addrCopy), code)
+			fmt.Printf("core/vm evm.go Call contract.value %d\n", contract.value)
 			ret, err = run(evm, contract, input, false)
 			gas = contract.Gas
 		}

@@ -293,7 +293,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			fmt.Printf("From: %s\n", contract.CallerAddress)
 			fmt.Printf("To: %s\n", contract.Address())
 			fmt.Printf("Input: 0x%x\n", input)
-			fmt.Printf("Value: %d\n", )
+			fmt.Printf("Value: %d\n", contract.value)
 			fmt.Printf("TraceIndex: 1\n")
 			fmt.Printf("Type: CALL\n") // other types: suicide
 		}
