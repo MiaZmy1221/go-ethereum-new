@@ -307,9 +307,9 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 
 
 		// Step 2: the following traces with category call
-		if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
+		// if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
 			
-		}
+		// }
 
 
 		// if the operation clears the return data (e.g. it has returning data)
