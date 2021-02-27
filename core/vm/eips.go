@@ -77,10 +77,10 @@ func enable1884(jt *JumpTable) {
 	}
 }
 
-func opSelfBalance(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
+func opSelfBalance(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
 	balance, _ := uint256.FromBig(interpreter.evm.StateDB.GetBalance(callContext.contract.Address()))
 	callContext.stack.push(balance)
-	return nil, nil
+	return "", nil, nil
 }
 
 // enable1344 applies EIP-1344 (ChainID Opcode)
@@ -96,10 +96,10 @@ func enable1344(jt *JumpTable) {
 }
 
 // opChainID implements CHAINID opcode
-func opChainID(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
+func opChainID(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
 	chainId, _ := uint256.FromBig(interpreter.evm.chainConfig.ChainID)
 	callContext.stack.push(chainId)
-	return nil, nil
+	return "", nil, nil
 }
 
 // enable2200 applies EIP-2200 (Rebalance net-metered SSTORE)

@@ -322,9 +322,12 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		test_trace_per_opcode := ""
 		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
 		// To avoid prefetch
-		if redundency == false {
-			fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
-		}
+		// check why'????
+		// if redundency == false {
+		// 	fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
+		// }
+
+		fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
 
 		// res, err = operation.execute(&pc, in, callContext)	
 

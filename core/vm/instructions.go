@@ -720,7 +720,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				ToAddr: toAddr, 
 				Input: args,
 				Output: args, 
-				Value: big.NewInt(value), 
+				Value: new(big.Int).SetUint64(value), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
