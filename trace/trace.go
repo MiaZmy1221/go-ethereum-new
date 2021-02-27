@@ -1,11 +1,13 @@
 package trace
 
 import (
-	"bytes"
-	"os"
+	// "bytes"
+	// "os"
 	// "gopkg.in/mgo.v2"
-	"fmt"
+	// "fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"math"
+	"math/big"
 )
 
 
@@ -31,7 +33,8 @@ func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, 
 	return t
 } 
 
+type TraceNs []*TraceN
 var currentTraceIndex = 1
-var Traces = []*TraceN
+var Traces TraceNs
 
 
