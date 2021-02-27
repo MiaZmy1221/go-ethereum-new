@@ -27,6 +27,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/trace"
 	"encoding/json"
+	"encoding/hex"
 )
 
 // Config are the configuration options for the Interpreter
