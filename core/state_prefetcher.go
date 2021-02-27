@@ -88,7 +88,8 @@ func precacheTransaction(config *params.ChainConfig, bc ChainContext, author *co
 	// Create the EVM and execute the transaction
 	context := NewEVMBlockContext(header, bc, author)
 	txContext := NewEVMTxContext(msg)
-	vm := vm.NewEVM(context, txContext, statedb, config, cfg)
+	// vm := vm.NewEVM(context, txContext, statedb, config, cfg)
+	vm := vm.NewEVMWithFlag(context, txContext, statedb, config, cfg, true)
 
 	_, err = ApplyMessage(vm, msg, gaspool)
 	return err

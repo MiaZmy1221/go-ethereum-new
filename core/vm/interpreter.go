@@ -52,7 +52,8 @@ type Config struct {
 type Interpreter interface {
 	// Run loops and evaluates the contract's code with the given input data and returns
 	// the return byte-slice and an error if one occurred.
-	Run(contract *Contract, input []byte, static bool) ([]byte, error)
+	// Run(contract *Contract, input []byte, static bool) ([]byte, error)
+	Run(contract *Contract, input []byte, static bool, redundency bool) ([]byte, error)
 	// CanRun tells if the contract, passed as an argument, can be
 	// run by the current interpreter. This is meant so that the
 	// caller can do something like:
@@ -143,7 +144,7 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 // It's important to note that any errors returned by the interpreter should be
 // considered a revert-and-consume-all-gas operation except for
 // ErrExecutionReverted which means revert-and-keep-gas-left.
-func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (ret []byte, err error) {
+func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, redundency bool) (ret []byte, err error) {
 	fmt.Printf("interpreter.go Run\n")
 
 	// Increment the call depth which is restricted to 1024
@@ -291,7 +292,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 
 		// Generate Traces
 		// Step 1: the first trace is starting before execution
-		if pc == 0 {
+		if redundency == false && pc == 0 {
 			fmt.Printf("\nThe first trace \n")
 			fmt.Printf("Call type: CALL\n")
 			fmt.Printf("From: %s\n", contract.CallerAddress)
@@ -332,7 +333,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 
 
 		// Step 2: the following traces with category call
-		if op == CALL || op == CALLCODE {
+		if redundency == false && (op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL) {
 			fmt.Printf("opcode: %s, opcode return trace: %s \n", op, test_trace_per_opcode)
 		}
 
