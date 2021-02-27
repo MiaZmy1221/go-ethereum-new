@@ -43,7 +43,7 @@ func (t *TraceN) Print() {
 	fmt.Printf("Call type: %s\n", t.CallType)
 	fmt.Printf("From: %s\n", t.FromAddr)
 	fmt.Printf("To: %s\n", t.ToAddr)
-	fmt.Printf("Input: 0x%x\n", t.Input)
+	fmt.Printf("Input: %s\n", t.Input)
 	fmt.Printf("Value: %d\n", t.Value)
 	fmt.Printf("Type: %s\n", t.Type) 
 	fmt.Printf("Output: %x\n", t.Output) 
