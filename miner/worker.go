@@ -35,7 +35,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/trie"
-	"fmt"
 )
 
 const (
@@ -736,18 +735,8 @@ func (w *worker) updateSnapshot() {
 
 func (w *worker) commitTransaction(tx *types.Transaction, coinbase common.Address) ([]*types.Log, error) {
 	snap := w.current.state.Snapshot()
-	fmt.Printf("worker.go commitTransaction\n")
 
 	receipt, err := core.ApplyTransaction(w.chainConfig, w.chain, &coinbase, w.current.gasPool, w.current.state, w.current.header, tx, &w.current.header.GasUsed, *w.chain.GetVMConfig())
-	
-	for _, tempt_log := range receipt.Logs{
-		fmt.Printf("worker.go Tx log topics %s \n", tempt_log.Topics)
-		fmt.Printf("worker.go Tx log data %s \n", tempt_log.Data)
-		fmt.Printf("worker.go Tx log address %s \n", tempt_log.Address)
-		fmt.Printf("worker.go Tx log blocknum %d \n", tempt_log.BlockNumber)
-	}
-	fmt.Printf("\n")
-
 	if err != nil {
 		w.current.state.RevertToSnapshot(snap)
 		return nil, err
