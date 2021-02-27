@@ -283,15 +283,21 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			logged = true
 		}
 
-		// execute the operation
-		// fmt.Printf("file interpreter.go\n")
-		// fmt.Printf("Opcode %s \n", op)
-		res, err = operation.execute(&pc, in, callContext)
-		// if op == LOG0 || op == LOG1 || op == LOG2 || op == LOG3 || op == LOG4{
-		// 	fmt.Printf("callContext memory %s \n", callContext.memory.Data())
-		// 	fmt.Printf("Print function\n")
-		// 	callContext.memory.Print()
-		// }		
+		// Generate Traces
+		// Step 1: the first trace is starting before execution
+		if pc == 0 {
+			fmt.Printf("\nThe first trace \n")
+			fmt.Printf("Call type: CALL\n")
+			fmt.Printf("From: %s\n", contract.CallerAddress)
+			fmt.Printf("To: %s\n", contract.Address())
+			fmt.Printf("Input: 0x%x\n", input)
+			fmt.Printf("Value: %d\n", contract.Value)
+			fmt.Printf("Index: 1\n")
+			fmt.Printf("Type: CALL\n") // other types: suicide
+		}
+
+
+		res, err = operation.execute(&pc, in, callContext)	
 
 
 		// if the operation clears the return data (e.g. it has returning data)
