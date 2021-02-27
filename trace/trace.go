@@ -4,7 +4,7 @@ import (
 	// "bytes"
 	// "os"
 	// "gopkg.in/mgo.v2"
-	// "fmt"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	// "math"
 	"math/big"
