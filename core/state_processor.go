@@ -151,7 +151,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log removed %t \n", tempt_log.Removed)
 		fmt.Printf("Tx log blocknum %d \n\n", tempt_log.BlockNumber)
 	}
-	fmt.Printf("Tx status %d\n", receipt.status)
+	fmt.Printf("Tx status %d\n", receipt.Status)
 
 
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
