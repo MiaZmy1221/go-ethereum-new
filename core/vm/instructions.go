@@ -228,7 +228,7 @@ func opSAR(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (strin
 			// Max negative shift: all bits set
 			value.SetAllOne()
 		}
-		return nil, nil
+		return "", nil, nil
 	}
 	n := uint(shift.Uint64())
 	value.SRsh(value, n)
@@ -330,14 +330,14 @@ func opReturnDataCopy(pc *uint64, interpreter *EVMInterpreter, callContext *call
 
 	offset64, overflow := dataOffset.Uint64WithOverflow()
 	if overflow {
-		return nil, ErrReturnDataOutOfBounds
+		return "", nil, ErrReturnDataOutOfBounds
 	}
 	// we can reuse dataOffset now (aliasing it for clarity)
 	var end = dataOffset
 	end.Add(&dataOffset, &length)
 	end64, overflow := end.Uint64WithOverflow()
 	if overflow || uint64(len(interpreter.returnData)) < end64 {
-		return nil, ErrReturnDataOutOfBounds
+		return "", nil, ErrReturnDataOutOfBounds
 	}
 	callContext.memory.Set(memOffset.Uint64(), length.Uint64(), interpreter.returnData[offset64:end64])
 	return "", nil, nil
@@ -439,7 +439,7 @@ func opBlockhash(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) 
 	num64, overflow := num.Uint64WithOverflow()
 	if overflow {
 		num.Clear()
-		return nil, nil
+		return "", nil, nil
 	}
 	var upper, lower uint64
 	upper = interpreter.evm.Context.BlockNumber.Uint64()
@@ -528,7 +528,7 @@ func opSstore(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (st
 func opJump(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
 	pos := callContext.stack.pop()
 	if !callContext.contract.validJumpdest(&pos) {
-		return nil, ErrInvalidJump
+		return "", nil, ErrInvalidJump
 	}
 	*pc = pos.Uint64()
 	return "", nil, nil
@@ -538,7 +538,7 @@ func opJumpi(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (str
 	pos, cond := callContext.stack.pop(), callContext.stack.pop()
 	if !cond.IsZero() {
 		if !callContext.contract.validJumpdest(&pos) {
-			return nil, ErrInvalidJump
+			return "", nil, ErrInvalidJump
 		}
 		*pc = pos.Uint64()
 	} else {
@@ -588,7 +588,7 @@ func opPc(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string
 	return "", nil, nil
 }
 
-func opMsize(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
+func opMsize(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
 	callContext.stack.push(new(uint256.Int).SetUint64(uint64(callContext.memory.Len())))
 	return "", nil, nil
 }
