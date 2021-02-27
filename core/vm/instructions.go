@@ -720,10 +720,14 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				ToAddr: toAddr, 
 				Input: args,
 				Output: args, 
-				Value: new(big.Int).SetUint64(value), 
+				Value: new(big.Int).SetUint64(uint64(value)), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
+
+	fmt.Printf("\nValue from value %d\n", value)
+	fmt.Printf("Value from contract %d\n", callContext.contract.Value)
+
 	fmt.Printf("instructions.go opCALL\n")
     fmt.Println(string(json_trace))
 
