@@ -22,6 +22,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 	"golang.org/x/crypto/sha3"
+
+	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
+	"fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -708,17 +712,21 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 
 
 	// Trace
+	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
-				FromAddr: contract.CallerAddress, 
-				ToAddr: contract.Address(), 
-				Input: input,
-				Output: input, 
-				Value: contract.value, 
+				FromAddr: callContext.contract.CallerAddress, 
+				ToAddr: toAddr, 
+				Input: args,
+				Output: args, 
+				Value: value, 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf("instructions.go opCALL\n")
+    fmt.Println(string(json_trace))
 
-	return "call", ret, nil
+	return string(json_trace), ret, nil
 }
 
 func opCallCode(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
