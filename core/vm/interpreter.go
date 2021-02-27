@@ -285,8 +285,8 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		}
 
 		// execute the operation
-		fmt.Printf("file interpreter.go\n")
-		fmt.Printf("Opcode %s \n", op)
+		// fmt.Printf("file interpreter.go\n")
+		// fmt.Printf("Opcode %s \n", op)
 		res, err = operation.execute(&pc, in, callContext)
 		// if op == LOG0 || op == LOG1 || op == LOG2 || op == LOG3 || op == LOG4{
 		// 	fmt.Printf("callContext memory %s \n", callContext.memory.Data())

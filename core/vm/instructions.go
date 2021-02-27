@@ -838,13 +838,6 @@ func makeLog(size int) executionFunc {
 		}
 
 		d := callContext.memory.GetCopy(int64(mStart.Uint64()), int64(mSize.Uint64()))
-		
-		fmt.Printf("file instructions.go\n")
-		// fmt.Printf("\nmStart %d \n", int64(mStart.Uint64()))
-		// fmt.Printf("mSize %d \n", int64(mSize.Uint64()))
-		// fmt.Printf("Print function\n")
-		// callContext.memory.Print()
-		fmt.Printf("Data  % x\n", d)
 
 		interpreter.evm.StateDB.AddLog(&types.Log{
 			Address: callContext.contract.Address(),
@@ -855,9 +848,8 @@ func makeLog(size int) executionFunc {
 			BlockNumber: interpreter.evm.Context.BlockNumber.Uint64(),
 		})
 
-		// fmt.Printf("instructions.go \n")
-		// fmt.Printf("Data %s \n", d)
-		// fmt.Printf("Data %T\n", d)
+		fmt.Printf("file instructions.go\n")
+		fmt.Printf("Data  % x\n", d)
 
 		return nil, nil
 	}
