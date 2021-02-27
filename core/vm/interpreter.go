@@ -302,7 +302,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			trace.Traces = append(trace.Traces, first_trace)
 		}
 
-
+		
 		res, err = operation.execute(&pc, in, callContext)	
 
 
