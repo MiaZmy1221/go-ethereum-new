@@ -27,6 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+
+	"github.com/ethereum/go-ethereum/trace"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -145,6 +147,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	fmt.Printf("\nFrom state_processor.go applyTransaction\n")
 	fmt.Printf("Tx hash %s \n", receipt.TxHash)
+	fmt.Printf("Tx index %d \n", uint(statedb.TxIndex()))
 	for _, tempt_log := range receipt.Logs{
 		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
 		fmt.Printf("Tx log data 0x%x \n", tempt_log.Data)
@@ -152,7 +155,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log removed %t \n", tempt_log.Removed)
 		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
-	fmt.Printf("Tx status %d\n\n", receipt.Status)
+	fmt.Printf("Tx status %d\n", receipt.Status)
+	fmt.Printf("In the end, traces %s\n\n", Traces)
 	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = statedb.BlockHash()

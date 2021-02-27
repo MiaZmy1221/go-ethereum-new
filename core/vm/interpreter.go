@@ -24,6 +24,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/log"
 	"fmt"
+
+	"github.com/ethereum/go-ethereum/trace"
 )
 
 // Config are the configuration options for the Interpreter
@@ -294,12 +296,20 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			fmt.Printf("To: %s\n", contract.Address())
 			fmt.Printf("Input: 0x%x\n", input)
 			fmt.Printf("Value: %d\n", contract.value)
-			fmt.Printf("TraceIndex: 1\n")
+			fmt.Printf("TraceIndex: %d\n", currentTraceIndex)
 			fmt.Printf("Type: CALL\n") // other types: suicide
+			first_trace := NewTraceN("CALL", contract.CallerAddress, contract.Address(), input, contract.value, currentTraceIndex, "CALL")
+			Traces.append(first_trace)
 		}
 
 
 		res, err = operation.execute(&pc, in, callContext)	
+
+
+		// Step 2: the following traces with category call
+		if op == 'CALL' || op == 'CALLCODE' || op == 'DELEGATECALL' || op == 'STATICCALL' {
+			
+		}
 
 
 		// if the operation clears the return data (e.g. it has returning data)
