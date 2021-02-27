@@ -296,7 +296,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 			fmt.Printf("To: %s\n", contract.Address())
 			fmt.Printf("Input: 0x%x\n", input)
 			fmt.Printf("Value: %d\n", contract.value)
-			fmt.Printf("TraceIndex: %d\n", trace.currentTraceIndex)
+			fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
 			fmt.Printf("Type: CALL\n") // other types: suicide
 			first_trace := trace.NewTraceN("CALL", contract.CallerAddress, contract.Address(), input, contract.value, trace.currentTraceIndex, "CALL")
 			trace.Traces = append(trace.Traces, first_trace)

@@ -34,7 +34,7 @@ func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, 
 } 
 
 type TraceNs []*TraceN
-var currentTraceIndex = 1
+var CurrentTraceIndex = 1
 var Traces TraceNs
 
 
