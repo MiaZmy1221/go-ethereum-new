@@ -288,11 +288,11 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (
 		fmt.Printf("file interpreter.go\n")
 		fmt.Printf("Opcode %s \n", op)
 		res, err = operation.execute(&pc, in, callContext)
-		if op == LOG0 || op == LOG1 || op == LOG2 || op == LOG3 || op == LOG4{
-			fmt.Printf("callContext memory %s \n", callContext.memory.Data())
-			fmt.Printf("Print function\n")
-			callContext.memory.Print()
-		}		
+		// if op == LOG0 || op == LOG1 || op == LOG2 || op == LOG3 || op == LOG4{
+		// 	fmt.Printf("callContext memory %s \n", callContext.memory.Data())
+		// 	fmt.Printf("Print function\n")
+		// 	callContext.memory.Print()
+		// }		
 
 
 		// if the operation clears the return data (e.g. it has returning data)
