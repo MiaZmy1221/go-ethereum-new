@@ -80,6 +80,11 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 			return nil, nil, 0, err
 		}
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
+		
+		// # step prep: ensure the currentIndex is 1
+		trace.CurrentTraceIndex = 1
+		trace.Traces = []trace.TraceN{}
+
 		receipt, err := applyTransaction(msg, p.config, p.bc, nil, gp, statedb, header, tx, usedGas, vmenv)
 		if err != nil {
 			return nil, nil, 0, fmt.Errorf("could not apply tx %d [%v]: %w", i, tx.Hash().Hex(), err)
@@ -169,7 +174,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		var tempt_traces trace.TraceNs
 		tempt_traces = append(tempt_traces, first_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...)
-	}else{
+	} else {
 		first_trace := &trace.TraceN{
 			CallType: "CALL", 
 			FromAddr: msg.From().String(), 
@@ -195,8 +200,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	for _, tempt_trace := range trace.Traces{
 		tempt_trace.Print()
 	}
-
-
 	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = statedb.BlockHash()

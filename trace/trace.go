@@ -43,8 +43,11 @@ func (t *TraceN) Print() {
 }
 
 
-type TraceNs []*TraceN
+// type TraceNs []*TraceN
+// var Traces TraceNs
+
+var Traces = []TraceN{}
 var CurrentTraceIndex = uint64(1)
-var Traces TraceNs
+
 
 
