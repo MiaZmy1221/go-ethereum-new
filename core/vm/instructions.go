@@ -25,6 +25,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/trace"
 	"encoding/json"
+	"encoding/hex"
 	"fmt"
 )
 
