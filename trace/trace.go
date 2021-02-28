@@ -43,11 +43,30 @@ func (t *TraceN) Print() {
 }
 
 
-// type TraceNs []*TraceN
-// var Traces TraceNs
-
 var Traces = []TraceN{}
 var CurrentTraceIndex = uint64(1)
+
+
+type TransferLog struct{
+	FromAddr string `json:"fromAddr"`
+	ToAddr string `json:"toAddr"`
+	Value string `json:"value"`
+	TokenAddr string `json:"tokenAddr"`
+	TraceIndex uint64 `json:"traceIndex"`
+}
+
+func (l *TransferLog) Print() {
+	fmt.Printf("### ERC20TransferLog ###\n")
+	fmt.Printf("TraceIndex: %d\n", t.TraceIndex)
+	fmt.Printf("From: %s\n", l.FromAddr)
+	fmt.Printf("To: %s\n", l.ToAddr)
+	fmt.Printf("Value: %s\n", l.Value)
+	fmt.Printf("TokenAddr: %s\n", l.TokenAddr)
+	fmt.Println("####################")
+}
+
+var TransferLogs = []TransferLog{}
+
 
 
 

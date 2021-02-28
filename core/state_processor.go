@@ -80,10 +80,6 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 			return nil, nil, 0, err
 		}
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
-		
-		// # step prep: ensure the currentIndex is 1
-		trace.CurrentTraceIndex = 1
-		trace.Traces = []trace.TraceN{}
 
 		receipt, err := applyTransaction(msg, p.config, p.bc, nil, gp, statedb, header, tx, usedGas, vmenv)
 		if err != nil {
@@ -100,6 +96,10 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+	// # step prep: ensure the currentIndex is 1	
+	trace.CurrentTraceIndex = 1
+	trace.Traces = []trace.TraceN{}
+
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
 	// Add addresses to access list if applicable
@@ -171,8 +171,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		json_first_trace, _ := json.Marshal(first_trace)
 		fmt.Println(string(json_first_trace))
 
-		var tempt_traces trace.TraceNs
-		tempt_traces = append(tempt_traces, first_trace)
+		tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *first_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...)
 	} else {
 		first_trace := &trace.TraceN{
@@ -190,8 +190,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		json_first_trace, _ := json.Marshal(first_trace)
 		fmt.Println(string(json_first_trace))
 
-		var tempt_traces trace.TraceNs
-		tempt_traces = append(tempt_traces, first_trace)
+		tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *first_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...)
 	}
 
