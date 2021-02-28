@@ -144,7 +144,8 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 // It's important to note that any errors returned by the interpreter should be
 // considered a revert-and-consume-all-gas operation except for
 // ErrExecutionReverted which means revert-and-keep-gas-left.
-func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, redundency bool) (ret []byte, err error) {
+// func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, redundency bool) (ret []byte, err error) {
+func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool) (ret []byte, err error) {
 	// fmt.Printf("interpreter.go Run\n")
 
 	// Increment the call depth which is restricted to 1024
@@ -291,7 +292,6 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 		}
 
 		res, err = operation.execute(&pc, in, callContext)
-		fmt.Printf("redundency %t\n", redundency)
 
 		// // Step 2: the following traces 
 		// test_trace_per_opcode := ""
