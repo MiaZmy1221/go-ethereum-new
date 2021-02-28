@@ -290,21 +290,23 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 			logged = true
 		}
 
+		res, err = operation.execute(&pc, in, callContext)
+		fmt.Printf("redundency %t\n", redundency)
 
-		// Step 2: the following traces 
-		test_trace_per_opcode := ""
-		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
-		fmt.Printf("pc: %s op %s\n", pc, op)
+		// // Step 2: the following traces 
+		// test_trace_per_opcode := ""
+		// test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
+		// fmt.Printf("pc: %s op %s\n", pc, op)
 
-		// res, err = operation.execute(&pc, in, callContext)	
-		if redundency == false {
-			if op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL || op == CREATE || op == CREATE2 || op == SELFDESTRUCT{
-				fmt.Printf("\nopcode: %s\n", op)
-				tempt_trace := &trace.TraceN{} 
-				json.Unmarshal([]byte(test_trace_per_opcode), tempt_trace)
-				trace.Traces = append(trace.Traces, *tempt_trace)
-			}
-		}
+		// // res, err = operation.execute(&pc, in, callContext)	
+		// if redundency == false {
+		// 	if op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL || op == CREATE || op == CREATE2 || op == SELFDESTRUCT{
+		// 		fmt.Printf("\nopcode: %s\n", op)
+		// 		tempt_trace := &trace.TraceN{} 
+		// 		json.Unmarshal([]byte(test_trace_per_opcode), tempt_trace)
+		// 		trace.Traces = append(trace.Traces, *tempt_trace)
+		// 	}
+		// }
 
 
 		// if the operation clears the return data (e.g. it has returning data)

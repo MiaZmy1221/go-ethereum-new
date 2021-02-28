@@ -304,13 +304,20 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 				SuicideContract: "0x",
 				Beneficiary: "0x",
 				Input: hex.EncodeToString(input),
-				Output: hex.EncodeToString(ret), 
+				Output: "", // currently unknown hex.EncodeToString(ret) 
 				Value: value, 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
 	fmt.Printf(string(json_trace))
 
+	// defer the output to the end
+	defer func() {
+        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *tempt_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...) 
+    }()
 
 
 	// fmt.Printf("core/vm evm.go Call, Transfer is called. Contract address: %s. Caller Address: %s. Value is: %d \n", addr, caller.Address(), value)
