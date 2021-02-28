@@ -654,6 +654,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 				// Value: new(big.Int).SetUint64(value.Uint64()), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CREATE"}
+	trace.CreatedSC = append(trace.CreatedSC, address.String())
 	// json_trace, _ := json.Marshal(tempt_trace)
 	// fmt.Printf(string(json_trace))
 	// defer the output to the end

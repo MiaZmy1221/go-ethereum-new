@@ -29,7 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/trace"
-	// "encoding/json"
+	"encoding/json"
 	"encoding/hex"
 	"strconv"
 )
@@ -102,6 +102,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.Traces = []trace.TraceN{}
 	trace.TransferLogs = []trace.TransferLog{}
 	trace.GTxReceipt = &trace.TxReceipt{}
+	trace.CreatedSC = []string
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
@@ -149,11 +150,20 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	receipt.BlockNumber = header.Number
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
+	fmt.Printf("*************************In the end, CreatedSCs are ***********************\n")
+	fmt.Println("Created scs in this transaction ")
+	fmt.Println(trace.CreatedSC)
+	fmt.Printf("*********************************************************************************\n\n")
+
 
 	fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
 	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
 	trace.GTxReceipt.FromAddr = msg.From().String()
-	trace.GTxReceipt.ToAddr = msg.To().String()
+	if msg.To() == nil {
+		trace.GTxReceipt.ToAddr = "0x"
+	} else {
+		trace.GTxReceipt.ToAddr = msg.To().String()
+	}
 	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
 	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
 	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
@@ -162,7 +172,13 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.GTxReceipt.Value = msg.Value().String()
 	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
 	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
-	trace.GTxReceipt.Err = err.Error()
+	if err == nil {
+		trace.GTxReceipt.Err = ""	
+	} else {
+		trace.GTxReceipt.Err = err.Error()
+	}
+	json_txreceipt, _ := json.Marshal(trace.GTxReceipt)
+	fmt.Println(string(json_txreceipt))
 	fmt.Printf("*********************************************************************************\n\n")
 
 	fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")

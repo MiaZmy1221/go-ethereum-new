@@ -8,6 +8,7 @@ import (
 	// "github.com/ethereum/go-ethereum/common"
 	// "math"
 	"math/big"
+	// "github.com/ethereum/go-ethereum/common"
 	// "encoding/hex"
 )
 
@@ -86,5 +87,7 @@ type TxReceipt struct {
 }
 
 var GTxReceipt = &TxReceipt{}
+
+var CreatedSC = []string 
 
 
