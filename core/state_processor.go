@@ -29,6 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
+	"encoding/hex"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -109,7 +111,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	first_trace := &trace.TraceN{
 		CallType: "CALL", 
 		FromAddr: msg.From(), 
-		ToAddr: msg.To(), 
+		ToAddr: *msg.To(), 
 		Input: hex.EncodeToString(msg.Data()),
 		Output: msg.Data(), 
 		Value: msg.Value(), 
