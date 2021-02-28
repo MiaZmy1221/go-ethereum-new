@@ -30,7 +30,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/trace"
 	// "encoding/json"
-	// "encoding/hex"
+	"encoding/hex"
+	"strconv"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -100,7 +101,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
 	trace.TransferLogs = []trace.TransferLog{}
-	trace.GTxReceipt = trace.TxReceipt{}
+	trace.GTxReceipt = &trace.TxReceipt{}
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
@@ -150,17 +151,17 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 
 	fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
-	trace.GTxReceipt.BlockNum = receipt.BlockNumber
+	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
 	trace.GTxReceipt.FromAddr = msg.From().String()
 	trace.GTxReceipt.ToAddr = msg.To().String()
-	trace.GTxReceipt.Gas = msg.Gas().String()
-	trace.GTxReceipt.GasUsed = receipt.GasUsed
+	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
+	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
 	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
-	trace.GTxReceipt.TxHash = receipt.TxHash 
+	trace.GTxReceipt.TxHash = receipt.TxHash.String() 
 	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
 	trace.GTxReceipt.Value = msg.Value().String()
 	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
-	trace.GTxReceipt.Status = receipt.Status
+	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
 	trace.GTxReceipt.Err = err.Error()
 	fmt.Printf("*********************************************************************************\n\n")
 

@@ -78,7 +78,7 @@ type TxReceipt struct {
 	GasUsed string
 	GasPrice string
 	TxHash string 
-	TxIndex string
+	TxIndex uint
 	Value string
 	Input string
 	Status  string
