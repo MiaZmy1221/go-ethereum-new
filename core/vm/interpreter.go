@@ -297,11 +297,12 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 		// res, err = operation.execute(&pc, in, callContext)	
 		if redundency == false && (op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL) {
 			fmt.Printf("opcode: %s, opcode trace: %s \n", op, test_trace_per_opcode)
+			tempt_trace :=trace.TraceN{} 
+			trace_convert_err := json.Unmarshal([]byte(test_trace_per_opcode), &tempt_trace)
+			fmt.Println("json trace ", tempt_trace)
+			fmt.Println("json convert err", trace_convert_err)
+			trace.Traces = append(trace.Traces, &tempt_trace)
 		}
-		tempt_trace :=trace.TraceN{} 
-		trace_convert_err := json.Unmarshal([]byte(test_trace_per_opcode), &tempt_trace)
-		fmt.Println("json trace ", tempt_trace)
-		trace.Traces = append(trace.Traces, &tempt_trace)
 
 
 
