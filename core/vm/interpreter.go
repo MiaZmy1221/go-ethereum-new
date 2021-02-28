@@ -26,8 +26,8 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/trace"
-	"encoding/json"
-	"encoding/hex"
+	// "encoding/json"
+	// "encoding/hex"
 )
 
 // Config are the configuration options for the Interpreter
@@ -145,7 +145,7 @@ func NewEVMInterpreter(evm *EVM, cfg Config) *EVMInterpreter {
 // considered a revert-and-consume-all-gas operation except for
 // ErrExecutionReverted which means revert-and-keep-gas-left.
 func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, redundency bool) (ret []byte, err error) {
-	fmt.Printf("interpreter.go Run\n")
+	// fmt.Printf("interpreter.go Run\n")
 
 	// Increment the call depth which is restricted to 1024
 	in.evm.depth++
@@ -290,51 +290,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 			logged = true
 		}
 
-		// Generate Traces
-		// Step 1: the first trace is starting before execution
-		if redundency == false && pc == 0 {
-			fmt.Printf("\nThe first trace \n")
-			fmt.Printf("Call type: CALL\n")
-			fmt.Printf("From: %s\n", contract.CallerAddress)
-			fmt.Printf("To: %s\n", contract.Address())
-			fmt.Printf("Input: 0x%x\n", input)
-			fmt.Printf("Value: %d\n", contract.value)
-			fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
-			fmt.Printf("Type: CALL\n") // other types: suicide
-			fmt.Printf("Output: %x\n\n") // ????
-			
-			// wrong, use input as output
-			first_trace := &trace.TraceN{
-				CallType: "CALL", 
-				FromAddr: contract.CallerAddress, 
-				ToAddr: contract.Address(), 
-				Input: hex.EncodeToString(input),
-				Output: input, 
-				Value: contract.value, 
-				TraceIndex: trace.CurrentTraceIndex, 
-				Type: "CALL"}
-			fmt.Printf("test json\n")
-			json_first_trace, _ := json.Marshal(first_trace)
-    		fmt.Println(string(json_first_trace))
-
-			trace.Traces = append(trace.Traces, first_trace)
-		}
-
-
-		test_trace_per_opcode := ""
-		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
-		// To avoid prefetch
-		// check why'????
-		// if redundency == false {
-		// 	fmt.Printf("opcode: %s, opcode return trace: %s ", op, test_trace_per_opcode)
-		// }
-
-		// res, err = operation.execute(&pc, in, callContext)	
-
 
 		// Step 2: the following traces with category call
+		test_trace_per_opcode := ""
+		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
+		// res, err = operation.execute(&pc, in, callContext)	
 		if redundency == false && (op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL) {
-			fmt.Printf("opcode: %s, opcode return trace: %s \n", op, test_trace_per_opcode)
+			fmt.Printf("opcode: %s, opcode trace: %s \n", op, test_trace_per_opcode)
 		}
 
 

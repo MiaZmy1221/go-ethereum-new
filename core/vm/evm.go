@@ -288,7 +288,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		evm.StateDB.CreateAccount(addr)
 	}
 
-	fmt.Printf("core/vm evm.go Call, Transfer is called. Contract address: %s. Caller Address: %s. Value is: %d \n", addr, caller.Address(), value)
+	// fmt.Printf("core/vm evm.go Call, Transfer is called. Contract address: %s. Caller Address: %s. Value is: %d \n", addr, caller.Address(), value)
 	evm.Context.Transfer(evm.StateDB, caller.Address(), addr, value)
 
 	// Capture the tracer start/end events in debug mode

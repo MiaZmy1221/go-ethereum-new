@@ -713,7 +713,10 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 	callContext.contract.Gas += returnGas
 
 	// Trace
+	fmt.Printf("\n\ninstructions.go opcall\n")
+	fmt.Printf("before adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
 	trace.CurrentTraceIndex += 1
+	fmt.Printf("after adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
 				FromAddr: callContext.contract.CallerAddress, 
@@ -726,11 +729,8 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
 
-	fmt.Printf("\nValue from value %d\n", value)
-	fmt.Printf("Value from contract %d\n", callContext.contract.Value)
-
-	fmt.Printf("instructions.go opCALL\n")
-    fmt.Println(string(json_trace))
+	fmt.Printf("\nValue from value %d\n", value)    
+	fmt.Println(string(json_trace))
 
 	return string(json_trace), ret, nil
 }

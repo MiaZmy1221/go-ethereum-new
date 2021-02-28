@@ -107,7 +107,7 @@ func CanTransfer(db vm.StateDB, addr common.Address, amount *big.Int) bool {
 
 // Transfer subtracts amount from sender and adds amount to recipient using the given Db
 func Transfer(db vm.StateDB, sender, recipient common.Address, amount *big.Int) {
-	fmt.Printf("core evm.go Transfer is called\n")
+	fmt.Printf("core evm.go Transfer is called. sender: %  receiver: %s  amount: %d \n", sender, recipient, amount)
 	db.SubBalance(sender, amount)
 	db.AddBalance(recipient, amount)
 }

@@ -86,15 +86,6 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		allLogs = append(allLogs, receipt.Logs...)
 	}
 
-	fmt.Printf("From state_processor.go\n")
-	fmt.Printf("From Process")
-	for _, tempt_log := range allLogs{
-		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
-		fmt.Printf("Tx log data %s \n", tempt_log.Data)
-		fmt.Printf("Tx log address %s \n", tempt_log.Address)
-		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
-	}
-
 	// Finalize the block, applying any consensus engine specific extras (e.g. block rewards)
 	p.engine.Finalize(p.bc, header, statedb, block.Transactions(), block.Uncles())
 
@@ -102,7 +93,36 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+	// # Step1: the first trace
 	fmt.Printf("state_processor.go applyTransaction\n")
+	fmt.Printf("\nThe first trace \n")
+	fmt.Printf("Call type: CALL\n")
+	fmt.Printf("From: %s\n", msg.From())
+	fmt.Printf("To: %s\n", msg.To())
+	fmt.Printf("Input: 0x%x\n", msg.Data())
+	fmt.Printf("Value: %d\n", msg.Value())
+	fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
+	fmt.Printf("Type: CALL\n") // other types: suicide
+	fmt.Printf("Output: %x\n") // ????
+	
+	// wrong, use input as output ??????
+	first_trace := &trace.TraceN{
+		CallType: "CALL", 
+		FromAddr: msg.From(), 
+		ToAddr: msg.To(), 
+		Input: hex.EncodeToString(msg.Data()),
+		Output: msg.Data(), 
+		Value: msg.Value(), 
+		TraceIndex: trace.CurrentTraceIndex, 
+		Type: "CALL"}
+	json_first_trace, _ := json.Marshal(first_trace)
+	fmt.Println(string(json_first_trace))
+	trace.Traces = append(trace.Traces, first_trace)
+
+
+	// # Step2: in the interpreter.go
+
+
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
 	// Add addresses to access list if applicable
@@ -156,6 +176,9 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
 	}
 	fmt.Printf("Tx status %d\n", receipt.Status)
+
+
+	// # Step3: print all the traces
 	fmt.Printf("In the end, traces\n")
 	for _, tempt_trace := range trace.Traces{
 		tempt_trace.Print()
