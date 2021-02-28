@@ -387,6 +387,34 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 	if !evm.Context.CanTransfer(evm.StateDB, caller.Address(), value) {
 		return nil, gas, ErrInsufficientBalance
 	}
+
+	// # Trace by me
+	fmt.Printf("\n\nevm.go CallCode\n")
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "CALLCODE", 
+				FromAddr: caller.Address().String(), 
+				ToAddr: addr.String(),
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
+				Input: hex.EncodeToString(input),
+				Output: "", // currently unknown hex.EncodeToString(ret) 
+				Value: value, 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf(string(json_trace))
+
+	// defer the output to the end
+	defer func() {
+        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *tempt_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...) 
+    }()
+
+
 	var snapshot = evm.StateDB.Snapshot()
 
 	// It is allowed to call precompiles, even via delegatecall
@@ -423,6 +451,34 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
 	}
+
+	// # Trace by me
+	fmt.Printf("\n\nevm.go DelegateCall\n")
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "CALLCODE", 
+				FromAddr: caller.Address().String(), 
+				ToAddr: addr.String(),
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
+				Input: hex.EncodeToString(input),
+				Output: "", // currently unknown hex.EncodeToString(ret) 
+				Value: big.NewInt(0), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf(string(json_trace))
+
+	// defer the output to the end
+	defer func() {
+        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *tempt_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...) 
+    }()
+
+
 	var snapshot = evm.StateDB.Snapshot()
 
 	// It is allowed to call precompiles, even via delegatecall
@@ -457,6 +513,34 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
 	}
+
+	// # Trace by me
+	fmt.Printf("\n\nevm.go StaticCall\n")
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "CALLCODE", 
+				FromAddr: caller.Address().String(), 
+				ToAddr: addr.String(),
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
+				Input: hex.EncodeToString(input),
+				Output: "", // currently unknown hex.EncodeToString(ret) 
+				Value: big.NewInt(0), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf(string(json_trace))
+
+	// defer the output to the end
+	defer func() {
+        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *tempt_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...) 
+    }()
+
+
 	// We take a snapshot here. This is a bit counter-intuitive, and could probably be skipped.
 	// However, even a staticcall is considered a 'touch'. On mainnet, static calls were introduced
 	// after all empty accounts were deleted, so this is not required. However, if we omit this,
