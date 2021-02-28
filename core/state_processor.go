@@ -97,7 +97,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	// # step prep: ensure the currentIndex is 1	
-	trace.CurrentTraceIndex = 1
+	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
 	trace.TransferLogs = []trace.TransferLog{}
 
@@ -198,11 +198,18 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// 	trace.Traces = append(tempt_traces, trace.Traces...)
 	// }
 
+	fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")
+	for _, tempt_log := range trace.TransferLogs{
+		tempt_log.Print()
+	}
+	fmt.Printf("*********************************************************************************\n\n")
+
 	// print all the traces
-	fmt.Printf("*************************In the end, traces are ***********************\n")
+	fmt.Printf("*************************In the end, traces are ***********************************\n")
 	for _, tempt_trace := range trace.Traces{
 		tempt_trace.Print()
 	}
+	fmt.Printf("*********************************************************************************\n\n")
 	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
 	receipt.BlockHash = statedb.BlockHash()

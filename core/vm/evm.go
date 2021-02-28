@@ -508,7 +508,7 @@ func (c *codeAndHash) Hash() common.Hash {
 }
 
 // create creates a new contract using code as deployment code.
-func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address, isCreate bool) (ret []byte, common.Address, uint64, error) {
+func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address, isCreate bool) (retCreate []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	// Depth check execution. Fail if we're trying to execute above the
 	// limit.
 	if evm.depth > int(params.CallCreateDepth) {
@@ -570,10 +570,10 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CREATE"}
 	json_trace, _ := json.Marshal(tempt_trace)
-
+	fmt.Printf(string(json_trace))
 	// defer the output to the end
 	defer func() {
-        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_trace.Output = hex.EncodeToString(retCreate)
         tempt_traces := []trace.TraceN{}
 		tempt_traces = append(tempt_traces, *tempt_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...) 
