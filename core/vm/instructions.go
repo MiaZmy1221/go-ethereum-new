@@ -717,7 +717,8 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 	fmt.Printf("before adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
 	trace.CurrentTraceIndex += 1
 	fmt.Printf("after adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
-	fmt.Printf("contract address, %s\n", callContext.contract.Address())
+	fmt.Printf("caller, %s\n", callContext.contract.Address())
+	fmt.Printf("output %s\n", ret)
 	final_value := big.NewInt(0)
 	if !value.IsZero() {
 		final_value = value.ToBig()
