@@ -731,6 +731,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 
 	fmt.Printf("\nValue from value %d\n", value)    
 	fmt.Println(string(json_trace))
+	fmt.Println("return result ", ret)
 
 	return string(json_trace), ret, nil
 }

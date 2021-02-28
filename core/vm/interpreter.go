@@ -299,7 +299,7 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 			fmt.Printf("opcode: %s, opcode trace: %s \n", op, test_trace_per_opcode)
 		}
 		tempt_trace :=trace.TraceN{} 
-		json.Unmarshall(test_trace_per_opcode, &tempt_trace)
+		json.Unmarshal(test_trace_per_opcode, &tempt_trace)
 		fmt.Println("json trace ", tempt_trace)
 		trace.Traces = append(trace.Traces, tempt_trace)
 
