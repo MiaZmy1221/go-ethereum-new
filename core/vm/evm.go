@@ -292,7 +292,6 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		evm.StateDB.CreateAccount(addr)
 	}
 
-
 	// # Trace by me
 	fmt.Printf("\n\nevm.go Call\n")
 	trace.CurrentTraceIndex += 1
@@ -509,7 +508,7 @@ func (c *codeAndHash) Hash() common.Hash {
 }
 
 // create creates a new contract using code as deployment code.
-func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address) ([]byte, common.Address, uint64, error) {
+func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64, value *big.Int, address common.Address, isCreate bool) ([]byte, common.Address, uint64, error) {
 	// Depth check execution. Fail if we're trying to execute above the
 	// limit.
 	if evm.depth > int(params.CallCreateDepth) {
@@ -546,6 +545,40 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	if evm.vmConfig.NoRecursion && evm.depth > 0 {
 		return nil, address, gas, nil
 	}
+
+
+	// Trace by category create
+	op := ""
+	if isCreate {
+		op = "CREATE"
+	} else {
+		op = "CREATE2"
+	}
+	fmt.Printf("\n\nevm.go %s\n", op)
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: op, 
+				FromAddr: caller.Address().String(), 
+				ToAddr: "0x", 
+				CreateAddr: address.String(),
+				SuicideContract: "0x",
+				Beneficiary: "0x",
+				Input: hex.EncodeToString(codeAndHash.code), // set it to be none
+				Output: "", 
+				Value: value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CREATE"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	// defer the output to the end
+	defer func() {
+        tempt_trace.Output = hex.EncodeToString(ret)
+        tempt_traces := []trace.TraceN{}
+		tempt_traces = append(tempt_traces, *tempt_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...) 
+    }()
+
 
 	if evm.vmConfig.Debug && evm.depth == 0 {
 		evm.vmConfig.Tracer.CaptureStart(caller.Address(), address, true, codeAndHash.code, gas, value)
@@ -592,7 +625,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 // Create creates a new contract using code as deployment code.
 func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *big.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	contractAddr = crypto.CreateAddress(caller.Address(), evm.StateDB.GetNonce(caller.Address()))
-	return evm.create(caller, &codeAndHash{code: code}, gas, value, contractAddr)
+	return evm.create(caller, &codeAndHash{code: code}, gas, value, contractAddr, true)
 }
 
 // Create2 creates a new contract using code as deployment code.
@@ -602,7 +635,7 @@ func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *big.I
 func (evm *EVM) Create2(caller ContractRef, code []byte, gas uint64, endowment *big.Int, salt *uint256.Int) (ret []byte, contractAddr common.Address, leftOverGas uint64, err error) {
 	codeAndHash := &codeAndHash{code: code}
 	contractAddr = crypto.CreateAddress2(caller.Address(), salt.Bytes32(), codeAndHash.Hash().Bytes())
-	return evm.create(caller, codeAndHash, gas, endowment, contractAddr)
+	return evm.create(caller, codeAndHash, gas, endowment, contractAddr, false)
 }
 
 // ChainConfig returns the environment's chain configuration

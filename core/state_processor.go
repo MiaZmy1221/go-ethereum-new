@@ -29,8 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/trace"
-	"encoding/json"
-	"encoding/hex"
+	// "encoding/json"
+	// "encoding/hex"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -99,6 +99,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// # step prep: ensure the currentIndex is 1	
 	trace.CurrentTraceIndex = 1
 	trace.Traces = []trace.TraceN{}
+	trace.TransferLogs = []trace.TransferLog{}
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
