@@ -17,24 +17,12 @@ type TraceN struct{
 	FromAddr common.Address `json:"fromAddr"`
 	ToAddr common.Address `json:"toAddr"`
 	Input string `json:"input"`
-	Output []byte `json:"output"`
+	Output string `json:"output"`
 	Value *big.Int `json:"value"`
 	TraceIndex uint64 `json:"traceIndex"`
 	Type string `json:"type"`
 }
 
-// func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, Input []byte, Value *big.Int, TraceIndex uint64, Type string, Output []byte) *TraceN {
-// 	t := &TraceN{}
-// 	t.CallType = CallType
-// 	t.FromAddr = FromAddr
-// 	t.ToAddr = ToAddr
-// 	t.Input = hex.EncodeToString(Input)
-// 	t.Value = Value
-// 	t.TraceIndex = TraceIndex
-// 	t.Type = Type
-// 	t.Output = Output
-// 	return t
-// } 
 
 // Print dumps the content of the memory.
 func (t *TraceN) Print() {
@@ -46,7 +34,7 @@ func (t *TraceN) Print() {
 	fmt.Printf("Input: %s\n", t.Input)
 	fmt.Printf("Value: %d\n", t.Value)
 	fmt.Printf("Type: %s\n", t.Type) 
-	fmt.Printf("Output: %x\n", t.Output) 
+	fmt.Printf("Output: %s\n", t.Output) 
 	fmt.Println("####################")
 }
 

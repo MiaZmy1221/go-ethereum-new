@@ -95,7 +95,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	// # Step1: the first trace
+	// # Step1: the first trace currently unknown output
 	fmt.Printf("state_processor.go applyTransaction\n")
 	fmt.Printf("\nThe first trace \n")
 	fmt.Printf("Call type: CALL\n")
@@ -106,20 +106,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
 	fmt.Printf("Type: CALL\n") // other types: suicide
 	fmt.Printf("Output: %x\n") // ????
-	
-	// wrong, use input as output ??????
-	first_trace := &trace.TraceN{
-		CallType: "CALL", 
-		FromAddr: msg.From(), 
-		ToAddr: *msg.To(), 
-		Input: hex.EncodeToString(msg.Data()),
-		Output: msg.Data(), 
-		Value: msg.Value(), 
-		TraceIndex: trace.CurrentTraceIndex, 
-		Type: "CALL"}
-	json_first_trace, _ := json.Marshal(first_trace)
-	fmt.Println(string(json_first_trace))
-	trace.Traces = append(trace.Traces, first_trace)
 
 
 	// # Step2: in the interpreter.go
@@ -182,11 +168,27 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("Tx status %d\n", receipt.Status)
 
 
+	// Step extra: deal with the first trace's output
+	first_trace := &trace.TraceN{
+		CallType: "CALL", 
+		FromAddr: msg.From(), 
+		ToAddr: *msg.To(), 
+		Input: hex.EncodeToString(msg.Data()),
+		Output: hex.EncodeToString(result.ReturnData()), 
+		Value: msg.Value(), 
+		TraceIndex: trace.CurrentTraceIndex, 
+		Type: "CALL"}
+	json_first_trace, _ := json.Marshal(first_trace)
+	fmt.Println(string(json_first_trace))
+	trace.Traces = append(first_trace, trace.Traces...)
+
+
 	// # Step3: print all the traces
-	fmt.Printf("In the end, traces\n")
+	fmt.Printf("*************************In the end, traces are ***********************\n")
 	for _, tempt_trace := range trace.Traces{
 		tempt_trace.Print()
 	}
+	
 
 	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})

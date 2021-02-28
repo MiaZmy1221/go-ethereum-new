@@ -717,21 +717,23 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 	fmt.Printf("before adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
 	trace.CurrentTraceIndex += 1
 	fmt.Printf("after adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
+	fmt.Printf("contract address, %s\n", callContext.contract.Address())
+	final_value := big.NewInt(0)
+	if !value.IsZero() {
+		final_value = value.ToBig()
+	}
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
-				FromAddr: callContext.contract.CallerAddress, 
+				FromAddr: callContext.contract.Address(), 
 				ToAddr: toAddr, 
 				Input: hex.EncodeToString(args),
-				Output: args, 
-				// Value: callContext.contract.Value, 
-				Value: new(big.Int).SetUint64(value.Uint64()), 
+				Output: hex.EncodeToString(ret), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
-
-	fmt.Printf("\nValue from value %d\n", value)    
 	fmt.Println(string(json_trace))
-	fmt.Println("return result ", ret)
 
 	return string(json_trace), ret, nil
 }
