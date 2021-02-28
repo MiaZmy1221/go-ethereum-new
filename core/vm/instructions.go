@@ -770,7 +770,26 @@ func opCallCode(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (
 	}
 	callContext.contract.Gas += returnGas
 
-	return "callcode", ret, nil
+	// Trace
+	fmt.Printf("\n\ninstructions.go opcallcode\n")
+	trace.CurrentTraceIndex += 1
+	final_value := big.NewInt(0)
+	if !value.IsZero() {
+		final_value = value.ToBig()
+	}
+	tempt_trace := &trace.TraceN{
+				CallType: "CALLCODE", 
+				FromAddr: callContext.contract.Address(), 
+				ToAddr: toAddr, 
+				Input: hex.EncodeToString(args),
+				Output: hex.EncodeToString(ret), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), ret, nil
 }
 
 func opDelegateCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -797,7 +816,26 @@ func opDelegateCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCt
 	}
 	callContext.contract.Gas += returnGas
 
-	return "delegatecall", ret, nil
+	// Trace
+	fmt.Printf("\n\ninstructions.go opDelegateCall\n")
+	trace.CurrentTraceIndex += 1
+	final_value := big.NewInt(0)
+	if !value.IsZero() {
+		final_value = value.ToBig()
+	}
+	tempt_trace := &trace.TraceN{
+				CallType: "DELEGATECALL", 
+				FromAddr: callContext.contract.Address(), 
+				ToAddr: toAddr, 
+				Input: hex.EncodeToString(args),
+				Output: hex.EncodeToString(ret), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), ret, nil
 }
 
 func opStaticCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -824,7 +862,26 @@ func opStaticCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx)
 	}
 	callContext.contract.Gas += returnGas
 
-	return "StaticCall", ret, nil
+	// Trace
+	fmt.Printf("\n\ninstructions.go opStaticCall\n")
+	trace.CurrentTraceIndex += 1
+	final_value := big.NewInt(0)
+	if !value.IsZero() {
+		final_value = value.ToBig()
+	}
+	tempt_trace := &trace.TraceN{
+				CallType: "STATICCALL", 
+				FromAddr: callContext.contract.Address(), 
+				ToAddr: toAddr, 
+				Input: hex.EncodeToString(args),
+				Output: hex.EncodeToString(ret), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), ret, nil
 }
 
 func opReturn(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {

@@ -103,10 +103,13 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("To: %s\n", msg.To())
 	fmt.Printf("Input: 0x%x\n", msg.Data())
 	fmt.Printf("Value: %d\n", msg.Value())
-	fmt.Printf("TraceIndex: %d\n", trace.CurrentTraceIndex)
+	fmt.Printf("TraceIndex: %d\n", 1)
 	fmt.Printf("Type: CALL\n") // other types: suicide
 	fmt.Printf("Output: %x\n") // ????
 
+
+	// # step prep: ensure the currentIndex is 1
+	trace.CurrentTraceIndex = 1
 
 	// # Step2: in the interpreter.go
 	// Step 2.1 deal with the trace
@@ -174,13 +177,16 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		FromAddr: msg.From(), 
 		ToAddr: *msg.To(), 
 		Input: hex.EncodeToString(msg.Data()),
-		Output: hex.EncodeToString(result.ReturnData()), 
+		Output: hex.EncodeToString(result.ReturnData), 
 		Value: msg.Value(), 
-		TraceIndex: trace.CurrentTraceIndex, 
+		TraceIndex: 1, 
 		Type: "CALL"}
 	json_first_trace, _ := json.Marshal(first_trace)
 	fmt.Println(string(json_first_trace))
-	trace.Traces = append(first_trace, trace.Traces...)
+
+	var tempt_traces trace.TraceNs
+	tempt_traces = append(tempt_traces, first_trace)
+	trace.Traces = append(tempt_traces, trace.Traces...)
 
 
 	// # Step3: print all the traces
@@ -188,7 +194,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	for _, tempt_trace := range trace.Traces{
 		tempt_trace.Print()
 	}
-	
+
 
 	
 	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
