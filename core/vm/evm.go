@@ -298,7 +298,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
-				FromAddr: callContext.contract.Address().String(), 
+				FromAddr: caller.Address().String(), 
 				ToAddr: addr.String(),
 				CreateAddr: "0x",
 				SuicideContract: "0x",
