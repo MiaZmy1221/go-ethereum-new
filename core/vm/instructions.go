@@ -782,6 +782,7 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf(string(json_trace))
 
 	return string(json_trace), ret, nil
 }

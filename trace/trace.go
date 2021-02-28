@@ -35,6 +35,8 @@ func (t *TraceN) Print() {
 	fmt.Printf("From: %s\n", t.FromAddr)
 	fmt.Printf("To: %s\n", t.ToAddr)
 	fmt.Printf("CreateAddr: %s\n", t.CreateAddr)
+	fmt.Printf("SuicideContract: %s\n", t.SuicideContract)
+	fmt.Printf("Beneficiary: %s\n", t.Beneficiary)
 	fmt.Printf("Input: %s\n", t.Input)
 	fmt.Printf("Value: %d\n", t.Value)
 	fmt.Printf("Type: %s\n", t.Type) 

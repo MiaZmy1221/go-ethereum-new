@@ -169,7 +169,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 			TraceIndex: 1, 
 			Type: "CREATE"}
 		json_first_trace, _ := json.Marshal(first_trace)
-		fmt.Println(string(json_first_trace))
+		// fmt.Println(string(json_first_trace))
 
 		tempt_traces := []trace.TraceN{}
 		tempt_traces = append(tempt_traces, *first_trace)
@@ -188,7 +188,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 			TraceIndex: 1, 
 			Type: "CALL"}
 		json_first_trace, _ := json.Marshal(first_trace)
-		fmt.Println(string(json_first_trace))
+		// fmt.Println(string(json_first_trace))
 
 		tempt_traces := []trace.TraceN{}
 		tempt_traces = append(tempt_traces, *first_trace)
