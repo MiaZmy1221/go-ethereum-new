@@ -865,7 +865,7 @@ func makeLog(size int) executionFunc {
 			// json_log, _ := json.Marshal(tempt_log)
 			// fmt.Println(string(json_log))
 			tempt_logs :=[]trace.TransferLog{}
-			tempt_logs = append(tempt_log, *tempt_log)
+			tempt_logs = append(tempt_logs, *tempt_log)
 			trace.TransferLogs = append(tempt_logs, trace.TransferLogs...)
 		}
 

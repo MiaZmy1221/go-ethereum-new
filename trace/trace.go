@@ -70,5 +70,20 @@ func (l *TransferLog) Print() {
 var TransferLogs = []TransferLog{}
 
 
+type TxReceipt struct {
+	BlockNum string 
+	FromAddr string
+	ToAddr string 
+	Gas string
+	GasUsed string
+	GasPrice string
+	TxHash string 
+	Nonce string
+	Value string
+	Status  string
+	Error string
+}
+
+var GTxReceipt TxReceipt
 
 
