@@ -155,49 +155,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 	fmt.Printf("Tx status %d\n", receipt.Status)
 
-	// // # Step1: deal with the first trace, might be call or create
-	// if msg.To() == nil {
-	// 	first_trace := &trace.TraceN{
-	// 		CallType: "CREATE", 
-	// 		FromAddr: msg.From().String(), 
-	// 		ToAddr: "0x", 
-	// 		CreateAddr: receipt.ContractAddress.String(),
-	// 		SuicideContract: "0x",
-	// 		Beneficiary: "0x",
-	// 		Input: hex.EncodeToString(msg.Data()),
-	// 		Output: hex.EncodeToString(result.ReturnData), 
-	// 		Value: msg.Value(), 
-	// 		TraceIndex: 1, 
-	// 		Type: "CREATE"}
-	// 	json.Marshal(first_trace)
-	// 	// json_first_trace, _ := json.Marshal(first_trace)
-	// 	// fmt.Println(string(json_first_trace))
-
-	// 	tempt_traces := []trace.TraceN{}
-	// 	tempt_traces = append(tempt_traces, *first_trace)
-	// 	trace.Traces = append(tempt_traces, trace.Traces...)
-	// } else {
-	// 	first_trace := &trace.TraceN{
-	// 		CallType: "CALL", 
-	// 		FromAddr: msg.From().String(), 
-	// 		ToAddr: (*msg.To()).String(), 
-	// 		CreateAddr: "0x",
-	// 		SuicideContract: "0x",
-	// 		Beneficiary: "0x",
-	// 		Input: hex.EncodeToString(msg.Data()),
-	// 		Output: hex.EncodeToString(result.ReturnData), 
-	// 		Value: msg.Value(), 
-	// 		TraceIndex: 1, 
-	// 		Type: "CALL"}
-	// 	json.Marshal(first_trace)
-	// 	// json_first_trace, _ := json.Marshal(first_trace)
-	// 	// fmt.Println(string(json_first_trace))
-
-	// 	tempt_traces := []trace.TraceN{}
-	// 	tempt_traces = append(tempt_traces, *first_trace)
-	// 	trace.Traces = append(tempt_traces, trace.Traces...)
-	// }
-
 	fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")
 	for _, tempt_log := range trace.TransferLogs{
 		tempt_log.Print()

@@ -24,9 +24,9 @@ import (
 	"golang.org/x/crypto/sha3"
 
 	"github.com/ethereum/go-ethereum/trace"
-	"encoding/json"
+	// "encoding/json"
 	"encoding/hex"
-	"fmt"
+	// "fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
@@ -866,7 +866,7 @@ func makeLog(size int) executionFunc {
 			// fmt.Println(string(json_log))
 			tempt_logs :=[]trace.TransferLog{}
 			tempt_logs = append(tempt_log, *tempt_log)
-			trace.TransferLogs = append(tempt_log, trace.TransferLogs...)
+			trace.TransferLogs = append(tempt_logs, trace.TransferLogs...)
 		}
 
 		return nil, nil
