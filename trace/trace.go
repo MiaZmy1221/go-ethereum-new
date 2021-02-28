@@ -88,6 +88,6 @@ type TxReceipt struct {
 
 var GTxReceipt = &TxReceipt{}
 
-var CreatedSC = []string 
+var CreatedSC []string 
 
 
