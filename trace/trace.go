@@ -23,18 +23,18 @@ type TraceN struct{
 	Type string `json:"type"`
 }
 
-func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, Input []byte, Value *big.Int, TraceIndex uint64, Type string, Output []byte) *TraceN {
-	t := &TraceN{}
-	t.CallType = CallType
-	t.FromAddr = FromAddr
-	t.ToAddr = ToAddr
-	t.Input = hex.EncodeToString(Input)
-	t.Value = Value
-	t.TraceIndex = TraceIndex
-	t.Type = Type
-	t.Output = Output
-	return t
-} 
+// func NewTraceN(CallType string, FromAddr common.Address, ToAddr common.Address, Input []byte, Value *big.Int, TraceIndex uint64, Type string, Output []byte) *TraceN {
+// 	t := &TraceN{}
+// 	t.CallType = CallType
+// 	t.FromAddr = FromAddr
+// 	t.ToAddr = ToAddr
+// 	t.Input = hex.EncodeToString(Input)
+// 	t.Value = Value
+// 	t.TraceIndex = TraceIndex
+// 	t.Type = Type
+// 	t.Output = Output
+// 	return t
+// } 
 
 // Print dumps the content of the memory.
 func (t *TraceN) Print() {

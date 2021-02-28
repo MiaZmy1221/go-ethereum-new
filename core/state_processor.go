@@ -123,6 +123,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 
 	// # Step2: in the interpreter.go
+	// Step 2.1 deal with the trace
+	// Step 2.2 deal with the event Transfer ERC20
 
 
 	// Create a new context to be used in the EVM environment

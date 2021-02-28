@@ -25,8 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"fmt"
 
-	// "github.com/ethereum/go-ethereum/trace"
-	// "encoding/json"
+	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
 	// "encoding/hex"
 )
 
@@ -298,6 +298,11 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 		if redundency == false && (op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL) {
 			fmt.Printf("opcode: %s, opcode trace: %s \n", op, test_trace_per_opcode)
 		}
+		tempt_trace :=trace.TraceN{} 
+		json.Unmarshall(test_trace_per_opcode, &tempt_trace)
+		fmt.Println("json trace ", tempt_trace)
+		trace.Traces = append(trace.Traces, tempt_trace)
+
 
 
 		// if the operation clears the return data (e.g. it has returning data)
