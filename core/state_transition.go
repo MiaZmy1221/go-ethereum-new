@@ -270,10 +270,6 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	st.refundGas()
 	st.state.AddBalance(st.evm.Context.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
 
-	fmt.Printf("\nstate_transition.go TransitionDb\n")
-	fmt.Printf("Tx gas used %d\n", st.gasUsed())
-	fmt.Printf("Tx gas price %d \n\n", st.gasPrice)	
-
 	return &ExecutionResult{
 		UsedGas:    st.gasUsed(),
 		Err:        vmerr,
