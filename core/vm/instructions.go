@@ -1013,7 +1013,7 @@ func makeLog(size int) executionFunc {
 				TraceIndex: trace.CurrentTraceIndex, 
 			}
 			tempt_log.Print()
-			json_log, _ = json.Marshal(tempt_log)
+			json_log, _ := json.Marshal(tempt_log)
 			fmt.Println(string(json_log))
 			trace.TransferLogs = append(trace.TransferLogs, *tempt_log)
 		}

@@ -57,7 +57,7 @@ type TransferLog struct{
 
 func (l *TransferLog) Print() {
 	fmt.Printf("### ERC20TransferLog ###\n")
-	fmt.Printf("TraceIndex: %d\n", t.TraceIndex)
+	fmt.Printf("TraceIndex: %d\n", l.TraceIndex)
 	fmt.Printf("From: %s\n", l.FromAddr)
 	fmt.Printf("To: %s\n", l.ToAddr)
 	fmt.Printf("Value: %s\n", l.Value)

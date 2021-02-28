@@ -295,21 +295,15 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 		test_trace_per_opcode := ""
 		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
 		// res, err = operation.execute(&pc, in, callContext)	
-		if redundency == false && (op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL) {
-			fmt.Printf("opcode: %s, opcode trace: %s \n", op, test_trace_per_opcode)
-			tempt_trace := &trace.TraceN{} 
-
-
-			// # test: test_trace_per_opcode = ""
-			test_trace_per_opcode = ""
-
-			trace_convert_err := json.Unmarshal([]byte(test_trace_per_opcode), tempt_trace)
-
-			fmt.Println("\n test json trace ", tempt_trace)
-			fmt.Println("json convert err", trace_convert_err)
-			trace.Traces = append(trace.Traces, *tempt_trace)
+		if redundency == false {
+			// # Step 2.1: call
+			if op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL || op == CREATE || op == CREATE2 || op == SELFDESTRUCT{
+				fmt.Printf("\nopcode: %s\n", op)
+				tempt_trace := &trace.TraceN{} 
+				json.Unmarshal([]byte(test_trace_per_opcode), tempt_trace)
+				trace.Traces = append(trace.Traces, *tempt_trace)
+			}
 		}
-
 
 
 		// if the operation clears the return data (e.g. it has returning data)
