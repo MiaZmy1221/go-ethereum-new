@@ -149,8 +149,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 	fmt.Printf("Tx status %d\n", receipt.Status)
 
+	// # Step1: deal with the first trace, might be call or create
 	if msg.To() == nil {
-				// # Step1: deal with the first trace, might be call or create
 		first_trace := &trace.TraceN{
 			CallType: "CREATE", 
 			FromAddr: msg.From().String(), 
@@ -169,10 +169,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		var tempt_traces trace.TraceNs
 		tempt_traces = append(tempt_traces, first_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...)
-
-	}
-	else{
-		// # Step1: deal with the first trace, might be call or create
+	}else{
 		first_trace := &trace.TraceN{
 			CallType: "CALL", 
 			FromAddr: msg.From().String(), 
@@ -192,10 +189,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		tempt_traces = append(tempt_traces, first_trace)
 		trace.Traces = append(tempt_traces, trace.Traces...)
 	}
-
-
-	
-
 
 	// # Step3: print all the traces
 	fmt.Printf("*************************In the end, traces are ***********************\n")
