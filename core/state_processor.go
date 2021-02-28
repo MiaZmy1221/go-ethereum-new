@@ -100,6 +100,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
 	trace.TransferLogs = []trace.TransferLog{}
+	trace.GTxReceipt = trace.TxReceipt{}
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
@@ -142,18 +143,26 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 	// Set the receipt logs and create a bloom for filtering
 	receipt.Logs = statedb.GetLogs(tx.Hash())
+	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+	receipt.BlockHash = statedb.BlockHash()
+	receipt.BlockNumber = header.Number
+	receipt.TransactionIndex = uint(statedb.TxIndex())
 
-	fmt.Printf("\nFrom state_processor.go applyTransaction\n")
-	fmt.Printf("Tx hash %s \n", receipt.TxHash)
-	fmt.Printf("Tx index %d \n", uint(statedb.TxIndex()))
-	for _, tempt_log := range receipt.Logs{
-		fmt.Printf("Tx log topics %s \n", tempt_log.Topics)
-		fmt.Printf("Tx log data 0x%x \n", tempt_log.Data)
-		fmt.Printf("Tx log address %s \n", tempt_log.Address)
-		// fmt.Printf("Tx log removed %t \n", tempt_log.Removed)
-		fmt.Printf("Tx log blocknum %d \n", tempt_log.BlockNumber)
-	}
-	fmt.Printf("Tx status %d\n", receipt.Status)
+
+	fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
+	trace.GTxReceipt.BlockNum = receipt.BlockNumber
+	trace.GTxReceipt.FromAddr = msg.From().String()
+	trace.GTxReceipt.ToAddr = msg.To().String()
+	trace.GTxReceipt.Gas = msg.Gas().String()
+	trace.GTxReceipt.GasUsed = receipt.GasUsed
+	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
+	trace.GTxReceipt.TxHash = receipt.TxHash 
+	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
+	trace.GTxReceipt.Value = msg.Value().String()
+	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
+	trace.GTxReceipt.Status = receipt.Status
+	trace.GTxReceipt.Err = err.Error()
+	fmt.Printf("*********************************************************************************\n\n")
 
 	fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")
 	for _, tempt_log := range trace.TransferLogs{
@@ -167,11 +176,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		tempt_trace.Print()
 	}
 	fmt.Printf("*********************************************************************************\n\n")
-	
-	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
-	receipt.BlockHash = statedb.BlockHash()
-	receipt.BlockNumber = header.Number
-	receipt.TransactionIndex = uint(statedb.TxIndex())
 
 	return receipt, err
 }

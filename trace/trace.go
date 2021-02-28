@@ -78,12 +78,13 @@ type TxReceipt struct {
 	GasUsed string
 	GasPrice string
 	TxHash string 
-	Nonce string
+	TxIndex string
 	Value string
+	Input string
 	Status  string
-	Error string
+	Err string
 }
 
-var GTxReceipt TxReceipt
+var GTxReceipt = &TxReceipt{}
 
 
