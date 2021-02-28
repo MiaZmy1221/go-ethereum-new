@@ -107,10 +107,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("Type: CALL\n") // other types: suicide
 	fmt.Printf("Output: %x\n") // ????
 
-
-	// # step prep: ensure the currentIndex is 1
-	trace.CurrentTraceIndex = 1
-
 	// # Step2: in the interpreter.go
 	// Step 2.1 deal with the trace
 	// Step 2.2 deal with the event Transfer ERC20
