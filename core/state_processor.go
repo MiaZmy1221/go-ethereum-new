@@ -101,6 +101,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("Call type: CALL\n")
 	fmt.Printf("From: %s\n", msg.From())
 	fmt.Printf("To: %s\n", msg.To())
+	fmt.Printf("Create \n")
 	fmt.Printf("Input: 0x%x\n", msg.Data())
 	fmt.Printf("Value: %d\n", msg.Value())
 	fmt.Printf("TraceIndex: %d\n", 1)
@@ -167,11 +168,14 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Printf("Tx status %d\n", receipt.Status)
 
 
-	// Step extra: deal with the first trace's output
+	// # Step1: deal with the first trace's output
 	first_trace := &trace.TraceN{
 		CallType: "CALL", 
-		FromAddr: msg.From(), 
-		ToAddr: *msg.To(), 
+		FromAddr: msg.From().String(), 
+		ToAddr: *msg.To().String(), 
+		CreateAddr: "0x"
+		SuicideContract: "0x"
+		Beneficiary: "0x"
 		Input: hex.EncodeToString(msg.Data()),
 		Output: hex.EncodeToString(result.ReturnData), 
 		Value: msg.Value(), 

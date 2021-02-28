@@ -14,8 +14,11 @@ import (
 
 type TraceN struct{
 	CallType string `json:"callType"`
-	FromAddr common.Address `json:"fromAddr"`
-	ToAddr common.Address `json:"toAddr"`
+	FromAddr string `json:"fromAddr"`
+	ToAddr string `json:"toAddr"`
+	CreateAddr string `json:"createAddr"`
+	SuicideContract strng `json:"suicideContract"`
+	Beneficiary string `json:"beneficiary"`
 	Input string `json:"input"`
 	Output string `json:"output"`
 	Value *big.Int `json:"value"`
@@ -31,6 +34,7 @@ func (t *TraceN) Print() {
 	fmt.Printf("Call type: %s\n", t.CallType)
 	fmt.Printf("From: %s\n", t.FromAddr)
 	fmt.Printf("To: %s\n", t.ToAddr)
+	fmt.Printf("CreateAddr: %s\n", t.CreateAddr)
 	fmt.Printf("Input: %s\n", t.Input)
 	fmt.Printf("Value: %d\n", t.Value)
 	fmt.Printf("Type: %s\n", t.Type) 

@@ -637,9 +637,33 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (st
 	callContext.contract.Gas += returnGas
 
 	if suberr == ErrExecutionReverted {
-		return "create", res, nil
+		return "", res, nil
 	}
-	return "create", nil, nil
+
+	// Trace
+	fmt.Printf("\n\ninstructions.go opCreate\n")
+	trace.CurrentTraceIndex += 1
+	final_value := big.NewInt(0)
+	if !value.IsZero() {
+		final_value = value.ToBig()
+	}
+	tempt_trace := &trace.TraceN{
+				CallType: "CREATE", 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: "0x", 
+				CreateAddr: addr.String(),
+				SuicideContract: "0x"
+				Beneficiary: "0x"
+				Input: hex.EncodeToString(input),
+				Output: hex.EncodeToString(res), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CREATE"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), ret, nil
+
 }
 
 func opCreate2(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -673,9 +697,34 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 	callContext.contract.Gas += returnGas
 
 	if suberr == ErrExecutionReverted {
-		return "create2", res, nil
+		return "", res, nil
 	}
-	return "create2", nil, nil
+	
+	// Trace
+	fmt.Printf("\n\ninstructions.go opCreate2\n")
+	trace.CurrentTraceIndex += 1
+	final_value := big.NewInt(0)
+	if !endowment.IsZero() {
+		final_value = endowment.ToBig()
+	}
+	tempt_trace := &trace.TraceN{
+				CallType: "CREATE2", 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: "0x", 
+				CreateAddr: addr.String(),
+				SuicideContract: "0x"
+				Beneficiary: "0x"
+				Input: hex.EncodeToString(input),
+				Output: hex.EncodeToString(res), 
+				Value: final_value, 
+				// Value: new(big.Int).SetUint64(value.Uint64()), 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CREATE"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), ret, nil
+
+
 }
 
 func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (string, []byte, error) {
@@ -714,19 +763,18 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 
 	// Trace
 	fmt.Printf("\n\ninstructions.go opcall\n")
-	fmt.Printf("before adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
 	trace.CurrentTraceIndex += 1
-	fmt.Printf("after adding, CurrentTraceIndex %d\n", trace.CurrentTraceIndex)
-	fmt.Printf("caller, %s\n", callContext.contract.Address())
-	fmt.Printf("output %s\n", ret)
 	final_value := big.NewInt(0)
 	if !value.IsZero() {
 		final_value = value.ToBig()
 	}
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
-				FromAddr: callContext.contract.Address(), 
-				ToAddr: toAddr, 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: toAddr.String(),
+				CreateAddr: "0x"
+				SuicideContract: "0x"
+				Beneficiary: "0x"
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
@@ -734,7 +782,6 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Println(string(json_trace))
 
 	return string(json_trace), ret, nil
 }
@@ -779,8 +826,11 @@ func opCallCode(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (
 	}
 	tempt_trace := &trace.TraceN{
 				CallType: "CALLCODE", 
-				FromAddr: callContext.contract.Address(), 
-				ToAddr: toAddr, 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: toAddr.String(),
+				CreateAddr: "0x"
+				SuicideContract: "0x"
+				Beneficiary: "0x"
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
@@ -825,8 +875,11 @@ func opDelegateCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCt
 	}
 	tempt_trace := &trace.TraceN{
 				CallType: "DELEGATECALL", 
-				FromAddr: callContext.contract.Address(), 
-				ToAddr: toAddr, 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: toAddr.String(),
+				CreateAddr: "0x"
+				SuicideContract: "0x"
+				Beneficiary: "0x"
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
@@ -871,12 +924,14 @@ func opStaticCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx)
 	}
 	tempt_trace := &trace.TraceN{
 				CallType: "STATICCALL", 
-				FromAddr: callContext.contract.Address(), 
-				ToAddr: toAddr, 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: toAddr.String(),
+				CreateAddr: "0x"
+				SuicideContract: "0x"
+				Beneficiary: "0x"
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
-				// Value: new(big.Int).SetUint64(value.Uint64()), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
@@ -907,7 +962,26 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 	balance := interpreter.evm.StateDB.GetBalance(callContext.contract.Address())
 	interpreter.evm.StateDB.AddBalance(beneficiary.Bytes20(), balance)
 	interpreter.evm.StateDB.Suicide(callContext.contract.Address())
-	return "suicide???", nil, nil
+
+
+	// Trace
+	fmt.Printf("\n\ninstructions.go opSuicide\n")
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "SELFDESTRUCT", 
+				FromAddr: "0x", 
+				ToAddr: "0x",
+				CreateAddr: "0x"
+				SuicideContract: callContext.contract.Address().String()
+				Beneficiary: beneficiary.String()
+				Input: "",
+				Output: "", 
+				Value: balance, 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "SUICIDE"}
+	json_trace, _ := json.Marshal(tempt_trace)
+
+	return string(json_trace), nil, nil
 }
 
 // following functions are used by the instruction jump  table
