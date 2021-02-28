@@ -26,7 +26,11 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
-	// "fmt"
+	
+	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
+	"fmt"
+	"encoding/hex"
 )
 
 // emptyCodeHash is used by create to ensure deployment is disallowed to already
@@ -287,6 +291,27 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		}
 		evm.StateDB.CreateAccount(addr)
 	}
+
+
+	// # Trace by me
+	fmt.Printf("\n\nevm.go Call\n")
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "CALL", 
+				FromAddr: callContext.contract.Address().String(), 
+				ToAddr: addr.String(),
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
+				Input: hex.EncodeToString(input),
+				Output: hex.EncodeToString(ret), 
+				Value: value, 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "CALL"}
+	json_trace, _ := json.Marshal(tempt_trace)
+	fmt.Printf(string(json_trace))
+
+
 
 	// fmt.Printf("core/vm evm.go Call, Transfer is called. Contract address: %s. Caller Address: %s. Value is: %d \n", addr, caller.Address(), value)
 	evm.Context.Transfer(evm.StateDB, caller.Address(), addr, value)

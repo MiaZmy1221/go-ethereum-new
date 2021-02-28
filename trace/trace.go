@@ -46,7 +46,7 @@ func (t *TraceN) Print() {
 
 
 var Traces = []TraceN{}
-var CurrentTraceIndex = uint64(1)
+var CurrentTraceIndex = uint64(0)
 
 
 type TransferLog struct{

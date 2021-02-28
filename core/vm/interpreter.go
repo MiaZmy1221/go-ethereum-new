@@ -291,12 +291,13 @@ func (in *EVMInterpreter) Run(contract *Contract, input []byte, readOnly bool, r
 		}
 
 
-		// Step 2: the following traces with category call
+		// Step 2: the following traces 
 		test_trace_per_opcode := ""
 		test_trace_per_opcode, res, err = operation.execute(&pc, in, callContext)	
+		fmt.Printf("pc: %s op %s\n", pc, op)
+
 		// res, err = operation.execute(&pc, in, callContext)	
 		if redundency == false {
-			// # Step 2.1: call
 			if op == CALL || op == CALLCODE || op == STATICCALL || op == DELEGATECALL || op == CREATE || op == CREATE2 || op == SELFDESTRUCT{
 				fmt.Printf("\nopcode: %s\n", op)
 				tempt_trace := &trace.TraceN{} 
