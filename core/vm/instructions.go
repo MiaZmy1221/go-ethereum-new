@@ -853,7 +853,7 @@ func makeLog(size int) executionFunc {
 		// Convert the log to the TransferLog
 		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" {
 			// Trace
-			fmt.Printf("\n\ninstructions.go makeLog\n")
+			// fmt.Printf("\n\ninstructions.go makeLog\n")
 			tempt_log := &trace.TransferLog{
 				FromAddr: topics[1].String(),
 				ToAddr: topics[2].String(),
@@ -861,10 +861,12 @@ func makeLog(size int) executionFunc {
 				TokenAddr: callContext.contract.Address().String(),
 				TraceIndex: trace.CurrentTraceIndex, 
 			}
-			tempt_log.Print()
-			json_log, _ := json.Marshal(tempt_log)
-			fmt.Println(string(json_log))
-			trace.TransferLogs = append(trace.TransferLogs, *tempt_log)
+			// tempt_log.Print()
+			// json_log, _ := json.Marshal(tempt_log)
+			// fmt.Println(string(json_log))
+			tempt_logs :=[]trace.TransferLog{}
+			tempt_logs = append(tempt_log, *tempt_log)
+			trace.TransferLogs = append(tempt_log, trace.TransferLogs...)
 		}
 
 		return nil, nil

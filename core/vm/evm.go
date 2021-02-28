@@ -294,7 +294,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	}
 
 	// # Trace by me
-	fmt.Printf("\n\nevm.go Call\n")
+	// fmt.Printf("\n\nevm.go Call\n")
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALL", 
@@ -308,8 +308,8 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 				Value: value, 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
-	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Printf(string(json_trace))
+	// json_trace, _ := json.Marshal(tempt_trace)
+	// fmt.Printf(string(json_trace))
 
 	// defer the output to the end
 	defer func() {
@@ -389,7 +389,7 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 	}
 
 	// # Trace by me
-	fmt.Printf("\n\nevm.go CallCode\n")
+	// fmt.Printf("\n\nevm.go CallCode\n")
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALLCODE", 
@@ -403,8 +403,8 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 				Value: value, 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
-	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Printf(string(json_trace))
+	// json_trace, _ := json.Marshal(tempt_trace)
+	// fmt.Printf(string(json_trace))
 
 	// defer the output to the end
 	defer func() {
@@ -453,7 +453,7 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	}
 
 	// # Trace by me
-	fmt.Printf("\n\nevm.go DelegateCall\n")
+	// fmt.Printf("\n\nevm.go DelegateCall\n")
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALLCODE", 
@@ -467,8 +467,8 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 				Value: big.NewInt(0), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
-	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Printf(string(json_trace))
+	// json_trace, _ := json.Marshal(tempt_trace)
+	// fmt.Printf(string(json_trace))
 
 	// defer the output to the end
 	defer func() {
@@ -515,7 +515,7 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	}
 
 	// # Trace by me
-	fmt.Printf("\n\nevm.go StaticCall\n")
+	// fmt.Printf("\n\nevm.go StaticCall\n")
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: "CALLCODE", 
@@ -529,8 +529,8 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 				Value: big.NewInt(0), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
-	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Printf(string(json_trace))
+	// json_trace, _ := json.Marshal(tempt_trace)
+	// fmt.Printf(string(json_trace))
 
 	// defer the output to the end
 	defer func() {
@@ -639,7 +639,7 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	} else {
 		op = "CREATE2"
 	}
-	fmt.Printf("\n\nevm.go %s\n", op)
+	// fmt.Printf("\n\nevm.go %s\n", op)
 	trace.CurrentTraceIndex += 1
 	tempt_trace := &trace.TraceN{
 				CallType: op, 
@@ -654,8 +654,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 				// Value: new(big.Int).SetUint64(value.Uint64()), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CREATE"}
-	json_trace, _ := json.Marshal(tempt_trace)
-	fmt.Printf(string(json_trace))
+	// json_trace, _ := json.Marshal(tempt_trace)
+	// fmt.Printf(string(json_trace))
 	// defer the output to the end
 	defer func() {
         tempt_trace.Output = hex.EncodeToString(retCreate)
