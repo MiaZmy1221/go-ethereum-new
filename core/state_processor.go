@@ -95,24 +95,6 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	// # Step1: the first trace currently unknown output
-	fmt.Printf("state_processor.go applyTransaction\n")
-	fmt.Printf("\nThe first trace \n")
-	fmt.Printf("Call type: CALL\n")
-	fmt.Printf("From: %s\n", msg.From())
-	fmt.Printf("To: %s\n", msg.To())
-	fmt.Printf("Create \n")
-	fmt.Printf("Input: 0x%x\n", msg.Data())
-	fmt.Printf("Value: %d\n", msg.Value())
-	fmt.Printf("TraceIndex: %d\n", 1)
-	fmt.Printf("Type: CALL\n") // other types: suicide
-	fmt.Printf("Output: %x\n") // ????
-
-	// # Step2: in the interpreter.go
-	// Step 2.1 deal with the trace
-	// Step 2.2 deal with the event Transfer ERC20
-
-
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
 	// Add addresses to access list if applicable
@@ -167,26 +149,52 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 	fmt.Printf("Tx status %d\n", receipt.Status)
 
+	if msg.To() == nil {
+				// # Step1: deal with the first trace, might be call or create
+		first_trace := &trace.TraceN{
+			CallType: "CREATE", 
+			FromAddr: msg.From().String(), 
+			ToAddr: "0x", 
+			CreateAddr: receipt.ContractAddress.String(),
+			SuicideContract: "0x",
+			Beneficiary: "0x",
+			Input: hex.EncodeToString(msg.Data()),
+			Output: hex.EncodeToString(result.ReturnData), 
+			Value: msg.Value(), 
+			TraceIndex: 1, 
+			Type: "CREATE"}
+		json_first_trace, _ := json.Marshal(first_trace)
+		fmt.Println(string(json_first_trace))
 
-	// # Step1: deal with the first trace's output
-	first_trace := &trace.TraceN{
-		CallType: "CALL", 
-		FromAddr: msg.From().String(), 
-		ToAddr: *msg.To().String(), 
-		CreateAddr: "0x"
-		SuicideContract: "0x"
-		Beneficiary: "0x"
-		Input: hex.EncodeToString(msg.Data()),
-		Output: hex.EncodeToString(result.ReturnData), 
-		Value: msg.Value(), 
-		TraceIndex: 1, 
-		Type: "CALL"}
-	json_first_trace, _ := json.Marshal(first_trace)
-	fmt.Println(string(json_first_trace))
+		var tempt_traces trace.TraceNs
+		tempt_traces = append(tempt_traces, first_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...)
 
-	var tempt_traces trace.TraceNs
-	tempt_traces = append(tempt_traces, first_trace)
-	trace.Traces = append(tempt_traces, trace.Traces...)
+	}
+	else{
+		// # Step1: deal with the first trace, might be call or create
+		first_trace := &trace.TraceN{
+			CallType: "CALL", 
+			FromAddr: msg.From().String(), 
+			ToAddr: (*msg.To()).String(), 
+			CreateAddr: "0x",
+			SuicideContract: "0x",
+			Beneficiary: "0x",
+			Input: hex.EncodeToString(msg.Data()),
+			Output: hex.EncodeToString(result.ReturnData), 
+			Value: msg.Value(), 
+			TraceIndex: 1, 
+			Type: "CALL"}
+		json_first_trace, _ := json.Marshal(first_trace)
+		fmt.Println(string(json_first_trace))
+
+		var tempt_traces trace.TraceNs
+		tempt_traces = append(tempt_traces, first_trace)
+		trace.Traces = append(tempt_traces, trace.Traces...)
+	}
+
+
+	
 
 
 	// # Step3: print all the traces

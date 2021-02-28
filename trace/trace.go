@@ -5,7 +5,7 @@ import (
 	// "os"
 	// "gopkg.in/mgo.v2"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
+	// "github.com/ethereum/go-ethereum/common"
 	// "math"
 	"math/big"
 	// "encoding/hex"
@@ -17,7 +17,7 @@ type TraceN struct{
 	FromAddr string `json:"fromAddr"`
 	ToAddr string `json:"toAddr"`
 	CreateAddr string `json:"createAddr"`
-	SuicideContract strng `json:"suicideContract"`
+	SuicideContract string `json:"suicideContract"`
 	Beneficiary string `json:"beneficiary"`
 	Input string `json:"input"`
 	Output string `json:"output"`

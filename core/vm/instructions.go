@@ -652,8 +652,8 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (st
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: "0x", 
 				CreateAddr: addr.String(),
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(input),
 				Output: hex.EncodeToString(res), 
 				Value: final_value, 
@@ -662,7 +662,7 @@ func opCreate(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (st
 				Type: "CREATE"}
 	json_trace, _ := json.Marshal(tempt_trace)
 
-	return string(json_trace), ret, nil
+	return string(json_trace), nil, nil
 
 }
 
@@ -712,8 +712,8 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: "0x", 
 				CreateAddr: addr.String(),
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(input),
 				Output: hex.EncodeToString(res), 
 				Value: final_value, 
@@ -722,7 +722,7 @@ func opCreate2(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 				Type: "CREATE"}
 	json_trace, _ := json.Marshal(tempt_trace)
 
-	return string(json_trace), ret, nil
+	return string(json_trace), nil, nil
 
 
 }
@@ -772,9 +772,9 @@ func opCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (stri
 				CallType: "CALL", 
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: toAddr.String(),
-				CreateAddr: "0x"
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
@@ -828,9 +828,9 @@ func opCallCode(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (
 				CallType: "CALLCODE", 
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: toAddr.String(),
-				CreateAddr: "0x"
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
 				Value: final_value, 
@@ -867,22 +867,19 @@ func opDelegateCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCt
 	callContext.contract.Gas += returnGas
 
 	// Trace
+	// # DelegateCall and StaticCall value is None
 	fmt.Printf("\n\ninstructions.go opDelegateCall\n")
 	trace.CurrentTraceIndex += 1
-	final_value := big.NewInt(0)
-	if !value.IsZero() {
-		final_value = value.ToBig()
-	}
 	tempt_trace := &trace.TraceN{
 				CallType: "DELEGATECALL", 
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: toAddr.String(),
-				CreateAddr: "0x"
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
-				Value: final_value, 
+				Value: big.NewInt(0), 
 				// Value: new(big.Int).SetUint64(value.Uint64()), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
@@ -918,20 +915,16 @@ func opStaticCall(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx)
 	// Trace
 	fmt.Printf("\n\ninstructions.go opStaticCall\n")
 	trace.CurrentTraceIndex += 1
-	final_value := big.NewInt(0)
-	if !value.IsZero() {
-		final_value = value.ToBig()
-	}
 	tempt_trace := &trace.TraceN{
 				CallType: "STATICCALL", 
 				FromAddr: callContext.contract.Address().String(), 
 				ToAddr: toAddr.String(),
-				CreateAddr: "0x"
-				SuicideContract: "0x"
-				Beneficiary: "0x"
+				CreateAddr: "0x",
+				SuicideContract: "0x",
+				Beneficiary: "0x",
 				Input: hex.EncodeToString(args),
 				Output: hex.EncodeToString(ret), 
-				Value: final_value, 
+				Value: big.NewInt(0), 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "CALL"}
 	json_trace, _ := json.Marshal(tempt_trace)
@@ -971,9 +964,9 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) (s
 				CallType: "SELFDESTRUCT", 
 				FromAddr: "0x", 
 				ToAddr: "0x",
-				CreateAddr: "0x"
-				SuicideContract: callContext.contract.Address().String()
-				Beneficiary: beneficiary.String()
+				CreateAddr: "0x",
+				SuicideContract: callContext.contract.Address().String(),
+				Beneficiary: beneficiary.String(),
 				Input: "",
 				Output: "", 
 				Value: balance, 
