@@ -824,6 +824,24 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 	balance := interpreter.evm.StateDB.GetBalance(callContext.contract.Address())
 	interpreter.evm.StateDB.AddBalance(beneficiary.Bytes20(), balance)
 	interpreter.evm.StateDB.Suicide(callContext.contract.Address())
+
+	// 	// Trace
+	trace.CurrentTraceIndex += 1
+	tempt_trace := &trace.TraceN{
+				CallType: "SELFDESTRUCT", 
+				FromAddr: "0x", 
+				ToAddr: "0x",
+				CreateAddr: "0x",
+				SuicideContract: callContext.contract.Address().String(),
+				Beneficiary: beneficiary.String(),
+				Input: "",
+				Output: "", 
+				Value: balance, 
+				TraceIndex: trace.CurrentTraceIndex, 
+				Type: "SUICIDE"}
+	trace.Traces = append(trace.Traces, tempt_trace) 
+
+
 	return nil, nil
 }
 
