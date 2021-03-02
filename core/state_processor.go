@@ -198,8 +198,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
 	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
-	json_traces := json.Marshal(trace.Traces)
-	json_createdsc := json.Marshal(trace.CreatedSC)
+	json_traces, _ := json.Marshal(trace.Traces)
+	json_createdsc, _ := json.Marshal(trace.CreatedSC)
 
 	current_tx := trace.TransactionAll{
 		TxHash: receipt.TxHash.String(),
