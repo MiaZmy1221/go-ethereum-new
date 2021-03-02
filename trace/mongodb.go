@@ -24,8 +24,10 @@ func InitMongoDb() {
 	}
 }
 
-var DB_created_sc = SessionGlobal.DB("project2").C("created_sc")
-var DB_receipt = SessionGlobal.DB("project2").C("receipt")
-var DB_transfer_log = SessionGlobal.DB("project2").C("transfer_log")
-var DB_trace = SessionGlobal.DB("project2").C("trace")
+var DBAll = SessionGlobal.DB("project2").C("info")
+
+// var DB_created_sc = SessionGlobal.DB("project2").C("created_sc")
+// var DB_receipt = SessionGlobal.DB("project2").C("receipt")
+// var DB_transfer_log = SessionGlobal.DB("project2").C("transfer_log")
+// var DB_trace = SessionGlobal.DB("project2").C("trace")
 

@@ -102,7 +102,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.Traces = []trace.TraceN{}
 	trace.TransferLogs = []trace.TransferLog{}
 	trace.GTxReceipt = &trace.TxReceipt{}
-	trace.CreatedSC = nil
+	trace.CreatedSC = []string{}
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
@@ -198,26 +198,32 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 
 	// no bash currently, fix it later
-	session_err1 := trace.DB_created_sc.Insert(trace.CreatedSC) 
-	if session_err1 != nil {
-		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err1))
+	session_err1 := trace.DBAll.Insert({"txHash": receipt.TxHash.String(), "transferLogs": trace.TransferLogs, 
+									"receipt": trace.GTxReceipt, "createdSC": trace.CreatedSC, "traces": trace.Traces}) 
+	if session_err1 = nil {
+		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err))
 	}
 
-	session_err2 := trace.DB_receipt.Insert(trace.GTxReceipt) 
-	if session_err2 != nil {
-		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err2))
-	}
+	// session_err1 := trace.DB_created_sc.Insert(trace.CreatedSC) 
+	// if session_err1 != nil {
+	// 	trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err1))
+	// }
+
+	// session_err2 := trace.DB_receipt.Insert(trace.GTxReceipt) 
+	// if session_err2 != nil {
+	// 	trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err2))
+	// }
 
 
-	session_err3 := trace.DB_transfer_log.Insert(trace.TransferLogs) 
-	if session_err3 != nil {
-		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err3))
-	}
+	// session_err3 := trace.DB_transfer_log.Insert(trace.TransferLogs) 
+	// if session_err3 != nil {
+	// 	trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err3))
+	// }
 
-	session_err4 := trace.DB_trace.Insert(trace.Traces) 
-	if session_err4 != nil {
-		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err4))
-	}
+	// session_err4 := trace.DB_trace.Insert(trace.Traces) 
+	// if session_err4 != nil {
+	// 	trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err4))
+	// }
 
 
 
