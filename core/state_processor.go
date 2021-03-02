@@ -196,6 +196,11 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 	// fmt.Printf("*********************************************************************************\n\n")
 
+	if len(trace.TransferLogs) != 0 {
+		fmt.Println("txhash ", receipt.TxHash.String())
+	}
+
+
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
 	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
 	json_traces, _ := json.Marshal(trace.Traces)
