@@ -209,6 +209,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
+	fmt.Println(current_tx)
+
 	// no bash currently, fix it later
 	session_err := trace.DBAll.Insert(current_tx) 
 	if session_err != nil {
