@@ -203,10 +203,10 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	current_tx := trace.TransactionAll{
 		TxHash: receipt.TxHash.String(),
-		TxReceipt: json_receipt,
-		TxTransferLogs: json_transferlogs,
-		TxTraces: json_traces,
-		TxCreatedSC: json_createdsc,
+		TxReceipt: string(json_receipt),
+		TxTransferLogs: string(json_transferlogs),
+		TxTraces: string(json_traces),
+		TxCreatedSC: string(json_createdsc),
 	}
 
 	// no bash currently, fix it later
