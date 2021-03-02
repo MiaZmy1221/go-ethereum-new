@@ -209,7 +209,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	fmt.Println(current_tx)
+	fmt.Println("current hash ", receipt.TxHash.String())
 
 	// no bash currently, fix it later
 	session_err := trace.DBAll.Insert(current_tx) 
