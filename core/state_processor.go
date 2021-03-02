@@ -196,6 +196,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 	// fmt.Printf("*********************************************************************************\n\n")
 
+	fmt.Println("in the StateProcessor.go")
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
 	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
 	json_traces, _ := json.Marshal(trace.Traces)
