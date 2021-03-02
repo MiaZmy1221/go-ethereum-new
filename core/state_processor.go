@@ -216,7 +216,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	// fmt.Println("current hash ", receipt.TxHash.String())
 
-	if len(trace.TxTraces) > 1 || len(trae.TransferLogs) >= 1 {
+	if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
 		fmt.Println(receipt.TxHash.String())
 		fmt.Println(current_tx)
 	}
