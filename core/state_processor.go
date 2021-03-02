@@ -206,7 +206,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxReceipt: json_receipt,
 		TxTransferLogs: json_transferlogs,
 		TxTraces: json_traces,
-		TxCreatedSC: json_createdsc
+		TxCreatedSC: json_createdsc,
 	}
 
 	// no bash currently, fix it later
