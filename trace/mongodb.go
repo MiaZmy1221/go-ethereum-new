@@ -6,7 +6,7 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-// var SessionGlobal *mgo.Session
+var SessionGlobal *mgo.Session
 var CurrentTx string
 var CurrentBlockNum uint64
 var TxVMErr string
