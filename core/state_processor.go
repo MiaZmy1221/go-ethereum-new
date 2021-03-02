@@ -29,9 +29,9 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/trace"
-	"encoding/json"
-	"encoding/hex"
-	"strconv"
+	// "encoding/json"
+	// "encoding/hex"
+	// "strconv"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -198,23 +198,23 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 
 	// no bash currently, fix it later
-	session_err1 := trace.db_created_sc.Insert(trace.CreatedSC) 
+	session_err1 := trace.DB_created_sc.Insert(trace.CreatedSC) 
 	if session_err1 != nil {
 		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err1))
 	}
 
-	session_err2 := trace.db_receipt.Insert(trace.GTxReceipt) 
+	session_err2 := trace.DB_receipt.Insert(trace.GTxReceipt) 
 	if session_err2 != nil {
 		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err2))
 	}
 
 
-	session_err3 := trace.db_transfer_log.Insert(trace.TransferLogs) 
+	session_err3 := trace.DB_transfer_log.Insert(trace.TransferLogs) 
 	if session_err3 != nil {
 		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err3))
 	}
 
-	session_err4 := trace.db_trace.Insert(trace.Traces) 
+	session_err4 := trace.DB_trace.Insert(trace.Traces) 
 	if session_err4 != nil {
 		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err4))
 	}

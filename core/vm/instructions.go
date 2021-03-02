@@ -839,7 +839,7 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 				Value: balance, 
 				TraceIndex: trace.CurrentTraceIndex, 
 				Type: "SUICIDE"}
-	trace.Traces = append(trace.Traces, tempt_trace) 
+	trace.Traces = append(trace.Traces, *tempt_trace) 
 
 
 	return nil, nil
