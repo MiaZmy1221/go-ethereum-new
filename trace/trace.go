@@ -87,7 +87,7 @@ type TxReceipt struct {
 }
 
 var GTxReceipt = &TxReceipt{}
-
 var CreatedSC []string 
+var ErrorFile *os.File
 
 

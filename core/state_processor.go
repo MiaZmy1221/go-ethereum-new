@@ -150,49 +150,76 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	receipt.BlockNumber = header.Number
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
-	fmt.Printf("*************************In the end, CreatedSCs are ***********************\n")
-	fmt.Println("Created scs in this transaction ")
-	fmt.Println(trace.CreatedSC)
-	fmt.Printf("*********************************************************************************\n\n")
+
+	// Test print
+	// fmt.Printf("*************************In the end, CreatedSCs are ***********************\n")
+	// fmt.Println("Created scs in this transaction ")
+	// fmt.Println(trace.CreatedSC)
+	// fmt.Printf("*********************************************************************************\n\n")
 
 
-	fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
-	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
-	trace.GTxReceipt.FromAddr = msg.From().String()
-	if msg.To() == nil {
-		trace.GTxReceipt.ToAddr = "0x"
-	} else {
-		trace.GTxReceipt.ToAddr = msg.To().String()
-	}
-	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
-	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
-	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
-	trace.GTxReceipt.TxHash = receipt.TxHash.String() 
-	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
-	trace.GTxReceipt.Value = msg.Value().String()
-	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
-	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
-	if err == nil {
-		trace.GTxReceipt.Err = ""	
-	} else {
-		trace.GTxReceipt.Err = err.Error()
-	}
-	json_txreceipt, _ := json.Marshal(trace.GTxReceipt)
-	fmt.Println(string(json_txreceipt))
-	fmt.Printf("*********************************************************************************\n\n")
+	// fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
+	// trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
+	// trace.GTxReceipt.FromAddr = msg.From().String()
+	// if msg.To() == nil {
+	// 	trace.GTxReceipt.ToAddr = "0x"
+	// } else {
+	// 	trace.GTxReceipt.ToAddr = msg.To().String()
+	// }
+	// trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
+	// trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
+	// trace.GTxReceipt.GasPrice = msg.GasPrice().String()
+	// trace.GTxReceipt.TxHash = receipt.TxHash.String() 
+	// trace.GTxReceipt.TxIndex = receipt.TransactionIndex
+	// trace.GTxReceipt.Value = msg.Value().String()
+	// trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
+	// trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
+	// if err == nil {
+	// 	trace.GTxReceipt.Err = ""	
+	// } else {
+	// 	trace.GTxReceipt.Err = err.Error()
+	// }
+	// json_txreceipt, _ := json.Marshal(trace.GTxReceipt)
+	// fmt.Println(string(json_txreceipt))
+	// fmt.Printf("*********************************************************************************\n\n")
 
-	fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")
-	for _, tempt_log := range trace.TransferLogs{
-		tempt_log.Print()
-	}
-	fmt.Printf("*********************************************************************************\n\n")
+	// fmt.Printf("*************************In the end, TokenTransferLogs are ***********************\n")
+	// for _, tempt_log := range trace.TransferLogs{
+	// 	tempt_log.Print()
+	// }
+	// fmt.Printf("*********************************************************************************\n\n")
 
-	// print all the traces
-	fmt.Printf("*************************In the end, traces are ***********************************\n")
-	for _, tempt_trace := range trace.Traces{
-		tempt_trace.Print()
+	// // print all the traces
+	// fmt.Printf("*************************In the end, traces are ***********************************\n")
+	// for _, tempt_trace := range trace.Traces{
+	// 	tempt_trace.Print()
+	// }
+	// fmt.Printf("*********************************************************************************\n\n")
+
+
+	// no bash currently, fix it later
+	session_err1 := trace.db_created_sc.Insert(trace.CreatedSC) 
+	if session_err1 != nil {
+		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err1))
 	}
-	fmt.Printf("*********************************************************************************\n\n")
+
+	session_err2 := trace.db_receipt.Insert(trace.GTxReceipt) 
+	if session_err2 != nil {
+		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err2))
+	}
+
+
+	session_err3 := trace.db_transfer_log.Insert(trace.TransferLogs) 
+	if session_err3 != nil {
+		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err3))
+	}
+
+	session_err4 := trace.db_trace.Insert(trace.Traces) 
+	if session_err4 != nil {
+		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err4))
+	}
+
+
 
 	return receipt, err
 }
