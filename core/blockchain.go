@@ -219,7 +219,7 @@ type BlockChain struct {
 // Processor.
 func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, chainConfig *params.ChainConfig, engine consensus.Engine, vmConfig vm.Config, shouldPreserve func(block *types.Block) bool, txLookupLimit *uint64) (*BlockChain, error) {
 	trace.InitMongoDb()
-	fmt.Println("Initialize mongodb successfully")
+	// fmt.Println("Initialize mongodb successfully")
 	if cacheConfig == nil {
 		cacheConfig = defaultCacheConfig
 	}
