@@ -1,7 +1,7 @@
 package trace
 
 import (
-	"bytes"
+	// "bytes"
 	"os"
 	"gopkg.in/mgo.v2"
 )
