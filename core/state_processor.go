@@ -29,7 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 
 	"github.com/ethereum/go-ethereum/trace"
-	// "encoding/json"
+	"encoding/json"
 	// "encoding/hex"
 	// "strconv"
 )
@@ -196,11 +196,22 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 	// fmt.Printf("*********************************************************************************\n\n")
 
+	json_receipt, _ := json.Marshal(trace.GTxReceipt)
+	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
+	json_traces := json.Marshal(trace.Traces)
+	json_createdsc := json.Marshal(trace.CreatedSC)
+
+	current_tx := trace.TransactionAll{
+		TxHash: receipt.TxHash.String(),
+		TxReceipt: json_receipt,
+		TxTransferLogs: json_transferlogs,
+		TxTraces: json_traces,
+		TxCreatedSC: json_createdsc
+	}
 
 	// no bash currently, fix it later
-	session_err1 := trace.DBAll.Insert({"txHash": receipt.TxHash.String(), "transferLogs": trace.TransferLogs, 
-									"receipt": trace.GTxReceipt, "createdSC": trace.CreatedSC, "traces": trace.Traces}) 
-	if session_err1 = nil {
+	session_err := trace.DBAll.Insert(current_tx) 
+	if session_err = nil {
 		trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err))
 	}
 

@@ -72,22 +72,33 @@ var TransferLogs = []TransferLog{}
 
 
 type TxReceipt struct {
-	BlockNum string 
-	FromAddr string
-	ToAddr string 
-	Gas string
-	GasUsed string
-	GasPrice string
-	TxHash string 
-	TxIndex uint
-	Value string
-	Input string
-	Status  string
-	Err string
+	BlockNum string `json:"blockNum"`
+	FromAddr string `json:"fromAddr"`
+	ToAddr string `json:"toAddr"`
+	Gas string `json:"gas"`
+	GasUsed string `json:"gasUsed"`
+	GasPrice string `json:"gasPrice"`
+	TxHash string `json:"txHash"`
+	TxIndex uint `json:"txIndex"`
+	Value string `json:"value"`
+	Input string `json:"input"`
+	Status  string `json:"status"`
+	Err string `json:"err"`
 }
 
 var GTxReceipt = &TxReceipt{}
 var CreatedSC []string 
 // var ErrorFile *os.File
+
+
+type TransactionAll struct{
+	TxHash string
+	TxReceipt string
+	TxTransferLogs string
+	TxTraces string
+	TxCreatedSC string
+}
+
+
 
 
