@@ -159,26 +159,26 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 
 	// fmt.Printf("*************************In the end, TxReceipt are ***********************\n")
-	// trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
-	// trace.GTxReceipt.FromAddr = msg.From().String()
-	// if msg.To() == nil {
-	// 	trace.GTxReceipt.ToAddr = "0x"
-	// } else {
-	// 	trace.GTxReceipt.ToAddr = msg.To().String()
-	// }
-	// trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
-	// trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
-	// trace.GTxReceipt.GasPrice = msg.GasPrice().String()
-	// trace.GTxReceipt.TxHash = receipt.TxHash.String() 
-	// trace.GTxReceipt.TxIndex = receipt.TransactionIndex
-	// trace.GTxReceipt.Value = msg.Value().String()
-	// trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
-	// trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
-	// if err == nil {
-	// 	trace.GTxReceipt.Err = ""	
-	// } else {
-	// 	trace.GTxReceipt.Err = err.Error()
-	// }
+	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
+	trace.GTxReceipt.FromAddr = msg.From().String()
+	if msg.To() == nil {
+		trace.GTxReceipt.ToAddr = "0x"
+	} else {
+		trace.GTxReceipt.ToAddr = msg.To().String()
+	}
+	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
+	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
+	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
+	trace.GTxReceipt.TxHash = receipt.TxHash.String() 
+	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
+	trace.GTxReceipt.Value = msg.Value().String()
+	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
+	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
+	if err == nil {
+		trace.GTxReceipt.Err = ""	
+	} else {
+		trace.GTxReceipt.Err = err.Error()
+	}
 	// json_txreceipt, _ := json.Marshal(trace.GTxReceipt)
 	// fmt.Println(string(json_txreceipt))
 	// fmt.Printf("*********************************************************************************\n\n")
@@ -196,7 +196,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 	// fmt.Printf("*********************************************************************************\n\n")
 
-	fmt.Println("in the StateProcessor.go")
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
 	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
 	json_traces, _ := json.Marshal(trace.Traces)

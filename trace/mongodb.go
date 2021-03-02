@@ -6,11 +6,12 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var SessionGlobal *mgo.Session
+// var SessionGlobal *mgo.Session
 var CurrentTx string
 var CurrentBlockNum uint64
 var TxVMErr string
 var ErrorFile *os.File
+var DBAll *mgo.Collection
 
 func InitMongoDb() {
 	var err error
@@ -22,9 +23,11 @@ func InitMongoDb() {
 	if err != nil {
 		panic(err)
 	}
+
+	DBAll = SessionGlobal.DB("project2").C("info")
 }
 
-var DBAll = SessionGlobal.DB("project2").C("info")
+ 
 
 // var DB_created_sc = SessionGlobal.DB("project2").C("created_sc")
 // var DB_receipt = SessionGlobal.DB("project2").C("receipt")
