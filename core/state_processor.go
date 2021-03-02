@@ -196,9 +196,9 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 	// fmt.Printf("*********************************************************************************\n\n")
 
-	if len(trace.TransferLogs) != 0 {
-		fmt.Println("txhash ", receipt.TxHash.String())
-	}
+	// if len(trace.TransferLogs) != 0 {
+	// 	fmt.Println("txhash ", receipt.TxHash.String())
+	// }
 
 
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
@@ -215,6 +215,14 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 
 	// fmt.Println("current hash ", receipt.TxHash.String())
+
+	if len(trace.TxTraces) > 1 || len(trae.TransferLogs) >= 1 {
+		fmt.Println(receipt.TxHash.String())
+		fmt.Println(current_tx)
+	}
+
+
+
 
 	// no bash currently, fix it later
 	session_err := trace.DBAll.Insert(current_tx) 
