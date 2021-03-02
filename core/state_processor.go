@@ -30,8 +30,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/trace"
 	"encoding/json"
-	// "encoding/hex"
-	// "strconv"
+	"encoding/hex"
+	"strconv"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
