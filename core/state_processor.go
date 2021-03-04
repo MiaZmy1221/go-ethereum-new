@@ -193,11 +193,11 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
+	fmt.Println(trace.TestIndex)
+	fmt.Println(receipt.TxHash.String())
+	fmt.Println(current_tx)
 
-	if trace.TestIndex >= 1{
-		fmt.Println(trace.TestIndex)
-		fmt.Println(receipt.TxHash.String())
-		fmt.Println(current_tx)
+	if trace.TestIndex >= 10{
 		log.Info("Close mongodb and error file")
 		trace.SessionGlobal.Close()
 		trace.ErrorFile.Close()
