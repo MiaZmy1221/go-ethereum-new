@@ -1059,7 +1059,7 @@ func (bc *BlockChain) Stop() {
 	log.Info("lef number ", trace.CurrentNum)
 	// fmt.Println("before closing, current remaining txs ", trace.CurrentNum)
 	log.Info("deal with the left txs")
-	session_err := trace.DBAll.Insert(trace.BashTxs[0:trace.CurrentNum+1]]) 
+	session_err := trace.DBAll.Insert(trace.BashTxs[0:trace.CurrentNum+1]) 
 	if session_err != nil {
 		trace.SessionGlobal.Refresh()
 		for i := 0; i < trace.CurrentNum + 1; i++ {
