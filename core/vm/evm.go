@@ -458,7 +458,7 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
 		tempt_trace := &trace.TraceN{
-					CallType: "CALLCODE", 
+					CallType: "DELEGATECALL", 
 					FromAddr: caller.Address().String(), 
 					ToAddr: addr.String(),
 					CreateAddr: "0x",
