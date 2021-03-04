@@ -451,11 +451,11 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 		return nil, gas, nil
 	}
 	// Fail if we're trying to execute above the call depth limit
-	if evm.evm.depth > int(params.CallCreateDepth) {
+	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
 	}
 
-	if redundency == false {
+	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "CALLCODE", 
