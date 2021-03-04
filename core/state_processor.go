@@ -194,31 +194,16 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 
 	// test
-	// if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
-	// 	trace.TestIndex += 1
-	// 	fmt.Println(trace.TestIndex)
-	// }
-
-	fmt.Println("Current tx index %d, tx hash %s\n", trace.CurrentTxIndex, receipt.TxHash.String())
-	fmt.Println(current_tx)
-	if trace.OnlyOneTopic == true {
+	if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
+		trace.TestIndex += 1
+		fmt.Println(trace.TestIndex)
+		fmt.Println(receipt.TxHash.String())
+		fmt.Println(current_tx)
+	}
+	
+	if trace.TestIndex > 10 {
 		os.Exit(1)
 	}
-
-	// if trace.TestIndex > 10 {
-	// 	os.Exit(1)
-	// }
-
-
-	// test
-	// if len(trace.Traces) > 1 {
-	// 	// trace.testIndex += 1
-	// 	// fmt.Println(trace.testIndex)
-	// 	fmt.Println(receipt.TxHash.String())
-	// 	fmt.Println(current_tx)
-	// 	os.Exit(0)
-	// }
-
 
 	// // no bash currently, fix it later
 	// session_err := trace.DBAll.Insert(current_tx) 
