@@ -220,14 +220,14 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 				 if session_err != nil {
 					json_tx, json_err := json.Marshal(&trace.BashTxs[i])
 					if json_err != nil {
-						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).Tx_Hash, json_err))
+						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
 					}
 					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
 			      }
 			 }
 		}
 		trace.CurrentNum = 0
-		trace.BashTxs = []trace.TransactionAll{}
+		trace.BashTxs = []interface{}
 		trace.Round += 1
 	}
 
