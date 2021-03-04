@@ -194,7 +194,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 
 	// test
-	if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
+	if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
 		trace.TestIndex += 1
 		fmt.Println(trace.TestIndex)
 		fmt.Println(receipt.TxHash.String())
