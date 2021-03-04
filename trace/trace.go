@@ -78,7 +78,7 @@ type TxReceipt struct {
 	Gas string `json:"gas"`
 	GasUsed string `json:"gasUsed"`
 	GasPrice string `json:"gasPrice"`
-	TxHash string `json:"txHash"`
+	// TxHash string `json:"txHash"`
 	TxIndex uint `json:"txIndex"`
 	Value string `json:"value"`
 	Input string `json:"input"`

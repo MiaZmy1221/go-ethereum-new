@@ -101,7 +101,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
+	// fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
 
 
 	// # step prep: ensure the currentIndex is 1	
@@ -168,7 +168,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
 	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
 	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
-	trace.GTxReceipt.TxHash = receipt.TxHash.String() 
+	// trace.GTxReceipt.TxHash = receipt.TxHash.String() 
 	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
 	trace.GTxReceipt.Value = msg.Value().String()
 	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
@@ -193,26 +193,27 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	// // test
-	// if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
-	// 	trace.testIndex += 1
-	// 	fmt.Println(trace.testIndex)
-	// 	fmt.Println(receipt.TxHash.String())
-	// 	fmt.Println(current_tx)
-	// }
-
-	// if trace.testIndex > 10 {
-	// 	os.Exit()
-	// }
-
-
-	if len(trace.Traces) > 1 {
-		// trace.testIndex += 1
-		// fmt.Println(trace.testIndex)
+	// test
+	if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
+		trace.testIndex += 1
+		fmt.Println(trace.testIndex)
 		fmt.Println(receipt.TxHash.String())
 		fmt.Println(current_tx)
-		os.Exit(0)
 	}
+
+	if trace.testIndex > 10 {
+		os.Exit()
+	}
+
+
+	// test
+	// if len(trace.Traces) > 1 {
+	// 	// trace.testIndex += 1
+	// 	// fmt.Println(trace.testIndex)
+	// 	fmt.Println(receipt.TxHash.String())
+	// 	fmt.Println(current_tx)
+	// 	os.Exit(0)
+	// }
 
 
 	// // no bash currently, fix it later
