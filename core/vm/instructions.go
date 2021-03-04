@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/trace"
 	// "encoding/json"
 	"encoding/hex"
-	"fmt"
+	// "fmt"
 )
 
 func opAdd(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([]byte, error) {
@@ -870,7 +870,7 @@ func makeLog(size int) executionFunc {
 
 		// Convert the log to the TransferLog
 		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && len(topics) == 3 {
-			fmt.Println("Topics ", topics, " address ", callContext.contract.Address(), " BlockNumber ", interpreter.evm.Context.BlockNumber.Uint64())
+			// fmt.Println("Topics ", topics, " address ", callContext.contract.Address(), " BlockNumber ", interpreter.evm.Context.BlockNumber.Uint64())
 			tempt_log := &trace.TransferLog{
 				FromAddr: topics[1].String(),
 				ToAddr: topics[2].String(),

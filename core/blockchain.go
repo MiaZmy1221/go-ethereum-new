@@ -46,7 +46,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 	lru "github.com/hashicorp/golang-lru"
 
-	"github.com/ethereum/go-ethereum/trace"
+	// "github.com/ethereum/go-ethereum/trace"
 )
 
 var (
@@ -218,8 +218,9 @@ type BlockChain struct {
 // available in the database. It initialises the default Ethereum Validator and
 // Processor.
 func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, chainConfig *params.ChainConfig, engine consensus.Engine, vmConfig vm.Config, shouldPreserve func(block *types.Block) bool, txLookupLimit *uint64) (*BlockChain, error) {
-	trace.InitMongoDb()
-	// fmt.Println("Initialize mongodb successfully")
+	// // Start Mongodb
+	// trace.InitMongoDb()
+	
 	if cacheConfig == nil {
 		cacheConfig = defaultCacheConfig
 	}
@@ -1054,9 +1055,9 @@ func (bc *BlockChain) Stop() {
 		triedb.SaveCache(bc.cacheConfig.TrieCleanJournal)
 	}
 
-	log.Info("Close mongodb and error file")
-	trace.SessionGlobal.Close()
-	trace.ErrorFile.Close()
+	// log.Info("Close mongodb and error file")
+	// trace.SessionGlobal.Close()
+	// trace.ErrorFile.Close()
 
 	log.Info("Blockchain stopped")
 

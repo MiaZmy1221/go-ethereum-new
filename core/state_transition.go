@@ -164,6 +164,8 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) (*ExecutionResult, error) {
+	fmt.Printf("state_transition.go ApplyMessage\n")
+
 	// # step prep: ensure the currentIndex is 1
 	// trace.CurrentTraceIndex = 1
 	return NewStateTransition(evm, msg, gp).TransitionDb()
@@ -221,7 +223,7 @@ func (st *StateTransition) preCheck() error {
 // However if any consensus issue encountered, return the error directly with
 // nil evm execution result.
 func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
-	// fmt.Printf("state_transition.go TransitionDb\n")
+	fmt.Printf("state_transition.go TransitionDb\n")
 	// First check this message satisfies all consensus rules before
 	// applying the message. The rules include these clauses
 	//

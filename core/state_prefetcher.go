@@ -25,6 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/params"
+
+	"fmt"
 )
 
 // statePrefetcher is a basic Prefetcher, which blindly executes a block on top
@@ -62,6 +64,11 @@ func (p *statePrefetcher) Prefetch(block *types.Block, statedb *state.StateDB, c
 		}
 		// Block precaching permitted to continue, execute the transaction
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
+
+		fmt.Printf("##############################################\n")
+		fmt.Printf("state_prefetcher.go Prefetch\n")
+
+
 		if err := precacheTransaction(p.config, p.bc, nil, gaspool, statedb, header, tx, cfg); err != nil {
 			return // Ugh, something went horribly wrong, bail out
 		}
@@ -91,6 +98,8 @@ func precacheTransaction(config *params.ChainConfig, bc ChainContext, author *co
 	// vm := vm.NewEVM(context, txContext, statedb, config, cfg)
 	vm := vm.NewEVMWithFlag(context, txContext, statedb, config, cfg, true)
 
+
+	fmt.Printf("precacheTransaction.go precacheTransaction\n")
 	_, err = ApplyMessage(vm, msg, gaspool)
 	return err
 }
