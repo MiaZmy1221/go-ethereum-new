@@ -32,6 +32,7 @@ import (
 	// "encoding/json"
 	// "encoding/hex"
 	// "strconv"
+	"os"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -97,7 +98,8 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	fmt.Printf("state_processor.go applyTransaction\n")
+	fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
+
 
 	// # step prep: ensure the currentIndex is 1	
 	trace.CurrentTraceIndex = 0
@@ -152,7 +154,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	receipt.BlockNumber = header.Number
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
-
+	os.Exit(0)
 
 	// Test for the mining process
 	// trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()

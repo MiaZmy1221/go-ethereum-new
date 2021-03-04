@@ -66,7 +66,7 @@ func (p *statePrefetcher) Prefetch(block *types.Block, statedb *state.StateDB, c
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
 
 		fmt.Printf("##############################################\n")
-		fmt.Printf("state_prefetcher.go Prefetch\n")
+		fmt.Printf("state_prefetcher.go Prefetch txhash %s\n", tx.Hash().String())
 
 
 		if err := precacheTransaction(p.config, p.bc, nil, gaspool, statedb, header, tx, cfg); err != nil {
