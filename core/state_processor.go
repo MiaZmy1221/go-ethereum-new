@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 
-	// "github.com/ethereum/go-ethereum/trace"
+	"github.com/ethereum/go-ethereum/trace"
 	// "encoding/json"
 	// "encoding/hex"
 	// "strconv"
@@ -74,7 +74,10 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		misc.ApplyDAOHardFork(statedb)
 	}
 	blockContext := NewEVMBlockContext(header, p.bc, nil)
-	vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, p.config, cfg)
+
+	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, p.config, cfg)
+	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, p.config, cfg, false)
+
 	// Iterate over and process the individual transactions
 	for i, tx := range block.Transactions() {
 		msg, err := tx.AsMessage(types.MakeSigner(p.config, header.Number))
@@ -154,8 +157,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	receipt.BlockNumber = header.Number
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
-	os.Exit(0)
-
 	// Test for the mining process
 	// trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
 	// trace.GTxReceipt.FromAddr = msg.From().String()
@@ -184,19 +185,21 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// json_traces, _ := json.Marshal(trace.Traces)
 	// json_createdsc, _ := json.Marshal(trace.CreatedSC)
 
-	// current_tx := trace.TransactionAll{
-	// 	TxHash: receipt.TxHash.String(),
-	// 	TxReceipt: string(json_receipt),
-	// 	TxTransferLogs: string(json_transferlogs),
-	// 	TxTraces: string(json_traces),
-	// 	TxCreatedSC: string(json_createdsc),
-	// }
+	current_tx := trace.TransactionAll{
+		TxHash: receipt.TxHash.String(),
+		TxReceipt: string(json_receipt),
+		TxTransferLogs: string(json_transferlogs),
+		TxTraces: string(json_traces),
+		TxCreatedSC: string(json_createdsc),
+	}
 
-	// // test
-	// if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
-	// 	fmt.Println(receipt.TxHash.String())
-	// 	fmt.Println(current_tx)
-	// }
+	// test
+	// || len(trace.TransferLogs) >= 1 
+	if len(trace.Traces) > 1 {
+		fmt.Println(receipt.TxHash.String())
+		fmt.Println(current_tx)
+		os.Exit(0)
+	}
 
 
 	// // no bash currently, fix it later
