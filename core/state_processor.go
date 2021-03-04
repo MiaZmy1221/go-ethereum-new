@@ -211,7 +211,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	if trace.CurrentNum != trace.BashNum - 1 {
 		trace.CurrentNum = trace.CurrentNum + 1
 	} else {
-		fmt.Println("Bash insert 100 tx")
+		// fmt.Println("Bash insert 100 tx")
 		session_err := trace.DBAll.Insert(trace.BashTxs...) 
 		if session_err != nil {
 			trace.SessionGlobal.Refresh()
@@ -230,12 +230,12 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		trace.Round += 1
 	}
 
-	if trace.Round >=3{
-		fmt.Println("Close mongodb and error file in the state_processor.go")
-		trace.SessionGlobal.Close()
-		trace.ErrorFile.Close()
-		os.Exit(1)
-	}
+	// if trace.Round >=3{
+	// 	fmt.Println("Close mongodb and error file in the state_processor.go")
+	// 	trace.SessionGlobal.Close()
+	// 	trace.ErrorFile.Close()
+	// 	os.Exit(1)
+	// }
 	
 
 	return receipt, err

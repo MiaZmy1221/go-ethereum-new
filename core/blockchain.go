@@ -1055,6 +1055,25 @@ func (bc *BlockChain) Stop() {
 		triedb.SaveCache(bc.cacheConfig.TrieCleanJournal)
 	}
 
+	log.Info("Closing the node ")
+	log.Info("lef number ", trace.CurrentNum)
+	// fmt.Println("before closing, current remaining txs ", trace.CurrentNum)
+	log.Info("deal with the left txs")
+	session_err := trace.DBAll.Insert(trace.BashTxs[0:trace.CurrentNum+1]]) 
+	if session_err != nil {
+		trace.SessionGlobal.Refresh()
+		for i := 0; i < trace.CurrentNum + 1; i++ {
+			 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
+			 if session_err != nil {
+				json_tx, json_err := json.Marshal(&trace.BashTxs[i])
+				if json_err != nil {
+					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
+				}
+				trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+		      }
+		 }
+	}
+	log.Info("deal ok")
 	log.Info("Close mongodb and error file in the blockchain.go")
 	trace.SessionGlobal.Close()
 	trace.ErrorFile.Close()
