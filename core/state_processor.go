@@ -173,10 +173,10 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.GTxReceipt.Value = msg.Value().String()
 	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
 	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
-	if result.err == nil {
+	if result.Err == nil {
 		trace.GTxReceipt.Err = ""	
 	} else {
-		trace.GTxReceipt.Err = result.err.Error()
+		trace.GTxReceipt.Err = result.Err.Error()
 	}
 
 
