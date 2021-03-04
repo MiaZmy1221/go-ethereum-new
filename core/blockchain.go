@@ -1055,10 +1055,10 @@ func (bc *BlockChain) Stop() {
 		triedb.SaveCache(bc.cacheConfig.TrieCleanJournal)
 	}
 
-	log.Info("Close mongodb and error file")
+	log.Info("Close mongodb and error file in the blockchain.go")
 	trace.SessionGlobal.Close()
 	trace.ErrorFile.Close()
-	
+
 	log.Info("Blockchain stopped")
 
 }
