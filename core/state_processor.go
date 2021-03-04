@@ -194,17 +194,20 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	}
 
 	// test
-	if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
-		trace.TestIndex += 1
-		fmt.Println(trace.TestIndex)
-	}
+	// if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
+	// 	trace.TestIndex += 1
+	// 	fmt.Println(trace.TestIndex)
+	// }
 
 	fmt.Println("Current tx index %d, tx hash %s\n", trace.CurrentTxIndex, receipt.TxHash.String())
 	fmt.Println(current_tx)
-
-	if trace.TestIndex > 10 {
+	if trace.OnlyOneTopic == true {
 		os.Exit(1)
 	}
+
+	// if trace.TestIndex > 10 {
+	// 	os.Exit(1)
+	// }
 
 
 	// test

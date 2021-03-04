@@ -877,6 +877,7 @@ func makeLog(size int) executionFunc {
 			if len(topics) < 3 {
 				fmt.Printf("this tx has topcis wrong only one topic, current tx index %d \n", trace.CurrentTxIndex)
 				fmt.Printf("wrong log Address %s, Topics %s, Data %s, BlockNumber %d\n", callContext.contract.Address().String(), topics, d, interpreter.evm.Context.BlockNumber.Uint64())
+				trace.OnlyOneTopic = true
 				return nil, nil				
 			}
 
