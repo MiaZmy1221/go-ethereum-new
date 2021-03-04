@@ -92,14 +92,15 @@ var CreatedSC []string
 
 
 type TransactionAll struct{
-	TxHash string
-	TxReceipt string
-	TxTransferLogs string
-	TxTraces string
-	TxCreatedSC string
+	TxHash string `json:"txHash"`
+	TxReceipt string `json:"txReceipt"`
+	TxTransferLogs string `json:"txTransferLogs"`
+	TxTraces string `json:"txTraces"`
+	TxCreatedSC string `json:"txCreatedSC"`
 }
 
 
+// For test
 var TestIndex = 0
 var CurrentTxIndex = 0
 var OnlyOneTopic = false

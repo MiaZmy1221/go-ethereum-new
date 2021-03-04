@@ -828,7 +828,7 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 	// Trace
 	if interpreter.evm.redundency == false {
 		// test
-		// trace.TestIndex += 1
+		trace.TestIndex += 1
 
 		trace.CurrentTraceIndex += 1
 		tempt_trace := &trace.TraceN{
