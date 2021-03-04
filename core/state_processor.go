@@ -176,7 +176,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	if result.err == nil {
 		trace.GTxReceipt.Err = ""	
 	} else {
-		trace.GTxReceipt.Err = result.err
+		trace.GTxReceipt.Err = result.err.Error()
 	}
 
 
