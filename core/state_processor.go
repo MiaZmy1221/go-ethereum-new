@@ -198,7 +198,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	fmt.Println(current_tx)
 
 	if trace.TestIndex >= 10{
-		log.Info("Close mongodb and error file")
+		fmt.Println("Close mongodb and error file")
 		trace.SessionGlobal.Close()
 		trace.ErrorFile.Close()
 		os.Exit(1)
