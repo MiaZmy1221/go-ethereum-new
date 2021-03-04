@@ -47,6 +47,7 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 
 	"github.com/ethereum/go-ethereum/trace"
+	"encoding/json"
 )
 
 var (
