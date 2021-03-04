@@ -193,31 +193,41 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	// test
-	// if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {
-	// 	trace.TestIndex += 1
-	// 	fmt.Println(trace.TestIndex)
-	// 	fmt.Println(receipt.TxHash.String())
-	// 	fmt.Println(current_tx)
-	// }
-	
 
 	if trace.TestIndex >= 1{
 		fmt.Println(trace.TestIndex)
 		fmt.Println(receipt.TxHash.String())
 		fmt.Println(current_tx)
-	}
-
-	if trace.TestIndex > 10 {
+		log.Info("Close mongodb and error file")
+		trace.SessionGlobal.Close()
+		trace.ErrorFile.Close()
 		os.Exit(1)
 	}
 
-	// // no bash currently, fix it later
-	// session_err := trace.DBAll.Insert(current_tx) 
-	// if session_err != nil {
-	// 	trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", receipt.TxHash.String() , session_err))
+	// // bash insert
+	// trace.BashTxs = append(trace.BashTxs, current_tx)
+	// if trace.CurrentNum != trace.BashNum - 1 {
+	// 	trace.CurrentNum = trace.CurrentNum + 1
+	// } else {
+	// 	fmt.Println("Bash insert 100 tx")
+	// 	session_err := trace.DBAll.Insert(trace.BashTxs...) 
+	// 	if session_err != nil {
+	// 		trace.SessionGlobal.Refresh()
+	// 		for i := 0; i < trace.BashNum; i++ {
+	// 			 session_err = db_tx.Insert(&trace.BashTxs[i]) 
+	// 			 if session_err != nil {
+	// 				json_tx, json_err := json.Marshal(&trace.BashTxs[i])
+	// 				if json_err != nil {
+	// 					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).Tx_Hash, json_err))
+	// 				}
+	// 				trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+	// 		      }
+	// 		 }
+	// 	}
+	// 	trace.CurrentNum = 0
+	// 	trace.BashTxs = []trace.TransactionAll{}
 	// }
-
+	
 
 	return receipt, err
 }

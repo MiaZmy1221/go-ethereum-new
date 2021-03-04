@@ -46,7 +46,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 	lru "github.com/hashicorp/golang-lru"
 
-	// "github.com/ethereum/go-ethereum/trace"
+	"github.com/ethereum/go-ethereum/trace"
 )
 
 var (
@@ -1055,10 +1055,10 @@ func (bc *BlockChain) Stop() {
 		triedb.SaveCache(bc.cacheConfig.TrieCleanJournal)
 	}
 
-	// log.Info("Close mongodb and error file")
-	// trace.SessionGlobal.Close()
-	// trace.ErrorFile.Close()
-
+	log.Info("Close mongodb and error file")
+	trace.SessionGlobal.Close()
+	trace.ErrorFile.Close()
+	
 	log.Info("Blockchain stopped")
 
 }
