@@ -826,21 +826,22 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 	interpreter.evm.StateDB.Suicide(callContext.contract.Address())
 
 	// 	// Trace
-	trace.CurrentTraceIndex += 1
-	tempt_trace := &trace.TraceN{
-				CallType: "SELFDESTRUCT", 
-				FromAddr: "0x", 
-				ToAddr: "0x",
-				CreateAddr: "0x",
-				SuicideContract: callContext.contract.Address().String(),
-				Beneficiary: beneficiary.String(),
-				Input: "",
-				Output: "", 
-				Value: balance, 
-				TraceIndex: trace.CurrentTraceIndex, 
-				Type: "SUICIDE"}
-	trace.Traces = append(trace.Traces, *tempt_trace) 
-
+	if interpreter.evm.redundency == false {
+		trace.CurrentTraceIndex += 1
+		tempt_trace := &trace.TraceN{
+					CallType: "SELFDESTRUCT", 
+					FromAddr: "0x", 
+					ToAddr: "0x",
+					CreateAddr: "0x",
+					SuicideContract: callContext.contract.Address().String(),
+					Beneficiary: beneficiary.String(),
+					Input: "",
+					Output: "", 
+					Value: balance, 
+					TraceIndex: trace.CurrentTraceIndex, 
+					Type: "SUICIDE"}
+		trace.Traces = append(trace.Traces, *tempt_trace) 
+	}
 
 	return nil, nil
 }
@@ -869,9 +870,8 @@ func makeLog(size int) executionFunc {
 		})
 
 		// Convert the log to the TransferLog
-		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && len(topics) == 3 {
-			fmt.Println("makeLog function, interpreter.evm.redundency %t \n  ", interpreter.evm.redundency)
-
+		// && len(topics) == 3  
+		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && interpreter.evm.redundency == false {
 			// fmt.Println("Topics ", topics, " address ", callContext.contract.Address(), " BlockNumber ", interpreter.evm.Context.BlockNumber.Uint64())
 			tempt_log := &trace.TransferLog{
 				FromAddr: topics[1].String(),
