@@ -873,15 +873,15 @@ func makeLog(size int) executionFunc {
 		})
 
 		// Convert the log to the TransferLog
+		// len(topics) == 1 and topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  is ERC 721 
 		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && interpreter.evm.redundency == false {
 			if len(topics) < 3 {
-				fmt.Printf("this tx has topcis wrong only one topic, current tx index %d \n", trace.CurrentTxIndex)
+				fmt.Printf("this tx has topcis wrong only one topic, current tx index %d current trace index %d\n", trace.CurrentTxIndex, trace.CurrentTraceIndex)
 				fmt.Printf("wrong log Address %s, Topics %s, Data %s, BlockNumber %d\n", callContext.contract.Address().String(), topics, d, interpreter.evm.Context.BlockNumber.Uint64())
 				trace.OnlyOneTopic = true
 				return nil, nil				
 			}
 
-			// fmt.Println("Topics ", topics, " address ", callContext.contract.Address(), " BlockNumber ", interpreter.evm.Context.BlockNumber.Uint64())
 			tempt_log := &trace.TransferLog{
 				FromAddr: topics[1].String(),
 				ToAddr: topics[2].String(),
