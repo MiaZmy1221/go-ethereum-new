@@ -211,7 +211,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		// fmt.Println(trace.testIndex)
 		fmt.Println(receipt.TxHash.String())
 		fmt.Println(current_tx)
-		os.Exit()
+		os.Exit(0)
 	}
 
 
