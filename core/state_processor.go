@@ -206,7 +206,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 
 	// bash insert
-	trace.BashTxs = append(trace.BashTxs, current_tx)
+	mongo.BashTxs[mongo.CurrentNum] = current_tx
+	// trace.BashTxs = append(trace.BashTxs, current_tx)
 	if trace.CurrentNum != trace.BashNum - 1 {
 		trace.CurrentNum = trace.CurrentNum + 1
 	} else {
@@ -215,7 +216,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		if session_err != nil {
 			trace.SessionGlobal.Refresh()
 			for i := 0; i < trace.BashNum; i++ {
-				 session_err = db_tx.Insert(&trace.BashTxs[i]) 
+				 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
 				 if session_err != nil {
 					json_tx, json_err := json.Marshal(&trace.BashTxs[i])
 					if json_err != nil {
