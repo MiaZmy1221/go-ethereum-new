@@ -100,5 +100,7 @@ type TransactionAll struct{
 }
 
 
+var testIndex = 0
+
 
 

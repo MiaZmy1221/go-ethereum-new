@@ -195,10 +195,15 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	// test
 	// || len(trace.TransferLogs) >= 1 
-	if len(trace.Traces) > 1 {
+	if len(trace.Traces) > 1 || len(trace.TransferLogs) >= 1 {
+		trace.testIndex += 1
+		fmt.Println(trace.testIndex)
 		fmt.Println(receipt.TxHash.String())
 		fmt.Println(current_tx)
-		os.Exit(0)
+	}
+
+	if trace.testIndex > 10 {
+		os.Exit()
 	}
 
 
