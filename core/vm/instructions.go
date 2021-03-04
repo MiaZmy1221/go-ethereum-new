@@ -875,7 +875,8 @@ func makeLog(size int) executionFunc {
 		// Convert the log to the TransferLog
 		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && interpreter.evm.redundency == false {
 			if len(topics) < 3 {
-				fmt.Println("this tx has topcis wrong only one topic, current tx index %d \n", trace.CurrentTxIndex)
+				fmt.Printf("this tx has topcis wrong only one topic, current tx index %d \n", trace.CurrentTxIndex)
+				fmt.Printf("wrong log Address %s, Topics %s, Data %s, BlockNumber %d\n", callContext.contract.Address().String(), topics, d, interpreter.evm.Context.BlockNumber.Uint64())
 				return nil, nil				
 			}
 
