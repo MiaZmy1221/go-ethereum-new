@@ -102,7 +102,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	// fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
-
+	trace.CurrentTxIndex += 1
 
 	// # step prep: ensure the currentIndex is 1	
 	trace.CurrentTraceIndex = 0
@@ -192,6 +192,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxTraces: string(json_traces),
 		TxCreatedSC: string(json_createdsc),
 	}
+
+	fmt.Println("Current tx index %d, tx hash %s\n", trace.CurrentTxIndex, receipt.TxHash.String())
 
 	// test
 	if len(trace.Traces) > 1 && len(trace.TransferLogs) >= 1 {

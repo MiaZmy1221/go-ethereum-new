@@ -101,6 +101,7 @@ type TransactionAll struct{
 
 
 var TestIndex = 0
+var CurrentTxIndex = 0
 
 
 
