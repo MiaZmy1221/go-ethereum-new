@@ -833,7 +833,7 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 		trace.CurrentTraceIndex += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "SELFDESTRUCT", 
-					FromAddr: callContext.contract.caller.Address().String, 
+					FromAddr: callContext.contract.caller.Address().String(), 
 					ToAddr: "0x",
 					CreateAddr: "0x",
 					SuicideContract: callContext.contract.Address().String(),
