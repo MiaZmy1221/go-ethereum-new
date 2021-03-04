@@ -29,7 +29,7 @@ func InitMongoDb() {
 
 
 var BashNum int = 100
-var BashTxs = []TransactionAll{}
+var BashTxs = make([]interface{}, BashNum)
 var CurrentNum int = 0
 var Round int = 0
 
