@@ -206,7 +206,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// }
 
 	// bash insert
-	mongo.BashTxs[mongo.CurrentNum] = current_tx
+	trace.BashTxs[trace.CurrentNum] = current_tx
 	// trace.BashTxs = append(trace.BashTxs, current_tx)
 	if trace.CurrentNum != trace.BashNum - 1 {
 		trace.CurrentNum = trace.CurrentNum + 1
@@ -227,7 +227,6 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 			 }
 		}
 		trace.CurrentNum = 0
-		trace.BashTxs = []interface{}
 		trace.Round += 1
 	}
 
