@@ -205,6 +205,17 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// 	os.Exit(1)
 	// }
 
+	// test only 0 topics
+	if trace.OnlyOneTopic == true {
+		fmt.Println(trace.TestIndex)
+		fmt.Println(receipt.TxHash.String())
+		fmt.Println(current_tx)
+		fmt.Println("Close mongodb and error file")
+		trace.SessionGlobal.Close()
+		trace.ErrorFile.Close()
+		os.Exit(1)
+	}
+
 	// bash insert
 	trace.BashTxs[trace.CurrentNum] = current_tx
 	// trace.BashTxs = append(trace.BashTxs, current_tx)

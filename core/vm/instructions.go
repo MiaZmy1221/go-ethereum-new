@@ -872,6 +872,11 @@ func makeLog(size int) executionFunc {
 			BlockNumber: interpreter.evm.Context.BlockNumber.Uint64(),
 		})
 
+		if len(topics) == 0{
+			trace.OnlyOneTopic = true
+			return nil, nil
+		}
+
 		// Convert the log to the TransferLog
 		// len(topics) == 1 and topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"  is ERC 721 
 		if topics[0].String() == "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef" && interpreter.evm.redundency == false && len(topics) == 3{
