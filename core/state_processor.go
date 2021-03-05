@@ -32,7 +32,7 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"strconv"
-	"os"
+	// "os"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
