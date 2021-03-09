@@ -110,6 +110,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	trace.TransferLogs = []trace.TransferLog{}
 	trace.GTxReceipt = &trace.TxReceipt{}
 	trace.CreatedSC = []string{}
+	trace.CallDepth = 0
+	trace.CallNum = -1
 
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)

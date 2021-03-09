@@ -295,6 +295,8 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 
 	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "CALL", 
 					FromAddr: caller.Address().String(), 
@@ -305,6 +307,8 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
 					Value: value, 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "CALL"}
 		// json_trace, _ := json.Marshal(tempt_trace)
@@ -316,6 +320,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	        tempt_traces := []trace.TraceN{}
 			tempt_traces = append(tempt_traces, *tempt_trace)
 			trace.Traces = append(tempt_traces, trace.Traces...) 
+			trace.CallDepth -= 1
 	    }()
 	}
 
@@ -388,9 +393,10 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 		return nil, gas, ErrInsufficientBalance
 	}
 
-
-	if evm.redundency == false{
+	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "CALLCODE", 
 					FromAddr: caller.Address().String(), 
@@ -401,6 +407,8 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
 					Value: value, 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "CALL"}
 		// json_trace, _ := json.Marshal(tempt_trace)
@@ -412,6 +420,7 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 	        tempt_traces := []trace.TraceN{}
 			tempt_traces = append(tempt_traces, *tempt_trace)
 			trace.Traces = append(tempt_traces, trace.Traces...) 
+			trace.CallDepth -= 1
 	    }()
 	}
 
@@ -457,6 +466,8 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 
 	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "DELEGATECALL", 
 					FromAddr: caller.Address().String(), 
@@ -466,7 +477,9 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 					Beneficiary: "0x",
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: big.NewInt(0), 
+					Value: value, 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "CALL"}
 		// json_trace, _ := json.Marshal(tempt_trace)
@@ -478,9 +491,9 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	        tempt_traces := []trace.TraceN{}
 			tempt_traces = append(tempt_traces, *tempt_trace)
 			trace.Traces = append(tempt_traces, trace.Traces...) 
+			trace.CallDepth -= 1
 	    }()
 	}
-
 
 	var snapshot = evm.StateDB.Snapshot()
 
@@ -521,8 +534,10 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 
 	if evm.redundency == false {
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
-					CallType: "CALLCODE", 
+					CallType: "STATICCALL", 
 					FromAddr: caller.Address().String(), 
 					ToAddr: addr.String(),
 					CreateAddr: "0x",
@@ -530,7 +545,9 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 					Beneficiary: "0x",
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: big.NewInt(0), 
+					Value: value, 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "CALL"}
 		// json_trace, _ := json.Marshal(tempt_trace)
@@ -542,6 +559,7 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	        tempt_traces := []trace.TraceN{}
 			tempt_traces = append(tempt_traces, *tempt_trace)
 			trace.Traces = append(tempt_traces, trace.Traces...) 
+			trace.CallDepth -= 1
 	    }()
 	}
 
@@ -648,6 +666,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 		}
 		// fmt.Printf("\n\nevm.go %s\n", op)
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
 					CallType: op, 
 					FromAddr: caller.Address().String(), 
@@ -659,6 +679,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 					Output: "", 
 					Value: value, 
 					// Value: new(big.Int).SetUint64(value.Uint64()), 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "CREATE"}
 		trace.CreatedSC = append(trace.CreatedSC, address.String())
@@ -669,7 +691,8 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 	        tempt_trace.Output = hex.EncodeToString(retCreate)
 	        tempt_traces := []trace.TraceN{}
 			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...) 
+			trace.Traces = append(tempt_traces, trace.Traces...)
+			trace.CallDepth -= 1
 	    }()
 	}
 

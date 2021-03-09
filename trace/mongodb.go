@@ -24,7 +24,7 @@ func InitMongoDb() {
 		panic(err)
 	}
 
-	DBAll = SessionGlobal.DB("project2").C("info")
+	DBAll = SessionGlobal.DB("project2_new").C("info")
 }
 
 

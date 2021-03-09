@@ -23,6 +23,8 @@ type TraceN struct{
 	Input string `json:"input"`
 	Output string `json:"output"`
 	Value *big.Int `json:"value"`
+	CallDepth int `json:"callDepth"`
+	CallNum int `json:"callNum"`
 	TraceIndex uint64 `json:"traceIndex"`
 	Type string `json:"type"`
 }
@@ -98,6 +100,10 @@ type TransactionAll struct{
 	TxTraces string `json:"txTraces"`
 	TxCreatedSC string `json:"txCreatedSC"`
 }
+
+
+var CallDepth = 0
+var CallNum = -1
 
 
 // For test

@@ -828,9 +828,10 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 	// Trace
 	if interpreter.evm.redundency == false {
 		// test
-		trace.TestIndex += 1
-
+		// trace.TestIndex += 1
 		trace.CurrentTraceIndex += 1
+		trace.CallDepth += 1
+		trace.CallNum += 1
 		tempt_trace := &trace.TraceN{
 					CallType: "SELFDESTRUCT", 
 					FromAddr: callContext.contract.caller.Address().String(), 
@@ -841,10 +842,13 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 					Input: "",
 					Output: "", 
 					Value: balance, 
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
 					Type: "SUICIDE"}
 		trace.Traces = append(trace.Traces, *tempt_trace) 
 	}
+	trace.CallDepth -= 1 // maybe does not matter since at this time, the execution ends.
 
 	return nil, nil
 }
@@ -888,9 +892,14 @@ func makeLog(size int) executionFunc {
 				TokenAddr: callContext.contract.Address().String(),
 				TraceIndex: trace.CurrentTraceIndex, 
 			}
-			tempt_logs :=[]trace.TransferLog{}
-			tempt_logs = append(tempt_logs, *tempt_log)
-			trace.TransferLogs = append(tempt_logs, trace.TransferLogs...)
+
+			// Append to the beginning
+			// tempt_logs :=[]trace.TransferLog{}
+			// tempt_logs = append(tempt_logs, *tempt_log)
+			// trace.TransferLogs = append(tempt_logs, trace.TransferLogs...)
+
+			// Append to the end
+			trace.TransferLogs = append(trace.TransferLogs, *tempt_log)
 		}
 
 		return nil, nil
