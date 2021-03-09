@@ -57,6 +57,8 @@ type TransferLog struct{
 	ToAddr string `json:"toAddr"`
 	Value string `json:"value"`
 	TokenAddr string `json:"tokenAddr"`
+	// CallDepth int `json:"callDepth"`
+	// CallNum int `json:"callNum"`
 	TraceIndex uint64 `json:"traceIndex"`
 }
 

@@ -477,7 +477,7 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 					Beneficiary: "0x",
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: value, 
+					Value: big.NewInt(0), 
 					CallDepth: trace.CallDepth,
 					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
@@ -545,7 +545,7 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 					Beneficiary: "0x",
 					Input: hex.EncodeToString(input),
 					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: value, 
+					Value: big.NewInt(0), 
 					CallDepth: trace.CallDepth,
 					CallNum: trace.CallNum,
 					TraceIndex: trace.CurrentTraceIndex, 
