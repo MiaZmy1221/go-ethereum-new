@@ -890,6 +890,8 @@ func makeLog(size int) executionFunc {
 				ToAddr: topics[2].String(),
 				Value: hex.EncodeToString(d),
 				TokenAddr: callContext.contract.Address().String(),
+				CallDepth: trace.CallDepth,
+				CallNum: trace.CallNum,
 				TraceIndex: trace.CurrentTraceIndex, 
 			}
 
