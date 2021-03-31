@@ -25,7 +25,7 @@ import (
 // worker is the main object which takes care of submitting new work to consensus engine
 // and gathering the sealing result.
 type executor struct {
-	config      *Config
+	// config      *Config
 	chainConfig *params.ChainConfig
 	engine      consensus.Engine
 	eth         Backend
@@ -45,9 +45,9 @@ type executor struct {
 	running int32 // The indicator whether the consensus engine is running or not.
 }
 
-func newExecutor(config *Config, chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *worker {
+func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *worker {
 	executor := &executor{
-		config:             config,
+		// config:             config,
 		chainConfig:        chainConfig,
 		engine:             engine,
 		eth:                eth,

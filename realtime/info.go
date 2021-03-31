@@ -3,7 +3,7 @@ package realtime
 import (
 	"os"
 	"gopkg.in/mgo.v2"
-	"github.com/ethereum/go-ethereum/core/types"
+	// "github.com/ethereum/go-ethereum/core/types"
 )
 
 var RTSessionGlobal *mgo.Session

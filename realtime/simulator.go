@@ -11,12 +11,17 @@ import (
 	// "github.com/ethereum/go-ethereum/core"
 	// "github.com/ethereum/go-ethereum/core/state"
 	// "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
+	// "github.com/ethereum/go-ethereum/eth/downloader"
+	// "github.com/ethereum/go-ethereum/event"
+	// "github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 )
 
+// Backend wraps all methods required for mining.
+type Backend interface {
+	BlockChain() *core.BlockChain
+	TxPool() *core.TxPool
+}
 
 // Miner creates blocks and searches for proof-of-work values.
 // Simulates Miner, Simulator just executes the realtime transactions.
@@ -31,7 +36,7 @@ type Simulator struct {
 	stopCh   chan struct{}
 }
 
-func New(eth Backend, config *Config, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
+func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
 	simulator := &Simulator{
 		eth:     eth,
 		mux:     mux,
@@ -39,7 +44,7 @@ func New(eth Backend, config *Config, chainConfig *params.ChainConfig, engine co
 		exitCh:  make(chan struct{}),
 		startCh: make(chan struct{}),
 		stopCh:  make(chan struct{}),
-		executor:  newExecutor(config, chainConfig, engine, eth),
+		executor:  newExecutor(chainConfig, engine, eth),
 	}
 	go simulator.update()
 
