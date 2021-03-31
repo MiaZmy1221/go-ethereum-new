@@ -30,6 +30,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/enode"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"github.com/ethereum/go-ethereum/realtime"
 )
 
 // ethHandler implements the eth.Backend interface to handle the various network
@@ -39,6 +41,10 @@ type ethHandler handler
 func (h *ethHandler) Chain() *core.BlockChain     { return h.chain }
 func (h *ethHandler) StateBloom() *trie.SyncBloom { return h.stateBloom }
 func (h *ethHandler) TxPool() eth.TxPool          { return h.txpool }
+
+
+// Mia add
+func (h *ethHandler) RTSimulator() realtime.Simulator  {return h.rtSimulator}
 
 // RunPeer is invoked when a peer joins on the `eth` protocol.
 func (h *ethHandler) RunPeer(peer *eth.Peer, hand eth.Handler) error {

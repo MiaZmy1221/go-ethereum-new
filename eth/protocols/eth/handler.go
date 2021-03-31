@@ -31,6 +31,9 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"github.com/ethereum/go-ethereum/realtime"
+	"os"
 )
 
 const (
@@ -93,6 +96,9 @@ type Backend interface {
 	// the remote peer. Only packets not consumed by the protocol handler will
 	// be forwarded to the backend.
 	Handle(peer *Peer, packet Packet) error
+
+	// Mia add
+	RTSimulator() realtime.Simulator
 }
 
 // TxPool defines the methods needed by the protocol handler to serve transactions.
@@ -313,6 +319,14 @@ func handleMessage(backend Backend, peer *Peer) error {
 		if err := msg.Decode(res); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
+
+		for i, blockbody := range res {
+			fmt.Printf("index block body: %d \n", i)
+            for j, tx :=range blockbody.Transactions {
+            	fmt.Printf("indx tx %d, hash %s, first seen time %s ", j, tx.Hash().String(), tx.Time())
+            }
+        }
+
 		return backend.Handle(peer, res)
 
 	case msg.Code == GetNodeDataMsg:
@@ -484,6 +498,24 @@ func handleMessage(backend Backend, peer *Peer) error {
 		return peer.SendPooledTransactionsRLP(hashes, txs)
 
 	case msg.Code == TransactionsMsg || (msg.Code == PooledTransactionsMsg && peer.version >= ETH65):
+		// test transaction execution
+		realtime.InitRealtimeDB()
+		simulator := backend.RTSimulator()
+		var txs1 []*types.Transaction
+        if err1 := msg.Decode(&txs1); err1 == nil {
+        	fmt.Println("How many transactions ", len(txs1))
+            for _, tx1 := range txs1 {
+                if tx1 != nil {
+                    fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
+                    simulator.executor.newtxCh <- tx1
+                }
+            }
+        }
+        fmt.Println("Simulate executions for those transactions")
+        realtime.RTSessionGlobal.close()
+        os.Exit(1)
+
+
 		// Transactions arrived, make sure we have a valid and fresh chain to handle them
 		if !backend.AcceptTxs() {
 			break

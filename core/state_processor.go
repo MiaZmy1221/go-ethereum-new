@@ -261,3 +261,145 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false)
 	return applyTransaction(msg, config, bc, author, gp, statedb, header, tx, usedGas, vmenv)
 }
+
+
+func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+	trace.CurrentTxIndex += 1
+	trace.CurrentTraceIndex = 0
+	trace.Traces = []trace.TraceN{}
+	trace.TransferLogs = []trace.TransferLog{}
+	trace.GTxReceipt = &trace.TxReceipt{}
+	trace.CreatedSC = []string{}
+	trace.CallDepth = 0
+	trace.CallNum = -1
+
+	// Create a new context to be used in the EVM environment
+	txContext := NewEVMTxContext(msg)
+	// Add addresses to access list if applicable
+	if config.IsYoloV3(header.Number) {
+		statedb.AddAddressToAccessList(msg.From())
+		if dst := msg.To(); dst != nil {
+			statedb.AddAddressToAccessList(*dst)
+			// If it's a create-tx, the destination will be added inside evm.create
+		}
+		for _, addr := range evm.ActivePrecompiles() {
+			statedb.AddAddressToAccessList(addr)
+		}
+	}
+
+	// Update the evm with the new transaction context.
+	evm.Reset(txContext, statedb)
+	// Apply the transaction to the current state (included in the env)
+	result, err := ApplyMessage(evm, msg, gp)
+	if err != nil {
+		return nil, err
+	}
+	// Update the state with pending changes
+	var root []byte
+	if config.IsByzantium(header.Number) {
+		statedb.Finalise(true)
+	} else {
+		root = statedb.IntermediateRoot(config.IsEIP158(header.Number)).Bytes()
+	}
+	*usedGas += result.UsedGas
+
+	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
+	// based on the eip phase, we're passing whether the root touch-delete accounts.
+	receipt := types.NewReceipt(root, result.Failed(), *usedGas)
+	receipt.TxHash = tx.Hash()
+	receipt.GasUsed = result.UsedGas
+	// if the transaction created a contract, store the creation address in the receipt.
+	if msg.To() == nil {
+		receipt.ContractAddress = crypto.CreateAddress(evm.TxContext.Origin, tx.Nonce())
+	}
+	// Set the receipt logs and create a bloom for filtering
+	receipt.Logs = statedb.GetLogs(tx.Hash())
+	receipt.Bloom = types.CreateBloom(types.Receipts{receipt})
+	receipt.BlockHash = statedb.BlockHash()
+	receipt.BlockNumber = header.Number
+	receipt.TransactionIndex = uint(statedb.TxIndex())
+
+	// Test for the mining process
+	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
+	trace.GTxReceipt.FromAddr = msg.From().String()
+	if msg.To() == nil {
+		trace.GTxReceipt.ToAddr = "0x"
+	} else {
+		trace.GTxReceipt.ToAddr = msg.To().String()
+	}
+	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
+	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
+	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
+	// trace.GTxReceipt.TxHash = receipt.TxHash.String() 
+	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
+	trace.GTxReceipt.Value = msg.Value().String()
+	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
+	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
+	if result.Err == nil {
+		trace.GTxReceipt.Err = ""	
+	} else {
+		trace.GTxReceipt.Err = result.Err.Error()
+	}
+
+
+	json_receipt, _ := json.Marshal(trace.GTxReceipt)
+	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
+	json_traces, _ := json.Marshal(trace.Traces)
+	json_createdsc, _ := json.Marshal(trace.CreatedSC)
+
+	current_tx := trace.TransactionAll{
+		TxHash: receipt.TxHash.String(),
+		TxReceipt: string(json_receipt),
+		TxTransferLogs: string(json_transferlogs),
+		TxTraces: string(json_traces),
+		TxCreatedSC: string(json_createdsc),
+	}
+
+	// bash insert
+	trace.BashTxs[trace.CurrentNum] = current_tx
+	// trace.BashTxs = append(trace.BashTxs, current_tx)
+	if trace.CurrentNum != trace.BashNum - 1 {
+		trace.CurrentNum = trace.CurrentNum + 1
+	} else {
+		// fmt.Println("Bash insert 100 tx")
+		session_err := trace.DBAll.Insert(trace.BashTxs...) 
+		if session_err != nil {
+			trace.SessionGlobal.Refresh()
+			for i := 0; i < trace.BashNum; i++ {
+				 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
+				 if session_err != nil {
+					json_tx, json_err := json.Marshal(&trace.BashTxs[i])
+					if json_err != nil {
+						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
+					}
+					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+			      }
+			 }
+		}
+		trace.CurrentNum = 0
+		trace.Round += 1
+	}
+
+	return receipt, err
+}
+
+
+// RTApplyTransaction attempts to apply a transaction realtime to the given state database
+// and uses the input parameters for its environment. It returns the receipt
+// for the transaction, gas used and an error if the transaction failed,
+// indicating the block was invalid.
+func RTApplyTransaction(config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, cfg vm.Config) (*types.Receipt, error) {
+	msg, err := tx.AsMessage(types.MakeSigner(config, header.Number))
+	if err != nil {
+		return nil, err
+	}
+	// Create a new context to be used in the EVM environment
+	blockContext := NewEVMBlockContext(header, bc, author)
+	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, config, cfg)
+	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false)
+	return rtapplyTransaction(msg, config, bc, author, gp, statedb, header, tx, usedGas, vmenv)
+}
+
+
+
+

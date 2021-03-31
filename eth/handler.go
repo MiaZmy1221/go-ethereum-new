@@ -38,6 +38,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/trie"
+
+	"github.com/ethereum/go-ethereum/realtime"
 )
 
 const (
@@ -85,6 +87,9 @@ type handlerConfig struct {
 	EventMux   *event.TypeMux            // Legacy event mux, deprecate for `feed`
 	Checkpoint *params.TrustedCheckpoint // Hard coded checkpoint for sync challenges
 	Whitelist  map[uint64]common.Hash    // Hard coded whitelist for sync challenged
+
+	// Mia add
+	RTSimulator realtime.Simulator
 }
 
 type handler struct {
@@ -123,6 +128,9 @@ type handler struct {
 	chainSync *chainSyncer
 	wg        sync.WaitGroup
 	peerWG    sync.WaitGroup
+
+	// Mia add
+	rtSimulator realtime.Simulator
 }
 
 // newHandler returns a handler for all Ethereum chain management protocol.
@@ -142,6 +150,9 @@ func newHandler(config *handlerConfig) (*handler, error) {
 		whitelist:  config.Whitelist,
 		txsyncCh:   make(chan *txsync),
 		quitSync:   make(chan struct{}),
+
+		// Mia add
+		rtSimulator: config.RTSimulator
 	}
 	if config.Sync == downloader.FullSync {
 		// The database seems empty as the current block is the genesis. Yet the fast

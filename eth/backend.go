@@ -53,6 +53,10 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
+
+
+	"github.com/ethereum/go-ethereum/realtime"
+	"fmt"
 )
 
 // Ethereum implements the Ethereum full node service.
@@ -198,6 +202,13 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	if checkpoint == nil {
 		checkpoint = params.TrustedCheckpoints[genesisHash]
 	}
+
+	// new added
+	simulator := Simulator.New(eth, &config.Miner, chainConfig, eth.engine)
+	simulator.Start()
+	fmt.Println("simulator new ")
+
+	// add the simulator to the handler
 	if eth.handler, err = newHandler(&handlerConfig{
 		Database:   chainDb,
 		Chain:      eth.blockchain,
@@ -208,11 +219,18 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 		EventMux:   eth.eventMux,
 		Checkpoint: checkpoint,
 		Whitelist:  config.Whitelist,
+
+		// Mia Add
+		RTSimulator: simulator,
+
 	}); err != nil {
 		return nil, err
 	}
 	eth.miner = miner.New(eth, &config.Miner, chainConfig, eth.EventMux(), eth.engine, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
+
+	fmt.Println("miner new")
+	
 
 	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), eth, nil}
 	gpoParams := config.GPO
