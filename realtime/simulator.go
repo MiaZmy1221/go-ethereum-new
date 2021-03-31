@@ -8,7 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	// "github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
-	// "github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core"
 	// "github.com/ethereum/go-ethereum/core/state"
 	// "github.com/ethereum/go-ethereum/core/types"
 	// "github.com/ethereum/go-ethereum/eth/downloader"
@@ -27,7 +27,7 @@ type Backend interface {
 // Simulates Miner, Simulator just executes the realtime transactions.
 type Simulator struct {
 	executor   *executor  // to execute the transaction
-	coinbase common.Address
+	// coinbase common.Address
 	eth      Backend
 	engine   consensus.Engine
 	exitCh   chan struct{}
@@ -39,7 +39,6 @@ type Simulator struct {
 func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
 	simulator := &Simulator{
 		eth:     eth,
-		mux:     mux,
 		engine:  engine,
 		exitCh:  make(chan struct{}),
 		startCh: make(chan struct{}),

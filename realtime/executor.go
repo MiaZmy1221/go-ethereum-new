@@ -45,7 +45,7 @@ type executor struct {
 	running int32 // The indicator whether the consensus engine is running or not.
 }
 
-func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *worker {
+func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *executor {
 	executor := &executor{
 		// config:             config,
 		chainConfig:        chainConfig,
@@ -75,7 +75,7 @@ func (e *executor) mainLoop() {
 				e.executeTransaction(new_tx)	
 			} 
 		// System stopped
-		case <-w.exitCh:
+		case <-e.exitCh:
 			return
 		}
 	}
@@ -89,13 +89,13 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 	current_state, err := e.chain.StateAt(parent.Root())
 
 	snap := current_state.Snapshot()
-	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, &coinbase, e.current.gasPool, current_state, e.current.header, tx, &e.current.header.GasUsed, *e.chain.GetVMConfig())
+	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, nil, e.current.gasPool, current_state, e.current.header, tx, &e.current.header.GasUsed, *e.chain.GetVMConfig())
 	current_state.RevertToSnapshot(snap)
 
 	if err != nil {
 		return nil, err
 	} 
-	return receipt.logs, nil
+	return receipt.Logs, nil
 }
 
 
