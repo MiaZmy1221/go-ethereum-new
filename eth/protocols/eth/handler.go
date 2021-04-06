@@ -507,7 +507,7 @@ func handleMessage(backend Backend, peer *Peer) error {
             for _, tx1 := range txs1 {
                 if tx1 != nil {
                     fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
-                    simulator.Executor().newComing(tx1)
+                    simulator.Execute()
                     // simulator.executor.newtxCh <- tx1
                 }
             }
