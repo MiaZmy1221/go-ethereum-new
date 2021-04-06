@@ -60,35 +60,34 @@ func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth B
 		newtxCh:			make(chan *types.Transaction),
 	}
 
-	go executor.mainLoop()
+	// go executor.mainLoop()
 
 	return executor
 }
 
 // mainLoop is a standalone goroutine to regenerate the sealing task based on the received event.
-	
-func (e *executor) mainLoop() {
-	for {
-		select {
-		// a new tx comes
-		case new_tx := <-e.newtxCh:
-			// make sure the executor is running
-			if e.isRunning() {
-				// Only execute one transaction for now
-				// We do not consider txs relatonship: such as sort by price ... 
-				e.executeTransaction(new_tx)	
-			} 
-		// System stopped
-		case <-e.exitCh:
-			return
-		}
-	}
-}
+// func (e *executor) mainLoop() {
+// 	for {
+// 		select {
+// 		// a new tx comes
+// 		case new_tx := <-e.newtxCh:
+// 			// make sure the executor is running
+// 			if e.isRunning() {
+// 				// Only execute one transaction for now
+// 				// We do not consider txs relatonship: such as sort by price ... 
+// 				e.executeTransaction(new_tx)	
+// 			} 
+// 		// System stopped
+// 		case <-e.exitCh:
+// 			return
+// 		}
+// 	}
+// }
 
 
-func (e *executor) newComing(tx *types.Transaction) {
-	e.newtxCh <- tx
-}
+// func (e *executor) newComing(tx *types.Transaction) {
+// 	e.newtxCh <- tx
+// }
 
 
 // execute one transaction
@@ -103,8 +102,8 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 
 	num := parent.Number()
 	fmt.Printf("Current state\n")
-	fmt.Printf("Parent number ", num, "\n")
-	fmt.Printf("Tx hash  ", tx.Hash().String(), "\n")
+	fmt.Printf("Parent number %d", num, "\n")
+	fmt.Printf("Tx hash  %s\n", tx.Hash().String())
 
 	header := &types.Header{
 		ParentHash: parent.Hash(),
@@ -118,7 +117,9 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 
 	gasPool := new(core.GasPool).AddGas(header.GasLimit)
 
+	fmt.Printf("Start RTApplyTransaction\n")
 	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *e.chain.GetVMConfig())
+	fmt.Printf("End RTApplyTransaction\n")
 	current_state.RevertToSnapshot(snap)
 
 	if err != nil {

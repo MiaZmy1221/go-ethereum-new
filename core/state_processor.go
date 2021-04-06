@@ -32,7 +32,7 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"strconv"
-	// "os"
+	"os"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -101,7 +101,8 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	// fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
+	fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
+	os.Exit(1)
 	trace.CurrentTxIndex += 1
 
 	// # step prep: ensure the currentIndex is 1	
@@ -264,6 +265,8 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 
 
 func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+	fmt.Println("rtapplyTransaction function")
+
 	trace.CurrentTxIndex += 1
 	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
@@ -273,6 +276,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	trace.CallDepth = 0
 	trace.CallNum = -1
 
+	fmt.Println("test1")
 	// Create a new context to be used in the EVM environment
 	txContext := NewEVMTxContext(msg)
 	// Add addresses to access list if applicable
@@ -287,6 +291,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		}
 	}
 
+	fmt.Println("test2")
 	// Update the evm with the new transaction context.
 	evm.Reset(txContext, statedb)
 	// Apply the transaction to the current state (included in the env)
@@ -303,6 +308,8 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	}
 	*usedGas += result.UsedGas
 
+
+	fmt.Println("test3")
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
 	// based on the eip phase, we're passing whether the root touch-delete accounts.
 	receipt := types.NewReceipt(root, result.Failed(), *usedGas)
@@ -341,7 +348,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		trace.GTxReceipt.Err = result.Err.Error()
 	}
 
-
+	fmt.Println("test4")
 	json_receipt, _ := json.Marshal(trace.GTxReceipt)
 	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
 	json_traces, _ := json.Marshal(trace.Traces)
@@ -355,30 +362,37 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	// bash insert
-	trace.BashTxs[trace.CurrentNum] = current_tx
-	// trace.BashTxs = append(trace.BashTxs, current_tx)
-	if trace.CurrentNum != trace.BashNum - 1 {
-		trace.CurrentNum = trace.CurrentNum + 1
-	} else {
-		// fmt.Println("Bash insert 100 tx")
-		session_err := trace.DBAll.Insert(trace.BashTxs...) 
-		if session_err != nil {
-			trace.SessionGlobal.Refresh()
-			for i := 0; i < trace.BashNum; i++ {
-				 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
-				 if session_err != nil {
-					json_tx, json_err := json.Marshal(&trace.BashTxs[i])
-					if json_err != nil {
-						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
-					}
-					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
-			      }
-			 }
-		}
-		trace.CurrentNum = 0
-		trace.Round += 1
+
+	fmt.Println("test5")
+	session_err := trace.Realtime.Insert(&current_tx) 
+	if session_err != nil {
+		fmt.Println("insert error")
 	}
+
+	// // bash insert
+	// trace.BashTxs[trace.CurrentNum] = current_tx
+	// // trace.BashTxs = append(trace.BashTxs, current_tx)
+	// if trace.CurrentNum != trace.BashNum - 1 {
+	// 	trace.CurrentNum = trace.CurrentNum + 1
+	// } else {
+	// 	// fmt.Println("Bash insert 100 tx")
+	// 	session_err := trace.DBAll.Insert(trace.BashTxs...) 
+	// 	if session_err != nil {
+	// 		trace.SessionGlobal.Refresh()
+	// 		for i := 0; i < trace.BashNum; i++ {
+	// 			 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
+	// 			 if session_err != nil {
+	// 				json_tx, json_err := json.Marshal(&trace.BashTxs[i])
+	// 				if json_err != nil {
+	// 					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
+	// 				}
+	// 				trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+	// 		      }
+	// 		 }
+	// 	}
+	// 	trace.CurrentNum = 0
+	// 	trace.Round += 1
+	// }
 
 	return receipt, err
 }

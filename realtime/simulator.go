@@ -16,6 +16,7 @@ import (
 	// "github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/core/types"
+	"fmt"
 )
 
 // Backend wraps all methods required for mining.
@@ -96,5 +97,7 @@ func (simulator *Simulator) Close() {
 }
 
 func (simulator *Simulator) Execute(tx *types.Transaction) {
-	simulator.executor.newComing(tx)
+	fmt.Println("Execute func begin")
+	simulator.executor.executeTransaction(tx)
+	fmt.Println("Execute func end")
 }
