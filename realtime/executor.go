@@ -28,7 +28,7 @@ import (
 // worker is the main object which takes care of submitting new work to consensus engine
 // and gathering the sealing result.
 type executor struct {
-	config      *Config
+	// config      *Config
 	chainConfig *params.ChainConfig
 	engine      consensus.Engine
 	eth         Backend
@@ -119,8 +119,7 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 		return nil, err
 	} 
 
-	end := time.Now()
-	fmt.Println("during for a simulation ", end-start)
+	fmt.Println("during for a simulation ", time.Since(start))
 	fmt.Println("test simulation end")
 	os.Exit(1)
 	return receipt.Logs, nil
