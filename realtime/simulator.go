@@ -15,6 +15,7 @@ import (
 	// "github.com/ethereum/go-ethereum/event"
 	// "github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/core/types"
 )
 
 // Backend wraps all methods required for mining.
