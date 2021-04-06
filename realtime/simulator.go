@@ -58,7 +58,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 
 // What this update function should do?????? in the mining 
 func (simulator *Simulator) update() {
-	shouldStart := false
+	// shouldStart := false
 	canStart := true
 	for {
 		select {
@@ -66,9 +66,9 @@ func (simulator *Simulator) update() {
 			if canStart {
 				simulator.executor.start()
 			}
-			shouldStart = true
+			// shouldStart = true
 		case <-simulator.stopCh:
-			shouldStart = false
+			// shouldStart = falses
 			simulator.executor.stop()
 		case <-simulator.exitCh:
 			simulator.executor.close()
