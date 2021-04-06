@@ -9,7 +9,7 @@ import (
 	// "time"
 
 	// mapset "github.com/deckarep/golang-set"
-	// "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	// "github.com/ethereum/go-ethereum/consensus/misc"
 	"github.com/ethereum/go-ethereum/core"
@@ -21,6 +21,7 @@ import (
 	// "github.com/ethereum/go-ethereum/trie"
 
 	"os"
+	"fmt"
 )
 
 
@@ -104,7 +105,7 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 		Number:     num.Add(num, common.Big1),
 		GasLimit:   core.CalcGasLimit(parent, w.config.GasFloor, w.config.GasCeil),
 		Extra:      w.extra,
-		Time:       uint64(timestamp),
+		Time:       uint64(time.Now().Unix()),
 	}
 
 	gasPool := new(core.GasPool).AddGas(header.GasLimit)
