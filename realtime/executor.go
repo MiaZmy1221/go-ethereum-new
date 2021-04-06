@@ -19,6 +19,8 @@ import (
 	// "github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	// "github.com/ethereum/go-ethereum/trie"
+
+	"os"
 )
 
 
@@ -85,18 +87,37 @@ func (e *executor) mainLoop() {
 // execute one transaction
 // Modify from commitTransaction
 func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, error) {
+	fmt.Println("test simulation begin")
 	parent := e.chain.CurrentBlock()
 	current_state, err := e.chain.StateAt(parent.Root())
 
 	snap := current_state.Snapshot()
 
-	// Need to consider the block gaspool for single tx
-	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, nil, e.current.gasPool, current_state, e.current.header, tx, &e.current.header.GasUsed, *e.chain.GetVMConfig())
+	parent := e.chain.CurrentBlock()
+	num := parent.Number()
+	fmt.Printf("Current state\n")
+	fmt.Printf("Parent number ", num, "\n")
+	fmt.Printf("Tx hash  ", tx.Hash().String(), "\n")
+
+	header := &types.Header{
+		ParentHash: parent.Hash(),
+		Number:     num.Add(num, common.Big1),
+		GasLimit:   core.CalcGasLimit(parent, w.config.GasFloor, w.config.GasCeil),
+		Extra:      w.extra,
+		Time:       uint64(timestamp),
+	}
+
+	gasPool := new(core.GasPool).AddGas(header.GasLimit)
+
+	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *e.chain.GetVMConfig())
 	current_state.RevertToSnapshot(snap)
 
 	if err != nil {
 		return nil, err
 	} 
+
+	fmt.Println("test simulation end")
+	os.Exit(1)
 	return receipt.Logs, nil
 }
 
