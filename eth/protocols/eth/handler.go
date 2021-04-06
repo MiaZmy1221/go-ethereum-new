@@ -98,7 +98,7 @@ type Backend interface {
 	Handle(peer *Peer, packet Packet) error
 
 	// Mia add
-	RTSimulator() realtime.Simulator
+	RTSimulator() *realtime.Simulator
 }
 
 // TxPool defines the methods needed by the protocol handler to serve transactions.
