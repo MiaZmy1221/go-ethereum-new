@@ -104,7 +104,7 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
 		// GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, e.config.GasCeil),
-		GasLimit:   10000000000
+		GasLimit:   10000000000,
 		// Extra:      e.extra,
 		Extra:		nil,
 		Time:       uint64(time.Now().Unix()),
