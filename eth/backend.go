@@ -55,7 +55,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 
 
-	// "github.com/ethereum/go-ethereum/realtime"
+	"github.com/ethereum/go-ethereum/realtime"
 	// "fmt"
 )
 
@@ -204,7 +204,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// new added
-	simulator := Simulator.New(eth, chainConfig, eth.engine)
+	simulator := realtime.Simulator.New(eth, chainConfig, eth.engine)
 	simulator.Start()
 	fmt.Println("simulator new ")
 
