@@ -34,7 +34,6 @@ import (
 	"strconv"
 	"os"
 
-	"github.com/ethereum/go-ethereum/realtime"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -368,12 +367,12 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 
 
 	fmt.Println("test5")
-	realtime.InitRealtimeDB()
-	session_err := realtime.Realtime.Insert(&current_tx) 
+	trace.InitRealtimeDB()
+	session_err := trace.Realtime.Insert(&current_tx) 
 	if session_err != nil {
 		fmt.Println("insert error")
 	}
-	realtime.Realtime.Close()
+	trace.Realtime.Close()
 	fmt.Println("test6")
 
 	// // bash insert
