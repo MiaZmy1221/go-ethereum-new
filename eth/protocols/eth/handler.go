@@ -320,12 +320,12 @@ func handleMessage(backend Backend, peer *Peer) error {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
 
-		for i, blockbody := range &res {
-			fmt.Printf("index block body: %d \n", i)
-            for j, tx :=range blockbody.Transactions {
-            	fmt.Printf("indx tx %d, hash %s, first seen time %s ", j, tx.Hash().String(), tx.Time())
-            }
-        }
+		// for i, blockbody := range &res {
+		// 	fmt.Printf("index block body: %d \n", i)
+  //           for j, tx :=range blockbody.Transactions {
+  //           	fmt.Printf("indx tx %d, hash %s, first seen time %s ", j, tx.Hash().String(), tx.Time())
+  //           }
+  //       }
 
 		return backend.Handle(peer, res)
 
