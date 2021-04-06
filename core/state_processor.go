@@ -372,7 +372,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	if session_err != nil {
 		fmt.Println("insert error")
 	}
-	trace.Realtime.Close()
+	trace.RTSessionGlobal.Close()
 	fmt.Println("test6")
 
 	// // bash insert
