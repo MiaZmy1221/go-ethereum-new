@@ -33,6 +33,8 @@ import (
 	"encoding/hex"
 	"strconv"
 	"os"
+
+	"github.com/ethereum/go-ethereum/realtime"
 )
 
 // StateProcessor is a basic Processor, which takes care of transitioning
@@ -267,6 +269,8 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	fmt.Println("rtapplyTransaction function")
 
+	// borrow the settings from the trace for now, 
+	// assuming the replay does not work
 	trace.CurrentTxIndex += 1
 	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
@@ -364,10 +368,13 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 
 
 	fmt.Println("test5")
-	session_err := trace.Realtime.Insert(&current_tx) 
+	realtime.InitRealtimeDB()
+	session_err := realtime.Realtime.Insert(&current_tx) 
 	if session_err != nil {
 		fmt.Println("insert error")
 	}
+	realtime.Realtime.Close()
+	fmt.Println("test6")
 
 	// // bash insert
 	// trace.BashTxs[trace.CurrentNum] = current_tx
