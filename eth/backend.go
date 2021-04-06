@@ -204,7 +204,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// new added
-	simulator := realtime.Simulator.New(eth, chainConfig, eth.engine)
+	simulator := realtime.New(eth, chainConfig, eth.engine)
 	simulator.Start()
 	fmt.Println("simulator new ")
 
