@@ -130,7 +130,7 @@ type handler struct {
 	peerWG    sync.WaitGroup
 
 	// Mia add
-	rtSimulator realtime.Simulator
+	rtSimulator *realtime.Simulator
 }
 
 // newHandler returns a handler for all Ethereum chain management protocol.
