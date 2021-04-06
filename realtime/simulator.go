@@ -94,6 +94,6 @@ func (simulator *Simulator) Close() {
 	close(simulator.exitCh)
 }
 
-func (simulator *Simulator) Executor() *executor {
-	return simulator.executor
+func (simulator *Simulator) Executor() executor {
+	return *simulator.executor
 }
