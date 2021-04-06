@@ -320,7 +320,7 @@ func handleMessage(backend Backend, peer *Peer) error {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
 
-		for i, blockbody := range res {
+		for i, blockbody := range &res {
 			fmt.Printf("index block body: %d \n", i)
             for j, tx :=range blockbody.Transactions {
             	fmt.Printf("indx tx %d, hash %s, first seen time %s ", j, tx.Hash().String(), tx.Time())
@@ -507,12 +507,13 @@ func handleMessage(backend Backend, peer *Peer) error {
             for _, tx1 := range txs1 {
                 if tx1 != nil {
                     fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
-                    simulator.executor.newtxCh <- tx1
+                    simulator.executor.newComing(tx1)
+                    // simulator.executor.newtxCh <- tx1
                 }
             }
         }
         fmt.Println("Simulate executions for those transactions")
-        realtime.RTSessionGlobal.close()
+        realtime.RTSessionGlobal.Close()
         os.Exit(1)
 
 

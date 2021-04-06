@@ -66,7 +66,10 @@ func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth B
 }
 
 // mainLoop is a standalone goroutine to regenerate the sealing task based on the received event.
+	
 func (e *executor) mainLoop() {
+}
+
 	for {
 		select {
 		// a new tx comes
@@ -82,6 +85,11 @@ func (e *executor) mainLoop() {
 			return
 		}
 	}
+}
+
+
+func (e *executor) newComing(tx *types.Transaction) {
+	e.newtxCh <- tx
 }
 
 
