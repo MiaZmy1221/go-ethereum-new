@@ -89,7 +89,7 @@ type handlerConfig struct {
 	Whitelist  map[uint64]common.Hash    // Hard coded whitelist for sync challenged
 
 	// Mia add
-	RTSimulator realtime.Simulator
+	RTSimulator *realtime.Simulator
 }
 
 type handler struct {
