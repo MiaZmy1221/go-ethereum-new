@@ -48,9 +48,9 @@ type executor struct {
 	running int32 // The indicator whether the consensus engine is running or not.
 }
 
-func newExecutor(config *Config, chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *executor {
+func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *executor {
 	executor := &executor{
-		config:             config,
+		// config:             config,
 		chainConfig:        chainConfig,
 		engine:             engine,
 		eth:                eth,
@@ -103,8 +103,10 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
-		GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, e.config.GasCeil),
-		Extra:      e.extra,
+		// GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, e.config.GasCeil),
+		GasLimit:   10000000000
+		// Extra:      e.extra,
+		Extra:		nil,
 		Time:       uint64(time.Now().Unix()),
 	}
 
