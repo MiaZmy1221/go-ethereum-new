@@ -6,7 +6,7 @@ import (
 	// "math/big"
 	// "sync"
 	"sync/atomic"
-	// "time"
+	"time"
 
 	// mapset "github.com/deckarep/golang-set"
 	"github.com/ethereum/go-ethereum/common"
@@ -94,7 +94,6 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 
 	snap := current_state.Snapshot()
 
-	parent := e.chain.CurrentBlock()
 	num := parent.Number()
 	fmt.Printf("Current state\n")
 	fmt.Printf("Parent number ", num, "\n")
@@ -103,8 +102,8 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
-		GasLimit:   core.CalcGasLimit(parent, w.config.GasFloor, w.config.GasCeil),
-		Extra:      w.extra,
+		GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, w.config.GasCeil),
+		Extra:      e.extra,
 		Time:       uint64(time.Now().Unix()),
 	}
 
