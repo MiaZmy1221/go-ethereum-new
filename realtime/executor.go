@@ -89,6 +89,8 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 	current_state, err := e.chain.StateAt(parent.Root())
 
 	snap := current_state.Snapshot()
+
+	// Need to consider the block gaspool for single tx
 	receipt, err := core.RTApplyTransaction(e.chainConfig, e.chain, nil, e.current.gasPool, current_state, e.current.header, tx, &e.current.header.GasUsed, *e.chain.GetVMConfig())
 	current_state.RevertToSnapshot(snap)
 
