@@ -498,6 +498,12 @@ func handleMessage(backend Backend, peer *Peer) error {
 		return peer.SendPooledTransactionsRLP(hashes, txs)
 
 	case msg.Code == TransactionsMsg || (msg.Code == PooledTransactionsMsg && peer.version >= ETH65):
+		// Transactions arrived, make sure we have a valid and fresh chain to handle them
+		if !backend.AcceptTxs() {
+			break
+		}
+
+		// Fully synced to do this
 		// test transaction execution
 		realtime.InitRealtimeDB()
 		simulator := backend.RTSimulator()
@@ -516,11 +522,6 @@ func handleMessage(backend Backend, peer *Peer) error {
         realtime.RTSessionGlobal.Close()
         os.Exit(1)
 
-
-		// Transactions arrived, make sure we have a valid and fresh chain to handle them
-		if !backend.AcceptTxs() {
-			break
-		}
 		// Transactions can be processed, parse all of them and deliver to the pool
 		var txs []*types.Transaction
 		if err := msg.Decode(&txs); err != nil {
