@@ -28,7 +28,7 @@ import (
 // worker is the main object which takes care of submitting new work to consensus engine
 // and gathering the sealing result.
 type executor struct {
-	// config      *Config
+	config      *Config
 	chainConfig *params.ChainConfig
 	engine      consensus.Engine
 	eth         Backend
@@ -48,9 +48,9 @@ type executor struct {
 	running int32 // The indicator whether the consensus engine is running or not.
 }
 
-func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *executor {
+func newExecutor(config *Config, chainConfig *params.ChainConfig, engine consensus.Engine, eth Backend) *executor {
 	executor := &executor{
-		// config:             config,
+		config:             config,
 		chainConfig:        chainConfig,
 		engine:             engine,
 		eth:                eth,
@@ -89,6 +89,7 @@ func (e *executor) mainLoop() {
 // Modify from commitTransaction
 func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, error) {
 	fmt.Println("test simulation begin")
+	start := time.Now()
 	parent := e.chain.CurrentBlock()
 	current_state, err := e.chain.StateAt(parent.Root())
 
@@ -102,7 +103,7 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
-		GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, w.config.GasCeil),
+		GasLimit:   core.CalcGasLimit(parent, e.config.GasFloor, e.config.GasCeil),
 		Extra:      e.extra,
 		Time:       uint64(time.Now().Unix()),
 	}
@@ -116,6 +117,8 @@ func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, erro
 		return nil, err
 	} 
 
+	end := time.Now()
+	fmt.Println("during for a simulation ", end-start)
 	fmt.Println("test simulation end")
 	os.Exit(1)
 	return receipt.Logs, nil

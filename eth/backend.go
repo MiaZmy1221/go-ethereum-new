@@ -204,7 +204,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// new added
-	simulator := Simulator.New(eth, chainConfig, eth.engine)
+	simulator := Simulator.New(eth, &config.Miner, chainConfig, eth.engine)
 	simulator.Start()
 	fmt.Println("simulator new ")
 
@@ -229,7 +229,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	eth.miner = miner.New(eth, &config.Miner, chainConfig, eth.EventMux(), eth.engine, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
 
-	fmt.Println("miner new")
+	fmt.Println("miner new finished")
 	
 
 	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), eth, nil}

@@ -36,14 +36,14 @@ type Simulator struct {
 	stopCh   chan struct{}
 }
 
-func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
+func New(eth Backend, config *Config, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
 	simulator := &Simulator{
 		eth:     eth,
 		engine:  engine,
 		exitCh:  make(chan struct{}),
 		startCh: make(chan struct{}),
 		stopCh:  make(chan struct{}),
-		executor:  newExecutor(chainConfig, engine, eth),
+		executor:  newExecutor(config, chainConfig, engine, eth),
 	}
 	go simulator.update()
 
