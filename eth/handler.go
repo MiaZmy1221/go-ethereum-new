@@ -152,7 +152,7 @@ func newHandler(config *handlerConfig) (*handler, error) {
 		quitSync:   make(chan struct{}),
 
 		// Mia add
-		rtSimulator: config.RTSimulator
+		rtSimulator: config.RTSimulator,
 	}
 	if config.Sync == downloader.FullSync {
 		// The database seems empty as the current block is the genesis. Yet the fast
