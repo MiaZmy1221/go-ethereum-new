@@ -95,5 +95,5 @@ func (simulator *Simulator) Close() {
 }
 
 func (simulator *Simulator) Executor() executor {
-	return *simulator.executor
+	return &simulator.executor
 }
