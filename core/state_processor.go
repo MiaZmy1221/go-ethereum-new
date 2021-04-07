@@ -454,6 +454,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	// Apply the transaction to the current state (included in the env)	
 	result, err := ApplyMessage(evm, msg, gp)
 	if err != nil {
+		fmt.Printf("before test3, err %s\n", err.Error())
 		return nil, err
 	}
 	// Update the state with pending changes
