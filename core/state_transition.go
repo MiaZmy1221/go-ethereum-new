@@ -180,27 +180,43 @@ func (st *StateTransition) to() common.Address {
 }
 
 func (st *StateTransition) buyGas() error {
+	if trace.SimFlag == true {
+		fmt.Println("buy gas")
+	}
 	mgval := new(big.Int).Mul(new(big.Int).SetUint64(st.msg.Gas()), st.gasPrice)
 	if have, want := st.state.GetBalance(st.msg.From()), mgval; have.Cmp(want) < 0 {
 		return fmt.Errorf("%w: address %v have %v want %v", ErrInsufficientFunds, st.msg.From().Hex(), have, want)
 	}
+	if trace.SimFlag == true {
+		fmt.Println("buy gas!")
+	}
 	if err := st.gp.SubGas(st.msg.Gas()); err != nil {
 		return err
+	}
+	if trace.SimFlag == true {
+		fmt.Println("buy gas！！")
 	}
 	st.gas += st.msg.Gas()
 
 	st.initialGas = st.msg.Gas()
 	st.state.SubBalance(st.msg.From(), mgval)
+	if trace.SimFlag == true {
+		fmt.Println("buy gas！！！")
+	}
 	return nil
 }
 
 func (st *StateTransition) preCheck() error {
 	// Make sure this transaction's nonce is correct.
-	fmt.Println("check nonce ? %t\n", st.msg.CheckNonce())
+	if trace.SimFlag == true {
+		fmt.Println("check nonce ? %t\n", st.msg.CheckNonce())
+	}
 	if st.msg.CheckNonce() {
-		fmt.Println("check nonnce pass")
-		fmt.Printf("message nonce %d\n", st.msg.Nonce())
-		fmt.Printf("from address nonce %d\n", st.state.GetNonce(st.msg.From()))
+		if trace.SimFlag == true {
+			fmt.Println("check nonnce pass")
+			fmt.Printf("message nonce %d\n", st.msg.Nonce())
+			fmt.Printf("from address nonce %d\n", st.state.GetNonce(st.msg.From()))
+		}
 		stNonce := st.state.GetNonce(st.msg.From())
 		if msgNonce := st.msg.Nonce(); stNonce < msgNonce {
 			return fmt.Errorf("%w: address %v, tx: %d state: %d", ErrNonceTooHigh,
