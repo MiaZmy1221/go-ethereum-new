@@ -538,14 +538,20 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 // for the transaction, gas used and an error if the transaction failed,
 // indicating the block was invalid.
 func RTApplyTransaction(config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, cfg vm.Config) (*types.Receipt, error) {
+	fmt.Println("RTApplyTransaction function")
 	msg, err := tx.AsMessage(types.MakeSigner(config, header.Number))
+	fmt.Println("*")
+	fmt.Println(msg.From())
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("**")
 	// Create a new context to be used in the EVM environment
 	blockContext := NewEVMBlockContext(header, bc, author)
+	fmt.Println("***")
 	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, config, cfg)
 	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false)
+	fmt.Println("*****")
 	return rtapplyTransaction(msg, config, bc, author, gp, statedb, header, tx, usedGas, vmenv)
 }
 
