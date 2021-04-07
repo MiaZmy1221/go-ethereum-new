@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/common"
 	"os"
+	"math/big"
 )
 
 // Backend wraps all methods required for mining.
@@ -126,6 +127,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 		// Extra:      e.extra,
 		Extra:		nil,
 		Time:       uint64(time.Now().Unix()),
+		// for now
 		Difficulty:  new(big.Int).Set(0),
 	}
 	fmt.Println("??????")
