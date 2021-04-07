@@ -32,7 +32,7 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"strconv"
-	"os"
+	// "os"
 
 )
 
@@ -103,7 +103,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
-	os.Exit(1)
+	// os.Exit(1)
 	trace.CurrentTxIndex += 1
 
 	// # step prep: ensure the currentIndex is 1	

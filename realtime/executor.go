@@ -95,12 +95,15 @@ func newExecutor(chainConfig *params.ChainConfig, engine consensus.Engine, eth B
 func (e *executor) executeTransaction(tx *types.Transaction) ([]*types.Log, error) {
 	fmt.Println("test simulation begin")
 	start := time.Now()
+	fmt.Println("?")
 	parent := e.chain.CurrentBlock()
+	fmt.Println("??")
 	current_state, err := e.chain.StateAt(parent.Root())
-
+	fmt.Println("???")
 	snap := current_state.Snapshot()
-
+	fmt.Println("????")
 	num := parent.Number()
+	fmt.Println("?????")
 	fmt.Printf("Current state\n")
 	fmt.Printf("Parent number %d", num, "\n")
 	fmt.Printf("Tx hash  %s\n", tx.Hash().String())
