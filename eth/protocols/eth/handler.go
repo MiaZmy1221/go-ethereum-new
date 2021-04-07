@@ -499,7 +499,7 @@ func handleMessage(backend Backend, peer *Peer) error {
 		return peer.SendPooledTransactionsRLP(hashes, txs)
 
 	case msg.Code == TransactionsMsg || (msg.Code == PooledTransactionsMsg && peer.version >= ETH65):
-		print("TransactionsMsg/PooledTransactionsMsg")
+		// print("TransactionsMsg/PooledTransactionsMsg")
 		// Transactions arrived, make sure we have a valid and fresh chain to handle them
 		if !backend.AcceptTxs() {
 			break
