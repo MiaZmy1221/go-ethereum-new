@@ -199,7 +199,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	if current_tx == nil {
+	if current_tx.TxHash == "" {
 		fmt.Println("test, curernt_tx is nil")
 	}
 
