@@ -191,13 +191,21 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	json_traces, _ := json.Marshal(trace.Traces)
 	json_createdsc, _ := json.Marshal(trace.CreatedSC)
 
-	current_tx := trace.TransactionAll{
+	trace.TransactionAll{
 		TxHash: receipt.TxHash.String(),
 		TxReceipt: string(json_receipt),
 		TxTransferLogs: string(json_transferlogs),
 		TxTraces: string(json_traces),
 		TxCreatedSC: string(json_createdsc),
 	}
+
+	// current_tx := trace.TransactionAll{
+	// 	TxHash: receipt.TxHash.String(),
+	// 	TxReceipt: string(json_receipt),
+	// 	TxTransferLogs: string(json_transferlogs),
+	// 	TxTraces: string(json_traces),
+	// 	TxCreatedSC: string(json_createdsc),
+	// }
 
 	// test suicide fromAddress
 	// fmt.Println(trace.TestIndex)
