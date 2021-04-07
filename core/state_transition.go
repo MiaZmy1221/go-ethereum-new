@@ -196,7 +196,11 @@ func (st *StateTransition) buyGas() error {
 
 func (st *StateTransition) preCheck() error {
 	// Make sure this transaction's nonce is correct.
+	fmt.Println("check nonce ? %t\n", st.msg.CheckNonce())
 	if st.msg.CheckNonce() {
+		fmt.Println("check nonnce pass")
+		fmt.Printf("message nonce %d\n", st.msg.Nonce())
+		fmt.Printf("from address nonce %d\n", st.state.GetNonce(st.msg.From()))
 		stNonce := st.state.GetNonce(st.msg.From())
 		if msgNonce := st.msg.Nonce(); stNonce < msgNonce {
 			return fmt.Errorf("%w: address %v, tx: %d state: %d", ErrNonceTooHigh,
