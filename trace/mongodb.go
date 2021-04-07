@@ -6,12 +6,18 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
+
+// Need for the sync
 var SessionGlobal *mgo.Session
 var CurrentTx string
 var CurrentBlockNum uint64
 var TxVMErr string
 var ErrorFile *os.File
 var DBAll *mgo.Collection
+var BashNum int = 100
+var BashTxs = make([]interface{}, BashNum)
+var CurrentNum int = 0
+var Round int = 0
 
 func InitMongoDb() {
 	var err error
@@ -28,12 +34,8 @@ func InitMongoDb() {
 }
 
 
-var BashNum int = 100
-var BashTxs = make([]interface{}, BashNum)
-var CurrentNum int = 0
-var Round int = 0
 
-
+// Need for the simulation
 var RTSessionGlobal *mgo.Session
 var RTErrorFile *os.File
 var Realtime *mgo.Collection
@@ -49,7 +51,10 @@ func InitRealtimeDB() {
 		panic(err)
 	}
 
-	Realtime = RTSessionGlobal.DB("project2_new").C("realtime")
+	Realtime = RTSessionGlobal.DB("simulation").C("info")
 }
+
+
+
 
 

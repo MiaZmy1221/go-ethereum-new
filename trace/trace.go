@@ -48,10 +48,6 @@ func (t *TraceN) Print() {
 }
 
 
-var Traces = []TraceN{}
-var CurrentTraceIndex = uint64(0)
-
-
 type TransferLog struct{
 	FromAddr string `json:"fromAddr"`
 	ToAddr string `json:"toAddr"`
@@ -72,8 +68,6 @@ func (l *TransferLog) Print() {
 	fmt.Println("####################")
 }
 
-var TransferLogs = []TransferLog{}
-
 
 type TxReceipt struct {
 	BlockNum string `json:"blockNum"`
@@ -90,11 +84,6 @@ type TxReceipt struct {
 	Err string `json:"err"`
 }
 
-var GTxReceipt = &TxReceipt{}
-var CreatedSC []string 
-// var ErrorFile *os.File
-
-
 type TransactionAll struct{
 	TxHash string `json:"txHash"`
 	TxReceipt string `json:"txReceipt"`
@@ -104,13 +93,31 @@ type TransactionAll struct{
 }
 
 
+// Needed for the sync: apply transaction
+var Traces = []TraceN{}
+var CurrentTxIndex = 0
+var CurrentTraceIndex = uint64(0)
+var TransferLogs = []TransferLog{}
+var GTxReceipt = &TxReceipt{}
+var CreatedSC []string 
 var CallDepth = 0
 var CallNum = -1
+var SyncFlag = false
+
+// Needed for the simulation: apply transaction
+var SimFlag = false
+var SimTraces = []TraceN{}
+var SimCurrentTxIndex = 0
+var SimCurrentTraceIndex = uint64(0)
+var SimTransferLogs = []TransferLog{}
+var SimGTxReceipt = &TxReceipt{}
+var SimCreatedSC []string 
+var SimCallDepth = 0
+var SimCallNum = -1
 
 
 // For test
 var TestIndex = 0
-var CurrentTxIndex = 0
 var OnlyOneTopic = false
 
 
