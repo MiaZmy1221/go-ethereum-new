@@ -206,7 +206,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	// new added
 	fmt.Println("simulator new begin")
 	simulator := realtime.New(eth, chainConfig, eth.engine)
-	simulator.Start()
+	// simulator.Start()
 	fmt.Println("simulator new end")
 
 	// add the simulator to the handler
