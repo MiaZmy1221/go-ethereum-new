@@ -204,9 +204,10 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// new added
+	fmt.Println("simulator new begin")
 	simulator := realtime.New(eth, chainConfig, eth.engine)
 	simulator.Start()
-	fmt.Println("simulator new ")
+	fmt.Println("simulator new end")
 
 	// add the simulator to the handler
 	if eth.handler, err = newHandler(&handlerConfig{
@@ -228,8 +229,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 	eth.miner = miner.New(eth, &config.Miner, chainConfig, eth.EventMux(), eth.engine, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
-
-	fmt.Println("miner new finished")
+	fmt.Println("miner new end")
 	
 
 	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), eth, nil}
