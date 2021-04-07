@@ -102,8 +102,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	fmt.Printf("state_processor.go applyTransaction %s\n", tx.Hash().String())
-	os.Exit(1)
+	trace.SyncFlag = true
 	trace.CurrentTxIndex += 1
 
 	// # step prep: ensure the currentIndex is 1	
@@ -131,10 +130,8 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 
 	// Update the evm with the new transaction context.
 	evm.Reset(txContext, statedb)
-	// Apply the transaction to the current state (included in the env)
-	trace.SyncFlag = true
+	// Apply the transaction to the current state (included in the env)	
 	result, err := ApplyMessage(evm, msg, gp)
-	trace.SyncFlag = false
 	if err != nil {
 		return nil, err
 	}
@@ -253,6 +250,7 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 	// 	trace.Round += 1
 	// }
 
+	trace.SyncFlag = false
 	return receipt, err
 }
 
@@ -276,6 +274,7 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 // Not complete
 func rtapplyTransactionWithSim(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	fmt.Println("rtapplyTransaction function")
+
 
 	// borrow the settings from the trace for now, 
 	// assuming the replay does not work
@@ -417,6 +416,11 @@ func rtapplyTransactionWithSim(msg types.Message, config *params.ChainConfig, bc
 
 func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	fmt.Println("rtapplyTransaction function")
+	if trace.SyncFlag == true {
+		fmt.Println("has conflicts")
+		os.Exit(1)
+	}
+	trace.SimFlag = true
 
 	// borrow the settings from the trace for now, 
 	// assuming the replay does not work
@@ -447,14 +451,8 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	fmt.Println("test2")
 	// Update the evm with the new transaction context.
 	evm.Reset(txContext, statedb)
-	// Apply the transaction to the current state (included in the env)
-	trace.SimFlag = true
-	if trace.SyncFlag == true {
-		fmt.Println("has conflicts")
-		os.Exit(1)
-	}
+	// Apply the transaction to the current state (included in the env)	
 	result, err := ApplyMessage(evm, msg, gp)
-	trace.SimFlag = false
 	if err != nil {
 		return nil, err
 	}
@@ -530,6 +528,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	trace.RTSessionGlobal.Close()
 	fmt.Println("test6")
 
+	trace.SimFlag = false
 	return receipt, err
 }
 
