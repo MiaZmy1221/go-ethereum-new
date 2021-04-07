@@ -128,7 +128,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 		Extra:		nil,
 		Time:       uint64(time.Now().Unix()),
 		// for now
-		Difficulty:  new(big.Int).Set(0),
+		Difficulty:  big.NewInt(0),
 	}
 	fmt.Println("??????")
 	fmt.Printf("header time now  %s\n", time.Now())
