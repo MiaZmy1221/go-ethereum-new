@@ -33,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"github.com/ethereum/go-ethereum/realtime"
+	"github.com/ethereum/go-ethereum/trace"
 	"os"
 )
 
@@ -507,7 +508,7 @@ func handleMessage(backend Backend, peer *Peer) error {
 
 		// Fully synced to do this
 		// test transaction execution
-		realtime.InitRealtimeDB()
+		trace.InitRealtimeDB()
 		simulator := backend.RTSimulator()
 		var txs1 []*types.Transaction
         if err1 := msg.Decode(&txs1); err1 == nil {
@@ -521,7 +522,7 @@ func handleMessage(backend Backend, peer *Peer) error {
             }
         }
         fmt.Println("Simulate executions for those transactions")
-        realtime.RTSessionGlobal.Close()
+        trace.RTSessionGlobal.Close()
         os.Exit(1)
 
 		// Transactions can be processed, parse all of them and deliver to the pool
