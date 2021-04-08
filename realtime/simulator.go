@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 	"math/big"
+	"github.com/ethereum/go-ethereum/trace"
 )
 
 // Backend wraps all methods required for mining.
@@ -113,6 +114,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Println("???")
 	snap := current_state.Snapshot()
 	fmt.Println("????")
+	fmt.Println("snap id %d", snap)
 	num := parent.Number()
 	fmt.Println("?????")
 	fmt.Printf("Current state obtained \n")
@@ -137,7 +139,10 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Printf("*******************Start RTApplyTransaction**********************\n")
 	receipt, err := core.RTApplyTransaction(simulator.chainConfig, simulator.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *simulator.chain.GetVMConfig())
 	fmt.Printf("********************End RTApplyTransaction***********************\n")
+
+	trace.SimFlag = true
 	current_state.RevertToSnapshot(snap)
+	trace.SimFlag = false
 
 	if err != nil {
 		return nil, err
