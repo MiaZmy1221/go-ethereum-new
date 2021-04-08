@@ -12,12 +12,14 @@ import (
 	"os"
 	"math/big"
 	"github.com/ethereum/go-ethereum/trace"
+	"github.com/ethereum/go-ethereum/eth/downloader"
 )
 
 // Backend wraps all methods required for mining.
 type Backend interface {
 	BlockChain() *core.BlockChain
 	TxPool() *core.TxPool
+	Downloader() *downloader.Downloader
 }
 
 // Miner creates blocks and searches for proof-of-work values.
