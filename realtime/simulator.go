@@ -112,7 +112,9 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Println("??")
 	current_state, err := simulator.chain.StateAt(parent.Root())
 	fmt.Println("???")
+	trace.SimFlag = true
 	snap := current_state.Snapshot()
+	trace.SimFlag = false
 	fmt.Println("????")
 	fmt.Println("snap id %d", snap)
 	num := parent.Number()
