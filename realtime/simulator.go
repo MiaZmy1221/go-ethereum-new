@@ -114,11 +114,11 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	parent := simulator.chain.CurrentBlock()
 	fmt.Println("ExecuteTransaction??")
 	current_state, err := simulator.chain.StateAt(parent.Root())
-	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
+	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	fmt.Println("ExecuteTransaction???")
 	
 	snap := current_state.Snapshot()
-	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
+	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	
 	fmt.Println("ExecuteTransaction????")
 	fmt.Println("snap id %d", snap)
@@ -151,7 +151,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 
 	
 	fmt.Printf("ExecuteTransaction current parent num %s %d\n", time.Now(), simulator.chain.CurrentBlock().Number())
-	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
+	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	current_state.RevertToSnapshot(snap)
 	
 
