@@ -107,21 +107,21 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.Log, error) {
 	fmt.Println("test simulation begin")
 	start := time.Now()
-	fmt.Println("?")
+	fmt.Println("ExecuteTransaction?")
 	parent := simulator.chain.CurrentBlock()
-	fmt.Println("??")
+	fmt.Println("ExecuteTransaction??")
 	current_state, err := simulator.chain.StateAt(parent.Root())
-	fmt.Println("???")
+	fmt.Println("ExecuteTransaction???")
 	trace.SimFlag = true
 	snap := current_state.Snapshot()
 	trace.SimFlag = false
-	fmt.Println("????")
+	fmt.Println("ExecuteTransaction????")
 	fmt.Println("snap id %d", snap)
 	num := parent.Number()
-	fmt.Println("?????")
-	fmt.Printf("Current state obtained \n")
-	fmt.Printf("Parent number %d", num, "\n")
-	fmt.Printf("Tx hash  %s\n", tx.Hash().String())
+	fmt.Println("ExecuteTransaction?????")
+	fmt.Printf("ExecuteTransaction Current state obtained \n")
+	fmt.Printf("ExecuteTransaction Parent number %d", num, "\n")
+	fmt.Printf("ExecuteTransaction Tx hash  %s\n", tx.Hash().String())
 
 	header := &types.Header{
 		ParentHash: parent.Hash(),
@@ -134,15 +134,16 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 		// for now
 		Difficulty:  big.NewInt(0),
 	}
-	fmt.Println("??????")
-	fmt.Printf("header time now  %s\n", time.Now())
+	fmt.Println("ExecuteTransaction??????")
+	fmt.Printf("ExecuteTransaction header time now  %s\n", time.Now())
 
 	gasPool := new(core.GasPool).AddGas(header.GasLimit)
-	fmt.Printf("*******************Start RTApplyTransaction**********************\n")
+	fmt.Printf("Start RTApplyTransaction\n")
 	receipt, err := core.RTApplyTransaction(simulator.chainConfig, simulator.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *simulator.chain.GetVMConfig())
-	fmt.Printf("********************End RTApplyTransaction***********************\n")
+	fmt.Printf("End RTApplyTransaction\n")
 
 	trace.SimFlag = true
+	fmt.Println("ExecuteTransaction current parent num %d", simulator.chain.CurrentBlock().Number())
 	current_state.RevertToSnapshot(snap)
 	trace.SimFlag = false
 

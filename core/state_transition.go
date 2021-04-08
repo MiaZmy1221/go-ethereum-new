@@ -209,13 +209,13 @@ func (st *StateTransition) buyGas() error {
 func (st *StateTransition) preCheck() error {
 	// Make sure this transaction's nonce is correct.
 	if trace.SimFlag == true {
-		fmt.Println("check nonce ? %t\n", st.msg.CheckNonce())
+		fmt.Printf("preCheck check nonce ? %t\n", st.msg.CheckNonce())
 	}
 	if st.msg.CheckNonce() {
 		if trace.SimFlag == true {
-			fmt.Println("check nonnce pass")
-			fmt.Printf("message nonce %d\n", st.msg.Nonce())
-			fmt.Printf("from address nonce %d\n", st.state.GetNonce(st.msg.From()))
+			fmt.Println("preCheck check nonnce pass")
+			fmt.Printf("preCheck message nonce %d\n", st.msg.Nonce())
+			fmt.Printf("preCheck from address nonce %d\n", st.state.GetNonce(st.msg.From()))
 		}
 		stNonce := st.state.GetNonce(st.msg.From())
 		if msgNonce := st.msg.Nonce(); stNonce < msgNonce {
@@ -255,8 +255,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	// 6. caller has enough balance to cover asset transfer for **topmost** call
 
 	if trace.SimFlag == true {
-		fmt.Printf("state_transition.go TransitionDb\n")
-		fmt.Println("!")
+		fmt.Printf("state_transition.go TransitionDb!\n")
 	}
 	
 	// Check clauses 1-3, buy gas if everything is correct
@@ -264,7 +263,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		return nil, err
 	}
 	if trace.SimFlag == true {
-		fmt.Println("!!")
+		fmt.Printf("state_transition.go TransitionDb!!\n")
 	}
 	msg := st.msg
 	sender := vm.AccountRef(msg.From())
@@ -272,7 +271,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	istanbul := st.evm.ChainConfig().IsIstanbul(st.evm.Context.BlockNumber)
 	contractCreation := msg.To() == nil
 	if trace.SimFlag == true {
-		fmt.Println("!!!")
+		fmt.Printf("state_transition.go TransitionDb!!!\n")
 	}
 	// Check clauses 4-5, subtract intrinsic gas if everything is correct
 	gas, err := IntrinsicGas(st.data, contractCreation, homestead, istanbul)
@@ -280,21 +279,21 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		return nil, err
 	}
 	if trace.SimFlag == true {
-		fmt.Println("!!!!")
+		fmt.Printf("state_transition.go TransitionDb!!!!\n")
 	}
 	if st.gas < gas {
 		return nil, fmt.Errorf("%w: have %d, want %d", ErrIntrinsicGas, st.gas, gas)
 	}
 	st.gas -= gas
 	if trace.SimFlag == true {
-		fmt.Println("!!!!!")
+		fmt.Printf("state_transition.go TransitionDb!!!!!\n")
 	}
 	// Check clause 6
 	if msg.Value().Sign() > 0 && !st.evm.Context.CanTransfer(st.state, msg.From(), msg.Value()) {
 		return nil, fmt.Errorf("%w: address %v", ErrInsufficientFundsForTransfer, msg.From().Hex())
 	}
 	if trace.SimFlag == true {
-		fmt.Println("!!!!!!")
+		fmt.Printf("state_transition.go TransitionDb!!!!!!\n")
 	}
 	var (
 		ret   []byte
@@ -310,7 +309,7 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 	st.refundGas()
 	st.state.AddBalance(st.evm.Context.Coinbase, new(big.Int).Mul(new(big.Int).SetUint64(st.gasUsed()), st.gasPrice))
 	if trace.SimFlag == true {
-		fmt.Println("!!!!!!!!")
+		fmt.Printf("state_transition.go TransitionDb!!!!!!!\n")
 	}
 	return &ExecutionResult{
 		UsedGas:    st.gasUsed(),
