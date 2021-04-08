@@ -832,7 +832,9 @@ func (s *StateDB) Finalise(deleteEmptyObjects bool) {
 		s.prefetcher.prefetch(s.originalRoot, addressesToPrefetch)
 	}
 	// Invalidate journal because reverting across transactions is not allowed.
-	fmt.Println("Finalise clearJournalAndRefund called %s", time.Now())
+	if trace.SimFlag == true {
+		fmt.Println("Finalise clearJournalAndRefund called %s", time.Now())
+	}
 	s.clearJournalAndRefund()
 }
 

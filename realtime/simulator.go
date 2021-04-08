@@ -107,6 +107,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 // execute one transaction
 // Modify from commitTransaction
 func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.Log, error) {
+	trace.SimFlag = true
 	fmt.Println("test simulation begin")
 	start := time.Now()
 	fmt.Println("ExecuteTransaction?")
@@ -115,10 +116,10 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	current_state, err := simulator.chain.StateAt(parent.Root())
 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
 	fmt.Println("ExecuteTransaction???")
-	trace.SimFlag = true
+	
 	snap := current_state.Snapshot()
 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
-	trace.SimFlag = false
+	
 	fmt.Println("ExecuteTransaction????")
 	fmt.Println("snap id %d", snap)
 	num := parent.Number()
@@ -148,11 +149,11 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	receipt, err := core.RTApplyTransaction(simulator.chainConfig, simulator.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *simulator.chain.GetVMConfig())
 	fmt.Printf("End RTApplyTransaction\n")
 
-	trace.SimFlag = true
+	
 	fmt.Printf("ExecuteTransaction current parent num %s %d\n", time.Now(), simulator.chain.CurrentBlock().Number())
 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %d\n", time.Now(), len(current_state.GetRevisionList()))
 	current_state.RevertToSnapshot(snap)
-	trace.SimFlag = false
+	
 
 	if err != nil {
 		fmt.Println("core.RTApplyTransaction error ", err.Error())
@@ -161,6 +162,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 
 	fmt.Println("during for a simulation ", time.Since(start))
 	fmt.Println("test simulation end")
+	trace.SimFlag = false
 	os.Exit(1)
 	return receipt.Logs, nil
 }

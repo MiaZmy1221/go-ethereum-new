@@ -420,7 +420,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		fmt.Println("has conflicts")
 		os.Exit(1)
 	}
-	trace.SimFlag = true
+	
 
 	// borrow the settings from the trace for now, 
 	// assuming the replay does not work
@@ -529,7 +529,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	trace.RTSessionGlobal.Close()
 	fmt.Println("test6")
 
-	trace.SimFlag = false
+	
 	return receipt, err
 }
 
