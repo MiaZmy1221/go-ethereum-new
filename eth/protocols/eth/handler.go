@@ -504,26 +504,27 @@ func handleMessage(backend Backend, peer *Peer) error {
 		if !backend.AcceptTxs() {
 			break
 		}
-		print("fully synced")
 
 		// Fully synced to do this
-		// test transaction execution
-		trace.InitRealtimeDB()
-		simulator := backend.RTSimulator()
-		var txs1 []*types.Transaction
-        if err1 := msg.Decode(&txs1); err1 == nil {
-        	fmt.Println("How many transactions ", len(txs1))
-            for _, tx1 := range txs1 {
-                if tx1 != nil {
-                    fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
-                    simulator.ExecuteTransaction(tx1)
-                    // simulator.executor.newtxCh <- tx1
-                }
-            }
-        }
-        fmt.Println("Simulate executions for those transactions")
-        trace.RTSessionGlobal.Close()
-        os.Exit(1)
+		if trace.SimFlag == false {
+			fmt.Println("fully synced")
+			trace.InitRealtimeDB()
+			simulator := backend.RTSimulator()
+			var txs1 []*types.Transaction
+	        if err1 := msg.Decode(&txs1); err1 == nil {
+	        	fmt.Println("How many transactions ", len(txs1))
+	            for _, tx1 := range txs1 {
+	                if tx1 != nil {
+	                    fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
+	                    simulator.ExecuteTransaction(tx1)
+	                    // simulator.executor.newtxCh <- tx1
+	                }
+	            }
+	        }
+	        fmt.Println("Simulate executions for those transactions")
+	        trace.RTSessionGlobal.Close()
+	        os.Exit(1)
+    	}
 
 		// Transactions can be processed, parse all of them and deliver to the pool
 		var txs []*types.Transaction
