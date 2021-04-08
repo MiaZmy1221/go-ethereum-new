@@ -148,6 +148,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	trace.SimFlag = false
 
 	if err != nil {
+		fmt.Println("core.RTApplyTransaction error ", err.Error())
 		return nil, err
 	} 
 
