@@ -120,8 +120,10 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	num := parent.Number()
 	fmt.Println("ExecuteTransaction?????")
 	fmt.Printf("ExecuteTransaction Current state obtained \n")
-	fmt.Printf("ExecuteTransaction Parent number %d", num, "\n")
 	fmt.Printf("ExecuteTransaction Tx hash  %s\n", tx.Hash().String())
+	fmt.Printf("ExecuteTransaction Curent number (parent number from the blockchain) %s %d\n", time.Now(), num)
+	fmt.Printf("ExecuteTransaction downloader highest number %s %d\n", time.Now(), simulator.eth.Downloader().Progress().HighestBlock)
+	fmt.Printf("ExecuteTransaction downloader current number %s %d\n", time.Now(), simulator.eth.Downloader().Progress().CurrentBlock)
 
 	header := &types.Header{
 		ParentHash: parent.Hash(),
