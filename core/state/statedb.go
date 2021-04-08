@@ -838,6 +838,7 @@ func (s *StateDB) Finalise(deleteEmptyObjects bool) {
 	}
 	// Invalidate journal because reverting across transactions is not allowed.
 	if trace.SimFlag == true {
+		fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), s.GetOriginalRoot().String(), len(s.GetRevisionList()))
 		fmt.Println("Finalise clearJournalAndRefund called %s", time.Now())
 	}
 	s.clearJournalAndRefund()
