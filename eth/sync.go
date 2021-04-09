@@ -29,6 +29,8 @@ import (
 	"github.com/ethereum/go-ethereum/eth/protocols/eth"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/enode"
+
+	"fmt"
 )
 
 const (
@@ -340,6 +342,7 @@ func (h *handler) doSync(op *chainSyncOp) error {
 		// Checkpoint passed, sanity check the timestamp to have a fallback mechanism
 		// for non-checkpointed (number = 0) private networks.
 		if head.Time() >= uint64(time.Now().AddDate(0, -1, 0).Unix()) {
+			fmt.Printf("doSync func, head.NumberU64(), >= h.checkpointNumber, highestBlockNumber, %s %d %d %d\n", head.NumberU64(), h.checkpointNumber, h.downloader.HighestBlockNum())
 			atomic.StoreUint32(&h.acceptTxs, 1)
 		}
 	}
