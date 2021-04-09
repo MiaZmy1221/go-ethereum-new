@@ -31,6 +31,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
+
+	"fmt"
 )
 
 const (
@@ -360,6 +362,15 @@ func (ps *peerSet) Reset() {
 
 	for _, peer := range ps.peers {
 		peer.Reset()
+	}
+}
+
+
+// print all peers
+func (ps *peerSet) PrintPeersHead() {
+	for _, p := range ps.peers {
+		hash, _ := p.Head()
+		fmt.Printf("currently time %s peer %s latest blockhash %s \n", time.Now(), p.ID(), hash.Hex())
 	}
 }
 

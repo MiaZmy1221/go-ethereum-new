@@ -26,8 +26,8 @@ import (
 	"github.com/ethereum/go-ethereum/eth/protocols/snap"
 	"github.com/ethereum/go-ethereum/p2p"
 
-	"fmt"
-	"time"
+	// "fmt"
+	// "time"
 )
 
 var (
@@ -249,15 +249,6 @@ func (ps *peerSet) peerWithHighestTD() *eth.Peer {
 	}
 	return bestPeer
 }
-
-
-func (ps *peerSet) allPeerHead() {
-	for _, p := range ps.peers {
-		hash, _ := p.Head()
-		fmt.Printf("currently time %s peer %s latest blockhash %s \n", time.Now(), p.ID(), hash.Hex())
-	}
-}
-
 
 
 // close disconnects all peers.
