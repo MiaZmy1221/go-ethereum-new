@@ -506,6 +506,7 @@ func (d *Downloader) syncWithPeer(p *peerConnection, hash common.Hash, td *big.I
 		d.syncStatsChainOrigin = origin
 	}
 	d.syncStatsChainHeight = height
+	fmt.Printf("syncWithPeer highestblock %d\s", d.syncStatsChainHeight)
 	d.syncStatsLock.Unlock()
 
 	// Ensure our origin point is below any fast sync pivot point
