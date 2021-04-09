@@ -156,7 +156,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Printf("ExecuteTransaction current parent num %s %d\n", time.Now(), simulator.chain.CurrentBlock().Number())
 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	current_state.RevertToSnapshot(snap)
-	mt.Printf("ExecuteTransaction after revert time %s \n", time.Now())
+	fmt.Printf("ExecuteTransaction after revert time %s \n", time.Now())
 
 	if err != nil {
 		fmt.Println("core.RTApplyTransaction error ", err.Error())
