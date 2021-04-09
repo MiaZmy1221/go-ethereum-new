@@ -260,6 +260,10 @@ func (d *Downloader) HighestBlockNum() uint64 {
 }
 
 
+func (d *Downloader) Peers() *peerSet {
+	return d.peers
+}
+
 
 // Progress retrieves the synchronisation boundaries, specifically the origin
 // block where synchronisation started at (may have failed/suspended); the block
