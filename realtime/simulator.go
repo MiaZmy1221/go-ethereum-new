@@ -110,6 +110,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	trace.SimFlag = true
 	fmt.Println("test simulation begin")
 	start := time.Now()
+	fmt.Printf("ExecuteTransaction start time %s \n", start)
 	fmt.Println("ExecuteTransaction?")
 	parent := simulator.chain.CurrentBlock()
 	fmt.Println("ExecuteTransaction??")
@@ -155,13 +156,14 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Printf("ExecuteTransaction current parent num %s %d\n", time.Now(), simulator.chain.CurrentBlock().Number())
 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	current_state.RevertToSnapshot(snap)
-	
+	mt.Printf("ExecuteTransaction after revert time %s \n", time.Now())
 
 	if err != nil {
 		fmt.Println("core.RTApplyTransaction error ", err.Error())
 		return nil, err
 	} 
 
+	fmt.Printf("ExecuteTransaction end time %s \n", time.Now())
 	fmt.Println("during for a simulation ", time.Since(start))
 	fmt.Println("test simulation end")
 	trace.SimFlag = false
