@@ -506,8 +506,8 @@ func handleMessage(backend Backend, peer *Peer) error {
 		}
 
 		// Fully synced to do this
-		if trace.SimFlag == false {
-			fmt.Println("fully synced")
+		if trace.SyncedDone == true && trace.SimFlag == false {
+			fmt.Println("fully synced with SyncedDone=true")
 			trace.InitRealtimeDB()
 			simulator := backend.RTSimulator()
 			var txs1 []*types.Transaction
