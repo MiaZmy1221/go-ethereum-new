@@ -108,9 +108,9 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 // Modify from commitTransaction
 func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.Log, error) {
 	trace.SimFlag = true
-	// fmt.Println("test simulation begin")
+	fmt.Println("test simulation begin")
 	start := time.Now()
-	// fmt.Printf("ExecuteTransaction start time %s \n", start)
+	fmt.Printf("ExecuteTransaction start time %s \n", start)
 	// fmt.Println("ExecuteTransaction?")
 	parent := simulator.chain.CurrentBlock()
 	// fmt.Println("ExecuteTransaction??")

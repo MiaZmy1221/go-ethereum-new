@@ -505,36 +505,43 @@ func handleMessage(backend Backend, peer *Peer) error {
 			break
 		}
 
-		// Fully synced to do this
-		if trace.SyncedDone == true && trace.SimFlag == false {
-			// fmt.Println("fully synced with SyncedDone=true")
-			simulator := backend.RTSimulator()
-			var txs1 []*types.Transaction
-	        if err1 := msg.Decode(&txs1); err1 == nil {
-	        	// fmt.Println("How many transactions ", len(txs1))
-	            for _, tx1 := range txs1 {
-	                if tx1 != nil {
-	                	fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
-	                    simulator.ExecuteTransaction(tx1)
-	                    // simulator.executor.newtxCh <- tx1
-	                }
-	            }
-	        }
-	        // fmt.Println("Simulate executions for those transactions")
-	        // trace.RTSessionGlobal.Close()
-    	}
-
 		// Transactions can be processed, parse all of them and deliver to the pool
 		var txs []*types.Transaction
 		if err := msg.Decode(&txs); err != nil {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
+
+		// // Fully synced to do this
+		// if trace.SyncedDone == true && trace.SimFlag == false {
+		// 	// fmt.Println("fully synced with SyncedDone=true")
+		// 	var txs1 []*types.Transaction
+	 //        if err1 := msg.Decode(&txs1); err1 == nil {
+	 //        	// fmt.Println("How many transactions ", len(txs1))
+	 //            for _, tx1 := range txs1 {
+	 //                if tx1 != nil {
+	 //                	fmt.Printf("handleMessage %s %d %s %s\n", tx1.Time(), msg.Code, tx1.Hash().String(), peer.ID())
+	 //                    backend.RTSimulator().ExecuteTransaction(tx1)
+	 //                    // simulator.executor.newtxCh <- tx1
+	 //                }
+	 //            }
+	 //        }
+	 //        // fmt.Println("Simulate executions for those transactions")
+	 //        // trace.RTSessionGlobal.Close()
+  //   	} else {
+    		
+  //   	}
+
+
 		for i, tx := range txs {
 			// Validate and mark the remote transaction
 			if tx == nil {
 				return fmt.Errorf("%w: transaction %d is nil", errDecode, i)
 			}
 			peer.markTransaction(tx.Hash())
+			fmt.Printf("handleMessage %s %d %s %s\n", tx1.Time(), msg.Code, tx1.Hash().String(), peer.ID())
+			if trace.SyncedDone == true && trace.SimFlag == false {
+				backend.RTSimulator().ExecuteTransaction(tx1)
+			}
 		}
 		if msg.Code == PooledTransactionsMsg {
 			return backend.Handle(peer, (*PooledTransactionsPacket)(&txs))
