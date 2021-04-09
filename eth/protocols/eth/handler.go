@@ -540,7 +540,7 @@ func handleMessage(backend Backend, peer *Peer) error {
 			peer.markTransaction(tx.Hash())
 			fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
 			if trace.SyncedDone == true && trace.SimFlag == false {
-				backend.RTSimulator().ExecuteTransaction(tx1)
+				backend.RTSimulator().ExecuteTransaction(tx)
 			}
 		}
 		if msg.Code == PooledTransactionsMsg {
