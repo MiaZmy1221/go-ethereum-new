@@ -30,7 +30,7 @@ func InitMongoDb() {
 		panic(err)
 	}
 
-	DBAll = SessionGlobal.DB("project2_new").C("info")
+	DBAll = SessionGlobal.DB("simulation").C("history")
 }
 
 
@@ -51,7 +51,7 @@ func InitRealtimeDB() {
 		panic(err)
 	}
 
-	Realtime = RTSessionGlobal.DB("simulation").C("info")
+	Realtime = RTSessionGlobal.DB("simulation").C("pending")
 }
 
 

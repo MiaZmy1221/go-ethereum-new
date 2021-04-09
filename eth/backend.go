@@ -56,6 +56,7 @@ import (
 
 
 	"github.com/ethereum/go-ethereum/realtime"
+	"github.com/ethereum/go-ethereum/trace"
 	// "fmt"
 )
 
@@ -209,6 +210,8 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	fmt.Println("current parent num %d", eth.blockchain.CurrentBlock().Number())
 	simulator := realtime.New(eth, chainConfig, eth.engine)
 	fmt.Println("simulator new end")
+	trace.InitRealtimeDB()
+	fmt.Println("open mongodb")
 
 	// add the simulator to the handler
 	if eth.handler, err = newHandler(&handlerConfig{

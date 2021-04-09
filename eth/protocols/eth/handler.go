@@ -34,7 +34,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/realtime"
 	"github.com/ethereum/go-ethereum/trace"
-	"os"
+	// "os"
 )
 
 const (
@@ -507,23 +507,21 @@ func handleMessage(backend Backend, peer *Peer) error {
 
 		// Fully synced to do this
 		if trace.SyncedDone == true && trace.SimFlag == false {
-			fmt.Println("fully synced with SyncedDone=true")
-			trace.InitRealtimeDB()
+			// fmt.Println("fully synced with SyncedDone=true")
 			simulator := backend.RTSimulator()
 			var txs1 []*types.Transaction
 	        if err1 := msg.Decode(&txs1); err1 == nil {
-	        	fmt.Println("How many transactions ", len(txs1))
+	        	// fmt.Println("How many transactions ", len(txs1))
 	            for _, tx1 := range txs1 {
 	                if tx1 != nil {
-	                    fmt.Printf("**handleMessage %s %d %s\n", tx1.Time(), msg.Code, tx1.Hash().String())
+	                	fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
 	                    simulator.ExecuteTransaction(tx1)
 	                    // simulator.executor.newtxCh <- tx1
 	                }
 	            }
 	        }
-	        fmt.Println("Simulate executions for those transactions")
-	        trace.RTSessionGlobal.Close()
-	        os.Exit(1)
+	        // fmt.Println("Simulate executions for those transactions")
+	        // trace.RTSessionGlobal.Close()
     	}
 
 		// Transactions can be processed, parse all of them and deliver to the pool
