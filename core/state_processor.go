@@ -459,6 +459,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	}
 	
 	// ignore this step so far
+	var root []bytevar root []byte
 	if config.IsByzantium(header.Number) {
 		fmt.Println("IsByzantium")
 	} else {
