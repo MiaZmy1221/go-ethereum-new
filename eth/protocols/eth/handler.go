@@ -538,9 +538,11 @@ func handleMessage(backend Backend, peer *Peer) error {
 				return fmt.Errorf("%w: transaction %d is nil", errDecode, i)
 			}
 			peer.markTransaction(tx.Hash())
-			fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
 			if trace.SyncedDone == true && trace.SimFlag == false {
+				fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
 				backend.RTSimulator().ExecuteTransaction(tx)
+			} else{
+				fmt.Printf("**handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
 			}
 		}
 		if msg.Code == PooledTransactionsMsg {
