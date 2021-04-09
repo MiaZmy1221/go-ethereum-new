@@ -31,6 +31,7 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/enode"
 
 	"fmt"
+	"github.com/ethereum/go-ethereum/trace"
 )
 
 const (
