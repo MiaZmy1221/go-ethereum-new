@@ -457,15 +457,24 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		fmt.Printf("before test3, err %s\n", err.Error())
 		return nil, err
 	}
-	// Update the state with pending changes
-	var root []byte
+	
+	// ignore this step so far
 	if config.IsByzantium(header.Number) {
 		fmt.Println("IsByzantium")
-		statedb.Finalise(true)
 	} else {
 		fmt.Println("IsByzantium not")
-		root = statedb.IntermediateRoot(config.IsEIP158(header.Number)).Bytes()
 	}
+	// Update the state with pending changes
+	// var root []byte
+	// if config.IsByzantium(header.Number) {
+	// 	fmt.Println("IsByzantium")
+	// 	statedb.Finalise(true)
+	// } else {
+	// 	fmt.Println("IsByzantium not")
+	// 	root = statedb.IntermediateRoot(config.IsEIP158(header.Number)).Bytes()
+	// }
+
+
 	*usedGas += result.UsedGas
 
 

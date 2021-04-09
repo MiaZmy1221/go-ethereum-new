@@ -145,6 +145,8 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	fmt.Printf("ExecuteTransaction header time now  %s\n", time.Now())
 
 	gasPool := new(core.GasPool).AddGas(header.GasLimit)
+	// gasPool := new(core.GasPool).AddGas(math.MaxUint64)
+
 	fmt.Printf("Start RTApplyTransaction\n")
 	receipt, err := core.RTApplyTransaction(simulator.chainConfig, simulator.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *simulator.chain.GetVMConfig())
 	fmt.Printf("End RTApplyTransaction\n")
