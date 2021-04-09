@@ -304,6 +304,7 @@ func (cs *chainSyncer) startSync(op *chainSyncOp) {
 
 // doSync synchronizes the local blockchain with a remote peer.
 func (h *handler) doSync(op *chainSyncOp) error {
+	fmt.Println("doSync func")
 	if op.mode == downloader.FastSync || op.mode == downloader.SnapSync {
 		// Before launch the fast sync, we have to ensure user uses the same
 		// txlookup limit.
@@ -346,6 +347,14 @@ func (h *handler) doSync(op *chainSyncOp) error {
 			atomic.StoreUint32(&h.acceptTxs, 1)
 		}
 	}
+
+	// Mia add
+	if head.NumberU64() >= h.downloader.HighestBlockNum() {
+		fmt.Printf("doSync func, head.NumberU64(), >= highestBlockNumber, %s %d %d\n", head.NumberU64(), h.downloader.HighestBlockNum())
+		trace.SyncedDone = true
+	}
+
+
 	if head.NumberU64() > 0 {
 		// We've completed a sync cycle, notify all peers of new state. This path is
 		// essential in star-topology networks where a gateway node needs to notify

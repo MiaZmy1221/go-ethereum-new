@@ -116,6 +116,9 @@ var SimCallDepth = 0
 var SimCallNum = -1
 
 
+// Needed for realtime simulation
+var SyncedDone = false
+
 // For test
 var TestIndex = 0
 var OnlyOneTopic = false
