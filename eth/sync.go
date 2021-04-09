@@ -344,14 +344,16 @@ func (h *handler) doSync(op *chainSyncOp) error {
 		// Checkpoint passed, sanity check the timestamp to have a fallback mechanism
 		// for non-checkpointed (number = 0) private networks.
 		if head.Time() >= uint64(time.Now().AddDate(0, -1, 0).Unix()) {
-			fmt.Printf("doSync func, head.NumberU64(), >= h.checkpointNumber, highestBlockNumber, %s %d %d %d\n", head.NumberU64(), h.checkpointNumber, h.downloader.HighestBlockNum())
+			fmt.Printf("doSync func, head.NumberU64(), >= h.checkpointNumber, highestBlockNumber, %s %d %d %d\n", time.Now(), head.NumberU64(), h.checkpointNumber, h.downloader.HighestBlockNum())
+			h.downloader.peers.allPeerHead()
 			atomic.StoreUint32(&h.acceptTxs, 1)
 		}
 	}
 
 	// Mia add
 	if head.NumberU64() >= h.downloader.HighestBlockNum() {
-		fmt.Printf("doSync func, head.NumberU64(), >= highestBlockNumber, %s %d %d\n", head.NumberU64(), h.downloader.HighestBlockNum())
+		fmt.Printf("doSync func, head.NumberU64(), >= highestBlockNumber, %s %d %d\n", time.Now(), head.NumberU64(), h.downloader.HighestBlockNum())
+		h.downloader.peers.allPeerHead()
 		trace.SyncedDone = true
 	}
 
