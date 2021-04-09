@@ -369,8 +369,8 @@ func (ps *peerSet) Reset() {
 // print all peers
 func (ps *peerSet) PrintPeersHead() {
 	for _, p := range ps.peers {
-		hash, _ := p.Head()
-		fmt.Printf("currently time %s peer %s latest blockhash %s \n", time.Now(), p.ID(), hash.Hex())
+		hash, _ := p.peer.Head()
+		fmt.Printf("currently time %s peer %s latest blockhash %s \n", time.Now(), p.id, hash.Hex())
 	}
 }
 
