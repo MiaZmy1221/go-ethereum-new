@@ -41,7 +41,7 @@ type Simulator struct {
 	// to store all the transactions
 	simTxPool   *SimTxPool	
 
-	running		uint64
+	running		int32
 
 	// to pretect the execution????	
 	exe          sync.RWMutex
@@ -166,7 +166,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 // execute one transaction
 // Modify from commitTransaction
 func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.Log, error) {
-	trace.SimFlag = true
+	// trace.SimFlag = true
 	fmt.Println("test simulation begin")
 	start := time.Now()
 	fmt.Printf("ExecuteTransaction start time %s \n", start)
@@ -225,7 +225,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	// fmt.Printf("ExecuteTransaction end time %s \n", time.Now())
 	fmt.Println("execution duration ", time.Since(start))
 	// fmt.Println("test simulation end")
-	trace.SimFlag = false
+	// trace.SimFlag = false
 	// os.Exit(1)
 	return receipt.Logs, nil
 }
@@ -300,7 +300,7 @@ type SimTxPool struct {
 
 
 
-func NewSimTxPool(chainConfig *params.ChainConfig, chain *core.BlockChain) *SimTxPool {
+func NewSimTxPool(chainconfig *params.ChainConfig, chain *core.BlockChain) *SimTxPool {
 	// Create the transaction pool with its initial settings
 	pool := &SimTxPool{
 		// config:          config,
