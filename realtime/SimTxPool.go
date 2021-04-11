@@ -13,6 +13,9 @@ import (
 	// "math/big"
 	// "github.com/ethereum/go-ethereum/trace"
 	// "github.com/ethereum/go-ethereum/eth/downloader"
+
+	"errors"
+	"sync"
 )
 
 
