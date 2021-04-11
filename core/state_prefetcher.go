@@ -95,7 +95,7 @@ func precacheTransaction(config *params.ChainConfig, bc ChainContext, author *co
 	context := NewEVMBlockContext(header, bc, author)
 	txContext := NewEVMTxContext(msg)
 	// vm := vm.NewEVM(context, txContext, statedb, config, cfg)
-	vm := vm.NewEVMWithFlag(context, txContext, statedb, config, cfg, true)
+	vm := vm.NewEVMWithFlag(context, txContext, statedb, config, cfg, true, true)
 
 
 	// fmt.Printf("precacheTransaction.go precacheTransaction\n")

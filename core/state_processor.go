@@ -32,7 +32,7 @@ import (
 	"encoding/json"
 	"encoding/hex"
 	"strconv"
-	"os"
+	// "os"
 
 )
 
@@ -63,7 +63,7 @@ func NewStateProcessor(config *params.ChainConfig, bc *BlockChain, engine consen
 // returns the amount of gas that was used in the process. If any of the
 // transactions failed to execute due to insufficient gas it will return an error.
 func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg vm.Config) (types.Receipts, []*types.Log, uint64, error) {
-	trace.SyncFlag = true
+	// trace.SyncFlag = true
 	var (
 		receipts types.Receipts
 		usedGas  = new(uint64)
@@ -99,7 +99,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 	// Finalize the block, applying any consensus engine specific extras (e.g. block rewards)
 	p.engine.Finalize(p.bc, header, statedb, block.Transactions(), block.Uncles())
 	fmt.Printf("Process: block number %d transaction number %d\n", block.Number(), len(block.Transactions()))
-	trace.SyncFlag = false
+	// trace.SyncFlag = false
 
 	return receipts, allLogs, *usedGas, nil
 }
