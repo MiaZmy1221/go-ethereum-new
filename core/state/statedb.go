@@ -34,7 +34,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/trie"
 
-	"github.com/ethereum/go-ethereum/trace"
+	// "github.com/ethereum/go-ethereum/trace"
 )
 
 type revision struct {
@@ -749,38 +749,38 @@ func (s *StateDB) Snapshot() int {
 	id := s.nextRevisionId
 	s.nextRevisionId++
 	s.validRevisions = append(s.validRevisions, revision{id, s.journal.length()})
-	if trace.SimFlag == true {
-		fmt.Println("Snapshot, at that time the index of the array(idx) %d", len(s.validRevisions)-1)
-		fmt.Println("Snapshot, at that time the revid %d", id)
-	}
+	// if trace.SimFlag == true {
+	// 	fmt.Println("Snapshot, at that time the index of the array(idx) %d", len(s.validRevisions)-1)
+	// 	fmt.Println("Snapshot, at that time the revid %d", id)
+	// }
 	return id
 }
 
 // RevertToSnapshot reverts all state changes made since the given revision.
 func (s *StateDB) RevertToSnapshot(revid int) {
-	if trace.SimFlag == true {
-		fmt.Println("RevertToSnapshot")
-	}
+	// if trace.SimFlag == true {
+	// 	fmt.Println("RevertToSnapshot")
+	// }
 	// Find the snapshot in the stack of valid snapshots.
 	idx := sort.Search(len(s.validRevisions), func(i int) bool {
 		return s.validRevisions[i].id >= revid
 	})
 
-	if trace.SimFlag == true {
-		fmt.Println("RevertToSnapshot!")
-		// This number should equals 1 + Snapshot idx
-		fmt.Printf("RevertToSnapshot len of validRevisions %d\n", len(s.validRevisions))
-		fmt.Printf("RevertToSnapshot revid %d\n", revid)
-		fmt.Printf("RevertToSnapshot idx %d\n", idx)
-	}
+	// if trace.SimFlag == true {
+	// 	fmt.Println("RevertToSnapshot!")
+	// 	// This number should equals 1 + Snapshot idx
+	// 	fmt.Printf("RevertToSnapshot len of validRevisions %d\n", len(s.validRevisions))
+	// 	fmt.Printf("RevertToSnapshot revid %d\n", revid)
+	// 	fmt.Printf("RevertToSnapshot idx %d\n", idx)
+	// }
 
 	if idx == len(s.validRevisions) || s.validRevisions[idx].id != revid {
 		panic(fmt.Errorf("revision id %v cannot be reverted", revid))
 	}
 
-	if trace.SimFlag == true {
-		fmt.Println("RevertToSnapshot!!")
-	}
+	// if trace.SimFlag == true {
+	// 	fmt.Println("RevertToSnapshot!!")
+	// }
 
 	snapshot := s.validRevisions[idx].journalIndex
 
@@ -837,10 +837,10 @@ func (s *StateDB) Finalise(deleteEmptyObjects bool) {
 		s.prefetcher.prefetch(s.originalRoot, addressesToPrefetch)
 	}
 	// Invalidate journal because reverting across transactions is not allowed.
-	if trace.SimFlag == true {
-		fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), s.GetOriginalRoot().String(), len(s.GetRevisionList()))
-		fmt.Println("Finalise clearJournalAndRefund called %s", time.Now())
-	}
+	// if trace.SimFlag == true {
+	// 	fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), s.GetOriginalRoot().String(), len(s.GetRevisionList()))
+	// 	fmt.Println("Finalise clearJournalAndRefund called %s", time.Now())
+	// }
 	s.clearJournalAndRefund()
 }
 

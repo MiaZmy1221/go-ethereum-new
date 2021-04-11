@@ -645,8 +645,7 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 				trace.Traces = append(tempt_traces, trace.Traces...) 
 				trace.CallDepth -= 1
 		    }()
-		}
-		else {
+		} else {
 			trace.SimCurrentTraceIndex += 1
 			trace.SimCallDepth += 1
 			trace.SimCallNum += 1
