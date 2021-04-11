@@ -159,6 +159,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	// process by using the pool
 	simulator.simTxPool.mu.Lock()
 	newErrs := simulator.simTxPool.addTxsLocked(news)
+	fmt.Printf("How many txs added to the pending %s %s\n", time.Now(), len(simulator.simTxPool.pending))
 	simulator.simTxPool.mu.Unlock()
 
 	// add other errors
@@ -443,7 +444,6 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 		current_state, _ := pool.chain.StateAt(current_block.Root())
 		current_state = current_state.Copy()
 		fmt.Printf("addTxs time %s tx hash %s block %d\n", time.Now(), tx.Hash(), current_block.Number())
-
 		if current_state.GetNonce(from) < tx.Nonce() {
 			pool.queue[tx.Hash()] = tx
 			pool.all.Add(tx, false)
@@ -540,11 +540,11 @@ func (t *txLookup) Remove(hash common.Hash) {
 	if !ok {
 		tx, ok = t.queue[hash]
 	}
-	t.executed[tx.Hash()] = tx
 	if !ok {
 		log.Error("No transaction found to be deleted", "hash", hash)
 		return
 	}
+	t.executed[hash] = tx
 	// t.slots -= numSlots(tx)
 	// slotsGauge.Update(int64(t.slots))
 
