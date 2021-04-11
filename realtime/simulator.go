@@ -94,16 +94,19 @@ func (simulator *Simulator) loop() {
 			// How to deal with this area??????????????????????????????????????
 			// like dealing with the first 100 transactions,????? by order???? 
 			// right now, just execute the new added txs
+
+			// do we need to add lock? on the execution
 			if simulator.isRunning() == true {
-				simulator.exe.RLock()
+				// simulator.exe.RLock()
 				for _, tx := range newTxs {
 					simulator.ExecuteTransaction(tx)
 				}
-				simulator.exe.RUnlock()
+				// simulator.exe.RUnlock()
 			}
 
+			// remove from the pending transactions and add to the executed
 			for _, tx := range newTxs {
-				simulator.ExecuteTransaction(tx)
+				simulator.simTxPool.all.Remove(tx.Hash())
 			}
 
 
@@ -127,12 +130,13 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		// }
 
 		// If the transaction is known, pre-set the error slot
-		if simulator.simTxPool.all.Get(tx.Hash()) == TxStatusPending || simulator.simTxPool.all.Get(tx.Hash()) == TxStatusQueued {
+		tempt_status := simulator.simTxPool.all.Get(tx.Hash())
+		if tempt_status == TxStatusPending || tempt_status == TxStatusQueued {
 			errs[i] = SimErrAlreadyKnown
 			continue
 		}
 
-		if simulator.simTxPool.all.Get(tx.Hash()) == TxStatusExecuted {
+		if tempt_status == TxStatusExecuted {
 			errs[i] = SimErrAlreadyExecuted
 			continue
 		}
