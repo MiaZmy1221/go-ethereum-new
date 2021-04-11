@@ -101,6 +101,12 @@ func (simulator *Simulator) loop() {
 				}
 				simulator.exe.RUnlock()
 			}
+
+			for _, tx := range newTxs {
+				simulator.ExecuteTransaction(tx)
+			}
+
+
 			return
 		}
 	}
@@ -115,15 +121,19 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	)
 	for i, tx := range txs {
 		// If a transaction has already been executed
-		if txres := simulator.simTxPool.executed[tx.Hash()]; txres != nil {
-			errs[i] = SimErrAlreadyExecuted
+		// if txres := simulator.simTxPool.executed[tx.Hash()]; txres != nil {
+		// 	errs[i] = SimErrAlreadyExecuted
+		// 	continue
+		// }
+
+		// If the transaction is known, pre-set the error slot
+		if simulator.simTxPool.all.Get(tx.Hash()) == TxStatusPending || simulator.simTxPool.all.Get(tx.Hash()) == TxStatusQueued {
+			errs[i] = SimErrAlreadyKnown
 			continue
 		}
 
-		// If the transaction is known, pre-set the error slot
-		if simulator.simTxPool.all.Get(tx.Hash()) != TxStatusUnknown {
-			errs[i] = SimErrAlreadyKnown
-			// knownTxMeter.Mark(1)
+		if simulator.simTxPool.all.Get(tx.Hash()) == TxStatusExecuted {
+			errs[i] = SimErrAlreadyExecuted
 			continue
 		}
 
@@ -141,14 +151,13 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	}
 	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
 
-	// Process all the new transaction and merge any errors into the original slice
-	// fmt.Println("test0")
+
+	// process by using the pool
 	simulator.simTxPool.mu.Lock()
-	// fmt.Println("test1")
 	newErrs := simulator.simTxPool.addTxsLocked(news)
-	// fmt.Println("test4")
 	simulator.simTxPool.mu.Unlock()
 
+	// add other errors
 	// var nilSlot = 0
 	// for _, err := range newErrs {
 	// 	for errs[nilSlot] != nil {
@@ -459,6 +468,7 @@ type txLookup struct {
 	lock     sync.RWMutex
 	pending  map[common.Hash]*types.Transaction
 	queue    map[common.Hash]*types.Transaction
+	executed    map[common.Hash]*types.Transaction
 }
 
 
@@ -477,6 +487,7 @@ const (
 	TxStatusUnknown TxStatus = iota
 	TxStatusQueued
 	TxStatusPending
+	TxStatusExecuted
 )
 
 // Get returns a transaction if it exists in the lookup, or nil if not found.
@@ -490,6 +501,10 @@ func (t *txLookup) Get(hash common.Hash) TxStatus {
 
 	if tx := t.queue[hash]; tx != nil {
 		return TxStatusQueued
+	}
+
+	if tx := t.executed[hash]; tx != nil {
+		return TxStatusExecuted
 	}
 
 	return TxStatusUnknown
@@ -517,10 +532,11 @@ func (t *txLookup) Remove(hash common.Hash) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
-	_, ok := t.pending[hash]
+	tx, ok := t.pending[hash]
 	if !ok {
-		_, ok = t.queue[hash]
+		tx, ok = t.queue[hash]
 	}
+	t.executed[tx.Hash()] = tx
 	if !ok {
 		log.Error("No transaction found to be deleted", "hash", hash)
 		return
