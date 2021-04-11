@@ -172,8 +172,11 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		nilSlot++
 	}
 
+	fmt.Println("HandleMessages before notify")
 	// notify the loop to execute the transactions???????
 	simulator.newTxsCh <- news
+
+	fmt.Println("HandleMessages after notify")
 
 	return errs
 

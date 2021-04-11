@@ -205,13 +205,13 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// new added
-	fmt.Println("simulator new begin")
-	fmt.Printf("header time now  %s\n", time.Now())
-	fmt.Println("current parent num %d", eth.blockchain.CurrentBlock().Number())
+	// fmt.Println("simulator new begin")
+	// fmt.Printf("header time now  %s\n", time.Now())
+	// fmt.Println("current parent num %d", eth.blockchain.CurrentBlock().Number())
 	simulator := realtime.New(eth, chainConfig, eth.engine)
-	fmt.Println("simulator new end")
+	// fmt.Println("simulator new end")
 	trace.InitRealtimeDB()
-	fmt.Println("open mongodb")
+	// fmt.Println("open mongodb")
 
 	// add the simulator to the handler
 	if eth.handler, err = newHandler(&handlerConfig{
@@ -233,7 +233,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 	eth.miner = miner.New(eth, &config.Miner, chainConfig, eth.EventMux(), eth.engine, eth.isLocalBlock)
 	eth.miner.SetExtra(makeExtraData(config.Miner.ExtraData))
-	fmt.Println("miner new end")
+	// fmt.Println("miner new end")
 	
 
 	eth.APIBackend = &EthAPIBackend{stack.Config().ExtRPCEnabled(), eth, nil}
