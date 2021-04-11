@@ -25,82 +25,137 @@ type Backend interface {
 // Miner creates blocks and searches for proof-of-work values.
 // Simulates Miner, Simulator just executes the realtime transactions.
 type Simulator struct {
-	// executor   *executor  // to execute the transaction
-	// coinbase common.Address
-	// eth      Backend
-	// engine   consensus.Engine
-	// exitCh   chan struct{}
-	// startCh  chan struct{}
-	// startCh  chan common.Address
-	// stopCh   chan struct{}
+	startCh  chan struct{}
+	newTxsCh chan []*types.Transaction
+	stopCh   chan struct{}
 
 	chainConfig *params.ChainConfig
 	engine      consensus.Engine
 	eth         Backend
 	chain       *core.BlockChain
+
+	// to store all the transactions
+	simTxPool   *SimTxPool	
+
+	running		uint64
+
+	// to pretect the execution????	
+	exe          sync.RWMutex
+
 }
 
+// New the simulator, do not worry 
 func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
 	simulator := &Simulator{
 		chainConfig:        chainConfig,
 		engine:             engine,
 		eth:                eth,
-		chain:              eth.BlockChain(),		
-		// exitCh:  make(chan struct{}),
-		// startCh: make(chan struct{}),
-		// stopCh:  make(chan struct{}),
-		// executor:  newExecutor(chainConfig, engine, eth),
+		chain:              eth.BlockChain(),	
+		simTxPool:   		NewSimTxPool(chainConfig, eth.BlockChain()),
+		running:			uint64(0),	
+		startCh: 			make(chan struct{}),
+		stopCh:  			make(chan struct{}),
+		newTxs:				make(chan []*types.Transaction),
 	}
-	// go simulator.update()
+	go simulator.loop()
+
+	simulator.startCh <- chan struct{}
 
 	return simulator
 }
 
 
-// update keeps track of the downloader events. Please be aware that this is a one shot type of update loop.
-// It's entered once and as soon as `Done` or `Failed` has been broadcasted the events are unregistered and
-// the loop is exited. This to prevent a major security vuln where external parties can DOS you with blocks
-// and halt your mining operation for as long as the DOS continues.
-
-// What this update function should do?????? in the mining 
-// func (simulator *Simulator) update() {
-// 	// shouldStart := false
-// 	canStart := true
-// 	for {
-// 		select {
-// 		case <-simulator.startCh:
-// 			if canStart {
-// 				simulator.executor.start()
-// 			}
-// 			// shouldStart = true
-// 		case <-simulator.stopCh:
-// 			// shouldStart = falses
-// 			simulator.executor.stop()
-// 		case <-simulator.exitCh:
-// 			simulator.executor.close()
-// 			return
-// 		}
-// 	}
-// }
+// isRunning returns an indicator whether worker is running or not.
+func (simulator *Simulator) isRunning() bool {
+	return atomic.LoadInt32(&simulator.running) == 1
+}
 
 
-// func (simulator *Simulator) Start() {
-// 	simulator.startCh <- struct{}{}
-// }
+func (simulator *Simulator) loop() {
+	for {
+		select {
+		case <-simulator.startCh:
+			atomic.StoreInt32(&simulator.running, 1)
+		case <-simulator.stopCh:
+			atomic.StoreInt32(&simulator.running,0 1)
+		case newTxs := <-simulator.newTxsCh:
+			// for i, tx := range newTxs {
+			// 	receipt_logs, newerr := simulator.ExecuteTransaction(tx)
+			// }
 
-// func (simulator *Simulator) Stop() {
-// 	simulator.stopCh <- struct{}{}
-// }
+			// How to deal with this area??????????????????????????????????????
+			// like dealing with the first 100 transactions,????? by order???? 
+			// right now, just execute the new added txs
+			if simulator.isRunning() == true {
+				simulator.exe.RLock()
+				for _, tx := range newTxs {
+					simulator.ExecuteTransaction(tx)
+				}
+				simulator.exe.RUnlock()
+			}
+			return
+		}
+	}
+}
 
-// func (simulator *Simulator) Close() {
-// 	close(simulator.exitCh)
-// }
 
-// func (simulator *Simulator) Execute(tx *types.Transaction) {
-// 	fmt.Println("Execute func begin")
-// 	simulator.executor.executeTransaction(tx)
-// 	fmt.Println("Execute func end")
-// }
+func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
+	fmt.Println("How many messages  time %s length %d", time.Now(), len(txs))
+
+	// Filter out known ones without obtaining the pool lock or recovering signatures
+	var (
+		errs = make([]error, len(txs))
+		news = make([]*types.Transaction, 0, len(txs))
+	)
+	for i, tx := range txs {
+		// If a transaction has already been executed
+		if txres := simulator.simTxPool.executed[tx.Hash()]; txres != nil {
+			errs[i] = ErrAlreadyExecuted
+			continue
+		}
+
+		// If the transaction is known, pre-set the error slot
+		if simulator.simTxPool.all.Get(tx.Hash()) != TxStatusUnknown {
+			errs[i] = ErrAlreadyKnown
+			// knownTxMeter.Mark(1)
+			continue
+		}
+
+		// If the transaction fails basic validation, discard it
+		if valerr := simulator.simTxPool.validateTx(tx); valerr != nil {
+			errs[i] = valerr
+			continue
+		}
+
+		// Accumulate all unknown transactions for deeper processing
+		news = append(news, tx)
+	}
+	if len(news) == 0 {
+		return errs
+	}
+
+	fmt.Println("How many new transactions  time %s length %d", time.Now(), len(news))
+
+	// Process all the new transaction and merge any errors into the original slice
+	simulator.simTxPool.mu.Lock()
+	newErrs := simulator.simTxPool.addTxsLocked(news, local)
+	simulator.simTxPool.mu.Unlock()
+
+	var nilSlot = 0
+	for _, err := range newErrs {
+		for errs[nilSlot] != nil {
+			nilSlot++
+		}
+		errs[nilSlot] = err
+		nilSlot++
+	}
+
+	// notify the loop to execute the transactions???????
+	simulator.startCh <- news
+
+	return errs
+
+}
 
 
 

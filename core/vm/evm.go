@@ -162,6 +162,8 @@ type EVM struct {
 	callGasTemp uint64
 
 	redundency bool
+	// To check whether the running is a simulation or a syncing
+	sync bool
 }
 
 // NewEVM returns a new EVM. The returned EVM is not thread safe and should
@@ -202,7 +204,7 @@ func NewEVM(blockCtx BlockContext, txCtx TxContext, statedb StateDB, chainConfig
 }
 
 
-func NewEVMWithFlag(blockCtx BlockContext, txCtx TxContext, statedb StateDB, chainConfig *params.ChainConfig, vmConfig Config, re bool) *EVM {
+func NewEVMWithFlag(blockCtx BlockContext, txCtx TxContext, statedb StateDB, chainConfig *params.ChainConfig, vmConfig Config, re bool, sync bool) *EVM {
 	evm := &EVM{
 		Context:      blockCtx,
 		TxContext:    txCtx,
@@ -212,6 +214,7 @@ func NewEVMWithFlag(blockCtx BlockContext, txCtx TxContext, statedb StateDB, cha
 		chainRules:   chainConfig.Rules(blockCtx.BlockNumber),
 		interpreters: make([]Interpreter, 0, 1),
 		redundency:   re,
+		sync:		  sync,
 	}
 
 	if chainConfig.IsEWASM(blockCtx.BlockNumber) {
@@ -294,34 +297,61 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 	}
 
 	if evm.redundency == false {
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: "CALL", 
-					FromAddr: caller.Address().String(), 
-					ToAddr: addr.String(),
-					CreateAddr: "0x",
-					SuicideContract: "0x",
-					Beneficiary: "0x",
-					Input: hex.EncodeToString(input),
-					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: value, 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "CALL"}
-		// json_trace, _ := json.Marshal(tempt_trace)
-		// fmt.Printf(string(json_trace))
+		if evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "CALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: value, 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "CALL"}
 
-		// defer the output to the end
-		defer func() {
-	        tempt_trace.Output = hex.EncodeToString(ret)
-	        tempt_traces := []trace.TraceN{}
-			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...) 
-			trace.CallDepth -= 1
-	    }()
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.Traces = append(tempt_traces, trace.Traces...) 
+				trace.CallDepth -= 1
+		    }()
+		} else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "CALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: value, 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "CALL"}
+
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.SimTraces = append(tempt_traces, trace.SimTraces...) 
+				trace.SimCallDepth -= 1
+		    }()
+		}
 	}
 
 	evm.Context.Transfer(evm.StateDB, caller.Address(), addr, value)
@@ -394,34 +424,65 @@ func (evm *EVM) CallCode(caller ContractRef, addr common.Address, input []byte, 
 	}
 
 	if evm.redundency == false {
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: "CALLCODE", 
-					FromAddr: caller.Address().String(), 
-					ToAddr: addr.String(),
-					CreateAddr: "0x",
-					SuicideContract: "0x",
-					Beneficiary: "0x",
-					Input: hex.EncodeToString(input),
-					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: value, 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "CALL"}
-		// json_trace, _ := json.Marshal(tempt_trace)
-		// fmt.Printf(string(json_trace))
+		if evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "CALLCODE", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: value, 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "CALL"}
+			// json_trace, _ := json.Marshal(tempt_trace)
+			// fmt.Printf(string(json_trace))
 
-		// defer the output to the end
-		defer func() {
-	        tempt_trace.Output = hex.EncodeToString(ret)
-	        tempt_traces := []trace.TraceN{}
-			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...) 
-			trace.CallDepth -= 1
-	    }()
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.Traces = append(tempt_traces, trace.Traces...) 
+				trace.CallDepth -= 1
+		    }()
+		} else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "CALLCODE", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: value, 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "CALL"}
+			// json_trace, _ := json.Marshal(tempt_trace)
+			// fmt.Printf(string(json_trace))
+
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.SimTraces = append(tempt_traces, trace.SimTraces...)  
+				trace.SimCallDepth -= 1
+		    }()
+		}
 	}
 
 
@@ -465,34 +526,59 @@ func (evm *EVM) DelegateCall(caller ContractRef, addr common.Address, input []by
 	}
 
 	if evm.redundency == false {
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: "DELEGATECALL", 
-					FromAddr: caller.Address().String(), 
-					ToAddr: addr.String(),
-					CreateAddr: "0x",
-					SuicideContract: "0x",
-					Beneficiary: "0x",
-					Input: hex.EncodeToString(input),
-					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: big.NewInt(0), 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "CALL"}
-		// json_trace, _ := json.Marshal(tempt_trace)
-		// fmt.Printf(string(json_trace))
-
-		// defer the output to the end
-		defer func() {
-	        tempt_trace.Output = hex.EncodeToString(ret)
-	        tempt_traces := []trace.TraceN{}
-			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...) 
-			trace.CallDepth -= 1
-	    }()
+		if evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "DELEGATECALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: big.NewInt(0), 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "CALL"}
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.Traces = append(tempt_traces, trace.Traces...) 
+				trace.CallDepth -= 1
+		    }()
+		} else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "DELEGATECALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: big.NewInt(0), 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "CALL"}
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.SimTraces = append(tempt_traces, trace.SimTraces...) 
+				trace.SimCallDepth -= 1
+		    }()
+		}
 	}
 
 	var snapshot = evm.StateDB.Snapshot()
@@ -533,34 +619,60 @@ func (evm *EVM) StaticCall(caller ContractRef, addr common.Address, input []byte
 	}
 
 	if evm.redundency == false {
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: "STATICCALL", 
-					FromAddr: caller.Address().String(), 
-					ToAddr: addr.String(),
-					CreateAddr: "0x",
-					SuicideContract: "0x",
-					Beneficiary: "0x",
-					Input: hex.EncodeToString(input),
-					Output: "", // currently unknown hex.EncodeToString(ret) 
-					Value: big.NewInt(0), 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "CALL"}
-		// json_trace, _ := json.Marshal(tempt_trace)
-		// fmt.Printf(string(json_trace))
-
-		// defer the output to the end
-		defer func() {
-	        tempt_trace.Output = hex.EncodeToString(ret)
-	        tempt_traces := []trace.TraceN{}
-			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...) 
-			trace.CallDepth -= 1
-	    }()
+		if evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "STATICCALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: big.NewInt(0), 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "CALL"}
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.Traces = append(tempt_traces, trace.Traces...) 
+				trace.CallDepth -= 1
+		    }()
+		}
+		else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "STATICCALL", 
+						FromAddr: caller.Address().String(), 
+						ToAddr: addr.String(),
+						CreateAddr: "0x",
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(input),
+						Output: "", // currently unknown hex.EncodeToString(ret) 
+						Value: big.NewInt(0), 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "CALL"}
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(ret)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.SimTraces = append(tempt_traces, trace.SimTraces...) 
+				trace.SimCallDepth -= 1
+		    }()
+		}
 	}
 
 
@@ -664,36 +776,63 @@ func (evm *EVM) create(caller ContractRef, codeAndHash *codeAndHash, gas uint64,
 		} else {
 			op = "CREATE2"
 		}
-		// fmt.Printf("\n\nevm.go %s\n", op)
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: op, 
-					FromAddr: caller.Address().String(), 
-					ToAddr: "0x", 
-					CreateAddr: address.String(),
-					SuicideContract: "0x",
-					Beneficiary: "0x",
-					Input: hex.EncodeToString(codeAndHash.code), // set it to be none
-					Output: "", 
-					Value: value, 
-					// Value: new(big.Int).SetUint64(value.Uint64()), 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "CREATE"}
-		trace.CreatedSC = append(trace.CreatedSC, address.String())
-		// json_trace, _ := json.Marshal(tempt_trace)
-		// fmt.Printf(string(json_trace))
-		// defer the output to the end
-		defer func() {
-	        tempt_trace.Output = hex.EncodeToString(retCreate)
-	        tempt_traces := []trace.TraceN{}
-			tempt_traces = append(tempt_traces, *tempt_trace)
-			trace.Traces = append(tempt_traces, trace.Traces...)
-			trace.CallDepth -= 1
-	    }()
+		if evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: op, 
+						FromAddr: caller.Address().String(), 
+						ToAddr: "0x", 
+						CreateAddr: address.String(),
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(codeAndHash.code), // set it to be none
+						Output: "", 
+						Value: value, 
+						// Value: new(big.Int).SetUint64(value.Uint64()), 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "CREATE"}
+			trace.CreatedSC = append(trace.CreatedSC, address.String())
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(retCreate)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.Traces = append(tempt_traces, trace.Traces...)
+				trace.CallDepth -= 1
+	    	}()	
+		} else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: op, 
+						FromAddr: caller.Address().String(), 
+						ToAddr: "0x", 
+						CreateAddr: address.String(),
+						SuicideContract: "0x",
+						Beneficiary: "0x",
+						Input: hex.EncodeToString(codeAndHash.code), // set it to be none
+						Output: "", 
+						Value: value, 
+						// Value: new(big.Int).SetUint64(value.Uint64()), 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "CREATE"}
+			trace.SimCreatedSC = append(trace.SimCreatedSC, address.String())
+			// defer the output to the end
+			defer func() {
+		        tempt_trace.Output = hex.EncodeToString(retCreate)
+		        tempt_traces := []trace.TraceN{}
+				tempt_traces = append(tempt_traces, *tempt_trace)
+				trace.SimTraces = append(tempt_traces, trace.SimTraces...)
+				trace.SimCallDepth -= 1
+		    }()
+		}
 	}
 
 

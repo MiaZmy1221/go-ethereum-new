@@ -827,28 +827,52 @@ func opSuicide(pc *uint64, interpreter *EVMInterpreter, callContext *callCtx) ([
 
 	// Trace
 	if interpreter.evm.redundency == false {
-		// test
-		// trace.TestIndex += 1
-		trace.CurrentTraceIndex += 1
-		trace.CallDepth += 1
-		trace.CallNum += 1
-		tempt_trace := &trace.TraceN{
-					CallType: "SELFDESTRUCT", 
-					FromAddr: callContext.contract.caller.Address().String(), 
-					ToAddr: "0x",
-					CreateAddr: "0x",
-					SuicideContract: callContext.contract.Address().String(),
-					Beneficiary: beneficiary.String(),
-					Input: "",
-					Output: "", 
-					Value: balance, 
-					CallDepth: trace.CallDepth,
-					CallNum: trace.CallNum,
-					TraceIndex: trace.CurrentTraceIndex, 
-					Type: "SUICIDE"}
-		trace.Traces = append(trace.Traces, *tempt_trace) 
+		if interpreter.evm.sync == true {
+			trace.CurrentTraceIndex += 1
+			trace.CallDepth += 1
+			trace.CallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "SELFDESTRUCT", 
+						FromAddr: callContext.contract.caller.Address().String(), 
+						ToAddr: "0x",
+						CreateAddr: "0x",
+						SuicideContract: callContext.contract.Address().String(),
+						Beneficiary: beneficiary.String(),
+						Input: "",
+						Output: "", 
+						Value: balance, 
+						CallDepth: trace.CallDepth,
+						CallNum: trace.CallNum,
+						TraceIndex: trace.CurrentTraceIndex, 
+						Type: "SUICIDE"}
+			trace.Traces = append(trace.Traces, *tempt_trace) 
+			// maybe does not matter since at this time, the execution ends.
+			trace.CallDepth -= 1 
+		} else {
+			trace.SimCurrentTraceIndex += 1
+			trace.SimCallDepth += 1
+			trace.SimCallNum += 1
+			tempt_trace := &trace.TraceN{
+						CallType: "SELFDESTRUCT", 
+						FromAddr: callContext.contract.caller.Address().String(), 
+						ToAddr: "0x",
+						CreateAddr: "0x",
+						SuicideContract: callContext.contract.Address().String(),
+						Beneficiary: beneficiary.String(),
+						Input: "",
+						Output: "", 
+						Value: balance, 
+						CallDepth: trace.SimCallDepth,
+						CallNum: trace.SimCallNum,
+						TraceIndex: trace.SimCurrentTraceIndex, 
+						Type: "SUICIDE"}
+			trace.SimTraces = append(trace.SimTraces, *tempt_trace) 
+			// maybe does not matter since at this time, the execution ends.
+			trace.SimCallDepth -= 1 
+		}
+
 	}
-	trace.CallDepth -= 1 // maybe does not matter since at this time, the execution ends.
+	
 
 	return nil, nil
 }
@@ -885,23 +909,33 @@ func makeLog(size int) executionFunc {
 			// 	trace.OnlyOneTopic = true
 			// 	return nil, nil				
 			// }
-			tempt_log := &trace.TransferLog{
-				FromAddr: topics[1].String(),
-				ToAddr: topics[2].String(),
-				Value: hex.EncodeToString(d),
-				TokenAddr: callContext.contract.Address().String(),
-				CallDepth: trace.CallDepth,
-				CallNum: trace.CallNum,
-				TraceIndex: trace.CurrentTraceIndex, 
+
+			if interpreter.evm.sync == true {
+				tempt_log := &trace.TransferLog{
+					FromAddr: topics[1].String(),
+					ToAddr: topics[2].String(),
+					Value: hex.EncodeToString(d),
+					TokenAddr: callContext.contract.Address().String(),
+					CallDepth: trace.CallDepth,
+					CallNum: trace.CallNum,
+					TraceIndex: trace.CurrentTraceIndex, 
+				}
+				// Append to the end
+				trace.TransferLogs = append(trace.TransferLogs, *tempt_log)	
+			} else {
+				tempt_log := &trace.TransferLog{
+					FromAddr: topics[1].String(),
+					ToAddr: topics[2].String(),
+					Value: hex.EncodeToString(d),
+					TokenAddr: callContext.contract.Address().String(),
+					CallDepth: trace.SimCallDepth,
+					CallNum: trace.SimCallNum,
+					TraceIndex: trace.SimCurrentTraceIndex, 
+				}
+				// Append to the end
+				trace.SimTransferLogs = append(trace.SimTransferLogs, *tempt_log)
 			}
-
-			// Append to the beginning
-			// tempt_logs :=[]trace.TransferLog{}
-			// tempt_logs = append(tempt_logs, *tempt_log)
-			// trace.TransferLogs = append(tempt_logs, trace.TransferLogs...)
-
-			// Append to the end
-			trace.TransferLogs = append(trace.TransferLogs, *tempt_log)
+			
 		}
 
 		return nil, nil

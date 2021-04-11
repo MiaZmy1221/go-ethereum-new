@@ -102,10 +102,10 @@ var GTxReceipt = &TxReceipt{}
 var CreatedSC []string 
 var CallDepth = 0
 var CallNum = -1
-var SyncFlag = false
+// var SyncFlag = false
 
 // Needed for the simulation: apply transaction
-var SimFlag = false
+// var SimFlag = false
 var SimTraces = []TraceN{}
 var SimCurrentTxIndex = 0
 var SimCurrentTraceIndex = uint64(0)

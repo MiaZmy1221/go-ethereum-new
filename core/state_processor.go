@@ -78,7 +78,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 	blockContext := NewEVMBlockContext(header, p.bc, nil)
 
 	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, p.config, cfg)
-	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, p.config, cfg, false)
+	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, p.config, cfg, false, true)
 
 	// Iterate over and process the individual transactions
 	for i, tx := range block.Transactions() {
@@ -106,7 +106,6 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 
 func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	trace.CurrentTxIndex += 1
-
 	// # step prep: ensure the currentIndex is 1	
 	trace.CurrentTraceIndex = 0
 	trace.Traces = []trace.TraceN{}
@@ -198,59 +197,30 @@ func applyTransaction(msg types.Message, config *params.ChainConfig, bc ChainCon
 		TxCreatedSC: string(json_createdsc),
 	}
 
-	// test suicide fromAddress
-	// fmt.Println(trace.TestIndex)
-	// fmt.Println(receipt.TxHash.String())
-	// fmt.Println(current_tx)
-
-	// if trace.TestIndex >= 10{
-	// 	fmt.Println("Close mongodb and error file")
-	// 	trace.SessionGlobal.Close()
-	// 	trace.ErrorFile.Close()
-	// 	os.Exit(1)
-	// }
-
-	// test only 0 topics
-	// if trace.OnlyOneTopic == true {
-	// 	fmt.Println(trace.TestIndex)
-	// 	fmt.Println(receipt.TxHash.String())
-	// 	fmt.Println(current_tx)
-	// 	fmt.Println("Close mongodb and error file")
-	// 	trace.SessionGlobal.Close()
-	// 	trace.ErrorFile.Close()
-	// 	os.Exit(1)
-	// }
-
-
-	// // Does not insert for now
 	// bash insert
-	if trace.SyncedDone == true {
-		trace.BashTxs[trace.CurrentNum] = current_tx
-		if trace.CurrentNum != trace.BashNum - 1 {
-			trace.CurrentNum = trace.CurrentNum + 1
-		} else {
-			// fmt.Println("Bash insert 100 tx")
-			session_err := trace.DBAll.Insert(trace.BashTxs...) 
-			if session_err != nil {
-				trace.SessionGlobal.Refresh()
-				for i := 0; i < trace.BashNum; i++ {
-					 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
-					 if session_err != nil {
-						json_tx, json_err := json.Marshal(&trace.BashTxs[i])
-						if json_err != nil {
-							trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
-						}
-						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
-				      }
-				 }
-			}
-			trace.CurrentNum = 0
-			trace.Round += 1
+	trace.BashTxs[trace.CurrentNum] = current_tx
+	if trace.CurrentNum != trace.BashNum - 1 {
+		trace.CurrentNum = trace.CurrentNum + 1
+	} else {
+		// fmt.Println("Bash insert 100 tx")
+		session_err := trace.DBAll.Insert(trace.BashTxs...) 
+		if session_err != nil {
+			trace.SessionGlobal.Refresh()
+			for i := 0; i < trace.BashNum; i++ {
+				 session_err = trace.DBAll.Insert(&trace.BashTxs[i]) 
+				 if session_err != nil {
+					json_tx, json_err := json.Marshal(&trace.BashTxs[i])
+					if json_err != nil {
+						trace.ErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.BashTxs[i].(trace.TransactionAll).TxHash, json_err))
+					}
+					trace.ErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+			      }
+			 }
 		}
+		trace.CurrentNum = 0
+		// trace.Round += 1
 	}
 	
-
-	// trace.SyncFlag = false
 	return receipt, err
 }
 
@@ -266,29 +236,29 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 	// Create a new context to be used in the EVM environment
 	blockContext := NewEVMBlockContext(header, bc, author)
 	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, config, cfg)
-	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false)
+	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false, true)
 	return applyTransaction(msg, config, bc, author, gp, statedb, header, tx, usedGas, vmenv)
 }
 
 
 func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
 	// fmt.Println("rtapplyTransaction function")
-	if trace.SyncFlag == true {
-		fmt.Println("has conflicts")
-		os.Exit(1)
-	}
+	// if trace.SyncFlag == true {
+	// 	fmt.Println("has conflicts")
+	// 	os.Exit(1)
+	// }
 	
 
 	// borrow the settings from the trace for now, 
 	// assuming the replay does not work
-	trace.CurrentTxIndex += 1
-	trace.CurrentTraceIndex = 0
-	trace.Traces = []trace.TraceN{}
-	trace.TransferLogs = []trace.TransferLog{}
-	trace.GTxReceipt = &trace.TxReceipt{}
-	trace.CreatedSC = []string{}
-	trace.CallDepth = 0
-	trace.CallNum = -1
+	trace.SimCurrentTxIndex += 1
+	trace.SimCurrentTraceIndex = 0
+	trace.SimTraces = []trace.TraceN{}
+	trace.SimTransferLogs = []trace.TransferLog{}
+	trace.SimGTxReceipt = &trace.TxReceipt{}
+	trace.SimCreatedSC = []string{}
+	trace.SimCallDepth = 0
+	trace.SimCallNum = -1
 
 	// fmt.Println("test1")
 	// Create a new context to be used in the EVM environment
@@ -354,24 +324,24 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
 	// Test for the mining process
-	trace.GTxReceipt.BlockNum = receipt.BlockNumber.String()
-	trace.GTxReceipt.FromAddr = msg.From().String()
+	trace.SimGTxReceipt.BlockNum = receipt.BlockNumber.String()
+	trace.SimGTxReceipt.FromAddr = msg.From().String()
 	if msg.To() == nil {
-		trace.GTxReceipt.ToAddr = "0x"
+		trace.SimGTxReceipt.ToAddr = "0x"
 	} else {
-		trace.GTxReceipt.ToAddr = msg.To().String()
+		trace.SimGTxReceipt.ToAddr = msg.To().String()
 	}
-	trace.GTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
-	trace.GTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
-	trace.GTxReceipt.GasPrice = msg.GasPrice().String()
-	trace.GTxReceipt.TxIndex = receipt.TransactionIndex
-	trace.GTxReceipt.Value = msg.Value().String()
-	trace.GTxReceipt.Input = hex.EncodeToString(msg.Data())
-	trace.GTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
+	trace.SimGTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
+	trace.SimGTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
+	trace.SimGTxReceipt.GasPrice = msg.GasPrice().String()
+	trace.SimGTxReceipt.TxIndex = receipt.TransactionIndex
+	trace.SimGTxReceipt.Value = msg.Value().String()
+	trace.SimGTxReceipt.Input = hex.EncodeToString(msg.Data())
+	trace.SimGTxReceipt.Status = strconv.FormatUint(receipt.Status, 10)
 	if result.Err == nil {
-		trace.GTxReceipt.Err = ""	
+		trace.SimGTxReceipt.Err = ""	
 	} else {
-		trace.GTxReceipt.Err = result.Err.Error()
+		trace.SimGTxReceipt.Err = result.Err.Error()
 	}
 
 	// fmt.Println("test4")
@@ -389,14 +359,37 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	}
 
 
-	// fmt.Println("test5")
-	// trace.InitRealtimeDB()
-	session_err := trace.Realtime.Insert(&current_tx) 
-	if session_err != nil {
-		fmt.Printf("insert error %s\n", receipt.TxHash)
+	// single insert
+	// session_err := trace.Realtime.Insert(&current_tx) 
+	// if session_err != nil {
+	// 	fmt.Printf("insert error %s\n", receipt.TxHash)
+	// }
+
+	// // Does not insert for now
+	// bash insert
+	trace.SimBashTxs[trace.SimCurrentNum] = current_tx
+	if trace.SimCurrentNum != trace.SimBashNum - 1 {
+		trace.SimCurrentNum = trace.SimCurrentNum + 1
+	} else {
+		session_err := trace.Realtime.Insert(trace.SimBashTxs...) 
+		if session_err != nil {
+			trace.SessionGlobal.Refresh()
+			for i := 0; i < trace.SimBashNum; i++ {
+				 session_err = trace.Realtime.Insert(&trace.SimBashTxs[i]) 
+				 if session_err != nil {
+					json_tx, json_err := json.Marshal(&trace.SimBashTxs[i])
+					if json_err != nil {
+						trace.SimErrorFile.WriteString(fmt.Sprintf("Transaction;%s;%s\n", trace.SimBashTxs[i].(trace.TransactionAll).TxHash, json_err))
+					}
+					trace.SimErrorFile.WriteString(fmt.Sprintf("Transaction|%s|%s\n", json_tx, session_err))
+			      }
+			 }
+		}
+		trace.SimCurrentNum = 0
+		// trace.SimRound += 1
 	}
-	// trace.RTSessionGlobal.Close()
-	// fmt.Println("test6")
+
+
 	return receipt, err
 }
 
@@ -418,7 +411,7 @@ func RTApplyTransaction(config *params.ChainConfig, bc ChainContext, author *com
 	blockContext := NewEVMBlockContext(header, bc, author)
 	// fmt.Println("***")
 	// vmenv := vm.NewEVM(blockContext, vm.TxContext{}, statedb, config, cfg)
-	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false)
+	vmenv := vm.NewEVMWithFlag(blockContext, vm.TxContext{}, statedb, config, cfg, false, false)
 	// fmt.Println("*****")
 	return rtapplyTransaction(msg, config, bc, author, gp, statedb, header, tx, usedGas, vmenv)
 }

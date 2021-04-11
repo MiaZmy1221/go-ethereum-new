@@ -511,40 +511,22 @@ func handleMessage(backend Backend, peer *Peer) error {
 			return fmt.Errorf("%w: message %v: %v", errDecode, msg, err)
 		}
 
-		// // Fully synced to do this
-		// if trace.SyncedDone == true && trace.SimFlag == false {
-		// 	// fmt.Println("fully synced with SyncedDone=true")
-		// 	var txs1 []*types.Transaction
-	 //        if err1 := msg.Decode(&txs1); err1 == nil {
-	 //        	// fmt.Println("How many transactions ", len(txs1))
-	 //            for _, tx1 := range txs1 {
-	 //                if tx1 != nil {
-	 //                	fmt.Printf("handleMessage %s %d %s %s\n", tx1.Time(), msg.Code, tx1.Hash().String(), peer.ID())
-	 //                    backend.RTSimulator().ExecuteTransaction(tx1)
-	 //                    // simulator.executor.newtxCh <- tx1
-	 //                }
-	 //            }
-	 //        }
-	 //        // fmt.Println("Simulate executions for those transactions")
-	 //        // trace.RTSessionGlobal.Close()
-  //   	} else {
-    		
-  //   	}
-
-
 		for i, tx := range txs {
 			// Validate and mark the remote transaction
 			if tx == nil {
 				return fmt.Errorf("%w: transaction %d is nil", errDecode, i)
 			}
 			peer.markTransaction(tx.Hash())
-			if trace.SyncedDone == true && trace.SimFlag == false {
-				fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
-				backend.RTSimulator().ExecuteTransaction(tx)
-			} else{
-				fmt.Printf("**handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
-			}
+			// if trace.SyncedDone == true && trace.SimFlag == false {
+			// 	fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
+			// 	backend.RTSimulator().ExecuteTransaction(tx)
+			// } else{
+			// 	fmt.Printf("**handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
+			// }
 		}
+
+		backend.RTSimulator().HandleMessages(&txs)
+
 		if msg.Code == PooledTransactionsMsg {
 			return backend.Handle(peer, (*PooledTransactionsPacket)(&txs))
 		}

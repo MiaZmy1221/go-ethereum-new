@@ -17,7 +17,7 @@ var DBAll *mgo.Collection
 var BashNum int = 100
 var BashTxs = make([]interface{}, BashNum)
 var CurrentNum int = 0
-var Round int = 0
+// var Round int = 0
 
 func InitMongoDb() {
 	var err error
@@ -37,8 +37,12 @@ func InitMongoDb() {
 
 // Need for the simulation
 var RTSessionGlobal *mgo.Session
-var RTErrorFile *os.File
+var SimErrorFile *os.File
 var Realtime *mgo.Collection
+
+var SimBashNum int = 100
+var SimBashTxs = make([]interface{}, SimBashNum)
+var SimCurrentNum int = 0
 
 func InitRealtimeDB() {
 	var err error
@@ -46,7 +50,7 @@ func InitRealtimeDB() {
         	panic(err)
    	}
 
-	RTErrorFile, err = os.OpenFile("realtime.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	SimErrorFile, err = os.OpenFile("realtime.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
