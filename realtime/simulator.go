@@ -77,7 +77,7 @@ func (simulator *Simulator) loop() {
 		case <-simulator.startCh:
 			atomic.StoreInt32(&simulator.running, 1)
 		case <-simulator.stopCh:
-			atomic.StoreInt32(&simulator.running,0 1)
+			atomic.StoreInt32(&simulator.running, 0)
 		case newTxs := <-simulator.newTxsCh:
 			// for i, tx := range newTxs {
 			// 	receipt_logs, newerr := simulator.ExecuteTransaction(tx)
