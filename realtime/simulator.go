@@ -89,7 +89,7 @@ func (simulator *Simulator) loop() {
 			// for i, tx := range newTxs {
 			// 	receipt_logs, newerr := simulator.ExecuteTransaction(tx)
 			// }
-			fmt.Printf("newTxs coming isRunning %s %t\n", time.Now(), simulator.isRunning())
+			
 
 			// How to deal with this area??????????????????????????????????????
 			// like dealing with the first 100 transactions,????? by order???? 
@@ -102,13 +102,13 @@ func (simulator *Simulator) loop() {
 					simulator.ExecuteTransaction(tx)
 				}
 				// simulator.exe.RUnlock()
-			}
 
-			// remove from the pending transactions and add to the executed
-			for _, tx := range newTxs {
-				simulator.simTxPool.all.Remove(tx.Hash())
+				// remove from the pending transactions and add to the executed
+				for _, tx := range newTxs {
+					simulator.simTxPool.all.Remove(tx.Hash())
+				}
 			}
-
+			fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(newTxs))
 
 			return
 		}
