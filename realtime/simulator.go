@@ -140,7 +140,6 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	if len(news) == 0 {
 		return errs
 	}
-
 	fmt.Printf("How many new transactions  time %s length %d", time.Now(), len(news))
 
 	// Process all the new transaction and merge any errors into the original slice
