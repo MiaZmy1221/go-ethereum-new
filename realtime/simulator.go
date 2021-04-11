@@ -159,7 +159,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	// process by using the pool
 	simulator.simTxPool.mu.Lock()
 	newErrs := simulator.simTxPool.addTxsLocked(news)
-	fmt.Printf("How many txs added to the pending %s %s\n", time.Now(), len(simulator.simTxPool.pending))
+	fmt.Printf("How many txs added to the pending %s %d\n", time.Now(), len(simulator.simTxPool.pending))
 	simulator.simTxPool.mu.Unlock()
 
 	// add other errors
@@ -173,8 +173,26 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	}
 
 	fmt.Println("HandleMessages before notify")
+
+
 	// notify the loop to execute the transactions???????
-	simulator.newTxsCh <- news
+	// why only once????????????
+	// simulator.newTxsCh <- news
+
+	if simulator.isRunning() == true {
+		// simulator.exe.RLock()
+		for _, tx := range newTxs {
+			simulator.ExecuteTransaction(tx)
+		}
+		// simulator.exe.RUnlock()
+
+		// remove from the pending transactions and add to the executed
+		for _, tx := range newTxs {
+			simulator.simTxPool.all.Remove(tx.Hash())
+		}
+	}
+	fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(newTxs))
+
 
 	fmt.Println("HandleMessages after notify")
 
