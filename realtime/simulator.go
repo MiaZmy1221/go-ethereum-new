@@ -138,7 +138,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	if len(news) == 0 {
 		return errs
 	}
-	fmt.Printf("How many time %s messages %d new txs %d", time.Now(), len(txs), len(news))
+	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
 
 	// Process all the new transaction and merge any errors into the original slice
 	// fmt.Println("test0")
@@ -228,7 +228,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	} 
 
 	// fmt.Printf("ExecuteTransaction end time %s \n", time.Now())
-	fmt.Printf("ExecuteTransaction time %s tx hash %s execution time %s ", time.Now(), tx.Hash().String(), time.Since(start))
+	fmt.Printf("ExecuteTransaction time %s tx hash %s execution time %s  current number %d\n", time.Now(), tx.Hash().String(), time.Since(start), num)
 	// fmt.Println("test simulation end")
 	// trace.SimFlag = false
 	// os.Exit(1)

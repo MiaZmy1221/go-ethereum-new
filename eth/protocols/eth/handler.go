@@ -528,10 +528,10 @@ func handleMessage(backend Backend, peer *Peer) error {
 
 
 		if trace.SyncedDone == true {
-			fmt.Printf("How many messages SyncedDone time %s length %d", time.Now(), len(txs))
+			fmt.Printf("How many messages SyncedDone time %s length %d\n", time.Now(), len(txs))
 			backend.RTSimulator().HandleMessages(txs)
 		} else {
-			fmt.Printf("How many messages not SyncedDone time %s length %d", time.Now(), len(txs))
+			fmt.Printf("How many messages not SyncedDone time %s length %d\n", time.Now(), len(txs))
 		}
 		
 
