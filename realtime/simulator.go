@@ -510,9 +510,9 @@ func (t *txLookup) Remove(hash common.Hash) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
-	tx, ok := t.pending[hash]
+	_, ok := t.pending[hash]
 	if !ok {
-		tx, ok = t.queue[hash]
+		_, ok = t.queue[hash]
 	}
 	if !ok {
 		log.Error("No transaction found to be deleted", "hash", hash)
