@@ -89,6 +89,7 @@ func (simulator *Simulator) loop() {
 			// for i, tx := range newTxs {
 			// 	receipt_logs, newerr := simulator.ExecuteTransaction(tx)
 			// }
+			fmt.Printf("newTxs coming isRunning %s %t\n", time.Now(), simulator.isRunning())
 
 			// How to deal with this area??????????????????????????????????????
 			// like dealing with the first 100 transactions,????? by order???? 
@@ -147,16 +148,15 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	newErrs := simulator.simTxPool.addTxsLocked(news)
 	// fmt.Println("test4")
 	simulator.simTxPool.mu.Unlock()
-	// fmt.Println("test6")
 
-	var nilSlot = 0
-	for _, err := range newErrs {
-		for errs[nilSlot] != nil {
-			nilSlot++
-		}
-		errs[nilSlot] = err
-		nilSlot++
-	}
+	// var nilSlot = 0
+	// for _, err := range newErrs {
+	// 	for errs[nilSlot] != nil {
+	// 		nilSlot++
+	// 	}
+	// 	errs[nilSlot] = err
+	// 	nilSlot++
+	// }
 
 	// notify the loop to execute the transactions???????
 	simulator.newTxsCh <- news
