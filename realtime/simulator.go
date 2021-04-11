@@ -59,7 +59,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 		// running:			uint64(0),	
 		startCh: 			make(chan struct{}),
 		stopCh:  			make(chan struct{}),
-		newTxs:				make(chan []*types.Transaction),
+		newTxsCh:			make(chan []*types.Transaction),
 	}
 	go simulator.loop()
 
@@ -142,6 +142,10 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 	// Process all the new transaction and merge any errors into the original slice
 	simulator.simTxPool.mu.Lock()
+	current_block := simulator.chain.CurrentBlock()
+	current_state, _ := simulator.chain.StateAt(current_block.Root())
+	simulator.simTxPool.currentState = current_state.Copy()
+	fmt.Printf("Obtained state before adding to the pool %s %d \n", time.Now(), current_block.Number())
 	newErrs := simulator.simTxPool.addTxsLocked(news)
 	simulator.simTxPool.mu.Unlock()
 
@@ -155,7 +159,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	}
 
 	// notify the loop to execute the transactions???????
-	simulator.newTxs <- news
+	simulator.newTxsCh <- news
 
 	return errs
 
@@ -282,6 +286,10 @@ var (
 	// ErrIntrinsicGas is returned if the transaction is specified to use less gas
 	// than required to start the invocation.
 	SimErrIntrinsicGas = errors.New("intrinsic gas too low")
+
+	// ErrInsufficientFunds is returned if the total cost of executing a transaction
+	// is higher than the balance of the user's account.
+	SimErrInsufficientFunds = errors.New("insufficient funds for gas * price + value")
 )
 
 
@@ -308,7 +316,10 @@ type SimTxPool struct {
 	mu          sync.RWMutex
 
 	// Current gas limit for transaction caps
-	currentMaxGas uint64         
+	currentMaxGas uint64       
+
+	// the current state to check the transaction might be different from the execution environment???????????????????????????????????????
+	currentState  *state.StateDB // Current state in the blockchain head  
 }
 
 
@@ -389,7 +400,8 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
-	intrGas, err := IntrinsicGas(tx.Data(), tx.To() == nil, true, pool.istanbul)
+	istanbul := st.evm.ChainConfig().IsIstanbul(st.evm.Context.BlockNumber)
+	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, pool.istanbul)
 	if err != nil {
 		return err
 	}
@@ -408,9 +420,8 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 	for i, tx := range txs {
 		// already validated
 		from, _ := types.Sender(pool.signer, tx)
-		current_state := pool.chain.StateAt(chain.CurrentBlock().Root())
 		// should be listed in the queue?
-		if current_state.GetNonce(from) < tx.Nonce() {
+		if pool.currentState.GetNonce(from) < tx.Nonce() {
 			pool.queue[tx.Hash()] = tx
 			pool.all.Add(tx, false)
 			continue
