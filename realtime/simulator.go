@@ -13,6 +13,9 @@ import (
 	"math/big"
 	"github.com/ethereum/go-ethereum/trace"
 	"github.com/ethereum/go-ethereum/eth/downloader"
+
+	"errors"
+	"sync"
 )
 
 // Backend wraps all methods required for mining.
@@ -272,7 +275,7 @@ type SimTxPool struct {
 	// general info
 	// config      TxPoolConfig
 	chainconfig *params.ChainConfig
-	chain       blockChain
+	chain       *core.BlockChain
 	signer      types.Signer
 
 
