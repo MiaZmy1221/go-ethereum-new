@@ -146,7 +146,6 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	fmt.Println("test0")
 	simulator.simTxPool.mu.Lock()
 	fmt.Println("test1")
-	fmt.Printf("Obtained state before adding to the pool %s %d \n", time.Now(), current_block.Number())
 	newErrs := simulator.simTxPool.addTxsLocked(news)
 	fmt.Println("test4")
 	simulator.simTxPool.mu.Unlock()
@@ -399,7 +398,7 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 	if current_state.GetNonce(from) > tx.Nonce() {
 		return SimErrNonceTooLow
 	}
-	fmt.Println("validateTx time %s tx hash %s from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), from, current_state.GetNonce(from), tx.Nonce())
+	fmt.Println("validateTx time %s tx hash %s block %d from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), current_block.Number(), from, current_state.GetNonce(from), tx.Nonce())
 
 	// Transactor should have enough funds to cover the costs
 	// cost == V + GP * GL
@@ -407,7 +406,7 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
-	istanbul := pool.chainconfig.IsIstanbul(current_block)
+	istanbul := pool.chainconfig.IsIstanbul(current_block.Number())
 	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, istanbul)
 	if err != nil {
 		return err
@@ -428,10 +427,10 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 		// already validated
 		from, _ := types.Sender(pool.signer, tx)
 		// should be listed in the queue?
-		current_block := simulator.chain.CurrentBlock()
-		current_state, _ := simulator.chain.StateAt(current_block.Root())
+		current_block := pool.chain.CurrentBlock()
+		current_state, _ := pool.chain.StateAt(current_block.Root())
 		current_state = current_state.Copy()
-		fmt.Println("addTxs time %s tx hash %s from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), from, current_state.GetNonce(from), tx.Nonce())
+		fmt.Println("addTxs time %s tx hash %s block %d from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), current_block.Number(), from, current_state.GetNonce(from), tx.Nonce())
 
 		if current_state.GetNonce(from) < tx.Nonce() {
 			pool.queue[tx.Hash()] = tx
