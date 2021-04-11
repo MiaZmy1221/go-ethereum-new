@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	// "os"
 	"math/big"
-	"github.com/ethereum/go-ethereum/trace"
+	// "github.com/ethereum/go-ethereum/trace"
 	"github.com/ethereum/go-ethereum/eth/downloader"
 
 	"errors"
@@ -56,7 +56,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 		eth:                eth,
 		chain:              eth.BlockChain(),	
 		simTxPool:   		NewSimTxPool(chainConfig, eth.BlockChain()),
-		running:			uint64(0),	
+		// running:			uint64(0),	
 		startCh: 			make(chan struct{}),
 		stopCh:  			make(chan struct{}),
 		newTxs:				make(chan []*types.Transaction),
@@ -155,7 +155,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	}
 
 	// notify the loop to execute the transactions???????
-	simulator.startCh <- news
+	simulator.newTxs <- news
 
 	return errs
 
@@ -174,6 +174,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	parent := simulator.chain.CurrentBlock()
 	// fmt.Println("ExecuteTransaction??")
 	current_state, err := simulator.chain.StateAt(parent.Root())
+	current_state = current_state.Copy()
 	// fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	// fmt.Println("ExecuteTransaction???")
 	
@@ -269,6 +270,18 @@ var (
 	// than some meaningful limit a user might use. This is not a consensus error
 	// making the transaction invalid, rather a DOS protection.
 	SimErrOversizedData = errors.New("oversized data")
+
+	// ErrNonceTooLow is returned if the nonce of a transaction is lower than the
+	// one present in the local chain.
+	SimErrNonceTooLow = errors.New("nonce too low")
+
+	// ErrInsufficientFundsForTransfer is returned if the transaction sender doesn't
+	// have enough funds for transfer(topmost call only).
+	SimErrInsufficientFundsForTransfer = errors.New("insufficient funds for transfer")
+
+	// ErrIntrinsicGas is returned if the transaction is specified to use less gas
+	// than required to start the invocation.
+	SimErrIntrinsicGas = errors.New("intrinsic gas too low")
 )
 
 
@@ -367,13 +380,13 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 
 	// Ensure the transaction adheres to nonce ordering
 	if pool.currentState.GetNonce(from) > tx.Nonce() {
-		return ErrNonceTooLow
+		return SimErrNonceTooLow
 	}
 
 	// Transactor should have enough funds to cover the costs
 	// cost == V + GP * GL
 	if pool.currentState.GetBalance(from).Cmp(tx.Cost()) < 0 {
-		return ErrInsufficientFunds
+		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
 	intrGas, err := IntrinsicGas(tx.Data(), tx.To() == nil, true, pool.istanbul)
@@ -381,7 +394,7 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return err
 	}
 	if tx.Gas() < intrGas {
-		return ErrIntrinsicGas
+		return SimErrIntrinsicGas
 	}
 	return nil
 }
@@ -422,10 +435,20 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 type txLookup struct {
 	// Mia add: do not understand the slots
 	// slots   int
-	lock    sync.RWMutex
+	lock     sync.RWMutex
 	pending  map[common.Hash]*types.Transaction
-	queue map[common.Hash]*types.Transaction
+	queue    map[common.Hash]*types.Transaction
 }
+
+
+// newTxLookup returns a new txLookup structure.
+func newTxLookup() *txLookup {
+	return &txLookup{
+		pending:  make(map[common.Hash]*types.Transaction),
+		queue:    make(map[common.Hash]*types.Transaction),
+	}
+}
+
 
 type TxStatus uint
 
