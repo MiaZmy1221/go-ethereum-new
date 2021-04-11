@@ -141,16 +141,23 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		return errs
 	}
 
-	fmt.Println("How many new transactions  time %s length %d", time.Now(), len(news))
+	fmt.Printf("How many new transactions  time %s length %d", time.Now(), len(news))
 
 	// Process all the new transaction and merge any errors into the original slice
+	fmt.Println("test0")
 	simulator.simTxPool.mu.Lock()
+	fmt.Println("test1")
 	current_block := simulator.chain.CurrentBlock()
+	fmt.Println("test2")
 	current_state, _ := simulator.chain.StateAt(current_block.Root())
+	fmt.Println("test3")
 	simulator.simTxPool.currentState = current_state.Copy()
+	fmt.Println("test4")
 	fmt.Printf("Obtained state before adding to the pool %s %d \n", time.Now(), current_block.Number())
 	newErrs := simulator.simTxPool.addTxsLocked(news)
+	fmt.Println("test4")
 	simulator.simTxPool.mu.Unlock()
+	fmt.Println("test6")
 
 	var nilSlot = 0
 	for _, err := range newErrs {
@@ -387,6 +394,9 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 	if err != nil {
 		return SimErrInvalidSender
 	}
+
+	fmt.Println("validateTx tx hash %s from %s", tx.Hash(), from)
+
 	// // Drop non-local transactions under our own minimal accepted gas price
 	// if !local && tx.GasPriceIntCmp(pool.gasPrice) < 0 {
 	// 	return ErrUnderpriced
