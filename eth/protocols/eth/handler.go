@@ -33,7 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 
 	"github.com/ethereum/go-ethereum/realtime"
-	"github.com/ethereum/go-ethereum/trace"
+	// "github.com/ethereum/go-ethereum/trace"
 	// "os"
 )
 
@@ -525,7 +525,7 @@ func handleMessage(backend Backend, peer *Peer) error {
 			// }
 		}
 
-		backend.RTSimulator().HandleMessages(&txs)
+		backend.RTSimulator().HandleMessages(txs)
 
 		if msg.Code == PooledTransactionsMsg {
 			return backend.Handle(peer, (*PooledTransactionsPacket)(&txs))
