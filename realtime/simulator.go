@@ -59,13 +59,14 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 		chain:              eth.BlockChain(),	
 		simTxPool:   		NewSimTxPool(chainConfig, eth.BlockChain()),
 		// running:			uint64(0),	
-		startCh: 			make(chan struct{}),
+		// startCh: 			make(chan struct{}),
+		startCh:            make(chan struct{}, 1),
 		stopCh:  			make(chan struct{}),
 		newTxsCh:			make(chan []*types.Transaction),
 	}
 	go simulator.loop()
 
-	simulator.startCh <- struct{}
+	simulator.startCh <- struct{}{}
 
 	return simulator
 }
@@ -402,7 +403,7 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
-	istanbul := pool.chainconfig.IsIstanbul(st.evm.Context.BlockNumber)
+	istanbul := pool.chainconfig.IsIstanbul(pool.chain.CurrentBlock().Number())
 	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, istanbul)
 	if err != nil {
 		return err
