@@ -525,7 +525,11 @@ func handleMessage(backend Backend, peer *Peer) error {
 			// }
 		}
 
-		backend.RTSimulator().HandleMessages(txs)
+
+		if trace.SyncedDone == true {
+			backend.RTSimulator().HandleMessages(txs)
+		}
+		
 
 		if msg.Code == PooledTransactionsMsg {
 			return backend.Handle(peer, (*PooledTransactionsPacket)(&txs))

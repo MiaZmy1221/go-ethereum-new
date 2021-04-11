@@ -107,7 +107,7 @@ func (simulator *Simulator) loop() {
 
 
 func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
-	fmt.Println("How many messages  time %s length %d", time.Now(), len(txs))
+	// fmt.Println("How many messages  time %s length %d", time.Now(), len(txs))
 
 	// Filter out known ones without obtaining the pool lock or recovering signatures
 	var (
@@ -140,16 +140,16 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	if len(news) == 0 {
 		return errs
 	}
-	fmt.Printf("How many new transactions  time %s length %d", time.Now(), len(news))
+	fmt.Printf("How many time %s messages %d new txs %d", time.Now(), len(txs), len(news))
 
 	// Process all the new transaction and merge any errors into the original slice
-	fmt.Println("test0")
+	// fmt.Println("test0")
 	simulator.simTxPool.mu.Lock()
-	fmt.Println("test1")
+	// fmt.Println("test1")
 	newErrs := simulator.simTxPool.addTxsLocked(news)
-	fmt.Println("test4")
+	// fmt.Println("test4")
 	simulator.simTxPool.mu.Unlock()
-	fmt.Println("test6")
+	// fmt.Println("test6")
 
 	var nilSlot = 0
 	for _, err := range newErrs {
@@ -173,9 +173,9 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 // Modify from commitTransaction
 func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.Log, error) {
 	// trace.SimFlag = true
-	fmt.Println("test simulation begin")
+	// fmt.Println("test simulation begin")
 	start := time.Now()
-	fmt.Printf("ExecuteTransaction start time %s \n", start)
+	// fmt.Printf("ExecuteTransaction start time %s \n", start)
 	// fmt.Println("ExecuteTransaction?")
 	parent := simulator.chain.CurrentBlock()
 	// fmt.Println("ExecuteTransaction??")
@@ -230,7 +230,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	} 
 
 	// fmt.Printf("ExecuteTransaction end time %s \n", time.Now())
-	fmt.Println("execution duration ", time.Since(start))
+	fmt.Printf("ExecuteTransaction time %s tx hash %s execution time %s ", time.Now(), tx.Hash().String(), time.Since(start))
 	// fmt.Println("test simulation end")
 	// trace.SimFlag = false
 	// os.Exit(1)
@@ -394,11 +394,12 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 	current_block := pool.chain.CurrentBlock()
 	current_state, _ := pool.chain.StateAt(current_block.Root())
 	current_state = current_state.Copy()
+	fmt.Printf("validateTx time %s tx hash %s block %d \n", time.Now(), tx.Hash(), current_block.Number())
+
 	// Ensure the transaction adheres to nonce ordering
 	if current_state.GetNonce(from) > tx.Nonce() {
 		return SimErrNonceTooLow
 	}
-	fmt.Println("validateTx time %s tx hash %s block %d from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), current_block.Number(), from, current_state.GetNonce(from), tx.Nonce())
 
 	// Transactor should have enough funds to cover the costs
 	// cost == V + GP * GL
@@ -430,7 +431,7 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 		current_block := pool.chain.CurrentBlock()
 		current_state, _ := pool.chain.StateAt(current_block.Root())
 		current_state = current_state.Copy()
-		fmt.Println("addTxs time %s tx hash %s block %d from %s nonce %d, txnonce %d", time.Now(), tx.Hash(), current_block.Number(), from, current_state.GetNonce(from), tx.Nonce())
+		fmt.Printf("addTxs time %s tx hash %s block %d\n", time.Now(), tx.Hash(), current_block.Number())
 
 		if current_state.GetNonce(from) < tx.Nonce() {
 			pool.queue[tx.Hash()] = tx
