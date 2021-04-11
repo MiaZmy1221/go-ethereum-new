@@ -157,7 +157,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	newErrs := simulator.simTxPool.addTxsLocked(news)
 	simulator.simTxPool.mu.Unlock()
 
-	add other errors
+	// add other errors
 	var nilSlot = 0
 	for _, err := range newErrs {
 		for errs[nilSlot] != nil {
