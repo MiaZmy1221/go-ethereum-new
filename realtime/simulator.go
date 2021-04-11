@@ -181,17 +181,17 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 	if simulator.isRunning() == true {
 		// simulator.exe.RLock()
-		for _, tx := range newTxs {
+		for _, tx := range news {
 			simulator.ExecuteTransaction(tx)
 		}
 		// simulator.exe.RUnlock()
 
 		// remove from the pending transactions and add to the executed
-		for _, tx := range newTxs {
+		for _, tx := range news {
 			simulator.simTxPool.all.Remove(tx.Hash())
 		}
 	}
-	fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(newTxs))
+	fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(news))
 
 
 	fmt.Println("HandleMessages after notify")
