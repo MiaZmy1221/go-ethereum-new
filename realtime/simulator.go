@@ -97,11 +97,11 @@ func (simulator *Simulator) loop() {
 
 			// do we need to add lock? on the execution
 			if simulator.isRunning() == true {
-				// simulator.exe.RLock()
+				simulator.exe.RLock()
 				for _, tx := range newTxs {
 					simulator.ExecuteTransaction(tx)
 				}
-				// simulator.exe.RUnlock()
+				simulator.exe.RUnlock()
 
 				// remove from the pending transactions and add to the executed
 				for _, tx := range newTxs {
@@ -159,7 +159,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	// process by using the pool
 	simulator.simTxPool.mu.Lock()
 	newErrs := simulator.simTxPool.addTxsLocked(news)
-	fmt.Printf("How many txs added to the pending %s %d\n", time.Now(), len(simulator.simTxPool.pending))
+	fmt.Printf("How many txs after added to the pending %s %d\n", time.Now(), len(simulator.simTxPool.pending))
 	simulator.simTxPool.mu.Unlock()
 
 	// add other errors
