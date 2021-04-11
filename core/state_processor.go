@@ -322,7 +322,7 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
 	// Test for the mining process
-	trace.SimGTxReceipt.BlockNum = header.Number
+	trace.SimGTxReceipt.BlockNum = receipt.BlockNumber.String()
 	// fmt.Printf("block number %d\n", header.Number)
 	trace.SimGTxReceipt.FromAddr = msg.From().String()
 	// fmt.Printf("from address %s\n", msg.From().String())
