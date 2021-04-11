@@ -16,6 +16,7 @@ import (
 
 	"errors"
 	"sync"
+	"sync/atomic"
 )
 
 // Backend wraps all methods required for mining.
@@ -113,13 +114,13 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	for i, tx := range txs {
 		// If a transaction has already been executed
 		if txres := simulator.simTxPool.executed[tx.Hash()]; txres != nil {
-			errs[i] = ErrAlreadyExecuted
+			errs[i] = SimErrAlreadyExecuted
 			continue
 		}
 
 		// If the transaction is known, pre-set the error slot
 		if simulator.simTxPool.all.Get(tx.Hash()) != TxStatusUnknown {
-			errs[i] = ErrAlreadyKnown
+			errs[i] = SimErrAlreadyKnown
 			// knownTxMeter.Mark(1)
 			continue
 		}
@@ -141,7 +142,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 	// Process all the new transaction and merge any errors into the original slice
 	simulator.simTxPool.mu.Lock()
-	newErrs := simulator.simTxPool.addTxsLocked(news, local)
+	newErrs := simulator.simTxPool.addTxsLocked(news)
 	simulator.simTxPool.mu.Unlock()
 
 	var nilSlot = 0
@@ -299,7 +300,7 @@ type SimTxPool struct {
 
 
 
-func NewSimTxPool() *SimTxPool {
+func NewSimTxPool(chainConfig *params.ChainConfig, chain *core.BlockChain) *SimTxPool {
 	// Create the transaction pool with its initial settings
 	pool := &SimTxPool{
 		// config:          config,
@@ -432,13 +433,10 @@ const (
 	TxStatusUnknown TxStatus = iota
 	TxStatusQueued
 	TxStatusPending
-	// TxStatusIncluded
-	// TxStatusExecuted
-
 )
 
 // Get returns a transaction if it exists in the lookup, or nil if not found.
-func (t *txLookup) Get(hash common.Hash) *types.Transaction {
+func (t *txLookup) Get(hash common.Hash) TxStatus {
 	t.lock.RLock()
 	defer t.lock.RUnlock()
 
