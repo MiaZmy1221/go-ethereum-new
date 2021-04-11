@@ -17,6 +17,8 @@ import (
 	"errors"
 	"sync"
 	"sync/atomic"
+	"github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Backend wraps all methods required for mining.
@@ -63,7 +65,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 	}
 	go simulator.loop()
 
-	simulator.startCh <- chan struct{}
+	simulator.startCh <- struct{}
 
 	return simulator
 }
@@ -400,8 +402,8 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
-	istanbul := st.evm.ChainConfig().IsIstanbul(st.evm.Context.BlockNumber)
-	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, pool.istanbul)
+	istanbul := pool.chainconfig.IsIstanbul(st.evm.Context.BlockNumber)
+	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, istanbul)
 	if err != nil {
 		return err
 	}
@@ -428,7 +430,7 @@ func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
 		}
 		pool.pending[tx.Hash()] = tx
 		pool.all.Add(tx, true)
-		errs[i] = err
+		errs[i] = nil
 	}
 	return errs
 }
