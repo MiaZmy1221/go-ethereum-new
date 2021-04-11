@@ -157,15 +157,15 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	newErrs := simulator.simTxPool.addTxsLocked(news)
 	simulator.simTxPool.mu.Unlock()
 
-	// add other errors
-	// var nilSlot = 0
-	// for _, err := range newErrs {
-	// 	for errs[nilSlot] != nil {
-	// 		nilSlot++
-	// 	}
-	// 	errs[nilSlot] = err
-	// 	nilSlot++
-	// }
+	add other errors
+	var nilSlot = 0
+	for _, err := range newErrs {
+		for errs[nilSlot] != nil {
+			nilSlot++
+		}
+		errs[nilSlot] = err
+		nilSlot++
+	}
 
 	// notify the loop to execute the transactions???????
 	simulator.newTxsCh <- news
