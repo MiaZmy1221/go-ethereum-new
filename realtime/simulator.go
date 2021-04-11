@@ -107,8 +107,6 @@ func (simulator *Simulator) loop() {
 
 
 func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
-	// fmt.Println("How many messages  time %s length %d", time.Now(), len(txs))
-
 	// Filter out known ones without obtaining the pool lock or recovering signatures
 	var (
 		errs = make([]error, len(txs))
