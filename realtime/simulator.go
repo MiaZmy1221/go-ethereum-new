@@ -225,3 +225,264 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	// os.Exit(1)
 	return receipt.Logs, nil
 }
+
+
+
+
+var (
+	// ErrAlreadyKnown is returned if the transactions is already contained
+	// within the pool.
+	SimErrAlreadyKnown = errors.New("already known")
+
+	// ErrAlreadyKnown is returned if the transactions is already contained
+	// within the pool.
+	SimErrAlreadyExecuted = errors.New("already executed")
+
+	// ErrInvalidSender is returned if the transaction contains an invalid signature.
+	SimErrInvalidSender = errors.New("invalid sender")
+
+	// ErrUnderpriced is returned if a transaction's gas price is below the minimum
+	// configured for the transaction pool.
+	SimErrUnderpriced = errors.New("transaction underpriced")
+
+	// ErrTxPoolOverflow is returned if the transaction pool is full and can't accpet
+	// another remote transaction.
+	SimErrTxPoolOverflow = errors.New("txpool is full")
+
+	// ErrReplaceUnderpriced is returned if a transaction is attempted to be replaced
+	// with a different one without the required price bump.
+	SimErrReplaceUnderpriced = errors.New("replacement transaction underpriced")
+
+	// ErrGasLimit is returned if a transaction's requested gas limit exceeds the
+	// maximum allowance of the current block.
+	SimErrGasLimit = errors.New("exceeds block gas limit")
+
+	// ErrNegativeValue is a sanity error to ensure no one is able to specify a
+	// transaction with a negative value.
+	SimErrNegativeValue = errors.New("negative value")
+
+	// ErrOversizedData is returned if the input data of a transaction is greater
+	// than some meaningful limit a user might use. This is not a consensus error
+	// making the transaction invalid, rather a DOS protection.
+	SimErrOversizedData = errors.New("oversized data")
+)
+
+
+type SimTxPool struct {
+	// general info
+	// config      TxPoolConfig
+	chainconfig *params.ChainConfig
+	chain       blockChain
+	signer      types.Signer
+
+
+	// pending transactions are ones to be executed
+	pending  map[common.Hash]*types.Transaction
+	// queue transactions have not reached requirements, like the message nonce, 
+	queue  map[common.Hash]*types.Transaction
+	// already been executed?
+	// In this level, excludes the transactions have been executed
+	executed map[common.Hash]*types.Transaction
+	// all the tx in pool
+	// find whether in the pending or the queue, or the executed
+	all     *txLookup                    // All transactions to allow lookup
+
+	// add pool
+	mu          sync.RWMutex
+
+	// Current gas limit for transaction caps
+	currentMaxGas uint64         
+}
+
+
+
+func NewSimTxPool() *SimTxPool {
+	// Create the transaction pool with its initial settings
+	pool := &SimTxPool{
+		// config:          config,
+		chainconfig:     chainconfig,
+		chain:           chain,
+		signer:          types.NewEIP155Signer(chainconfig.ChainID),
+
+		pending:         make(map[common.Hash]*types.Transaction),
+		queue:           make(map[common.Hash]*types.Transaction),
+		executed: 		 make(map[common.Hash]*types.Transaction),
+		all:             newTxLookup(),
+
+		currentMaxGas:   chain.CurrentBlock().Header().GasLimit, 
+	}
+
+	return pool
+}
+
+
+const (
+	// chainHeadChanSize is the size of channel listening to ChainHeadEvent.
+	chainHeadChanSize = 10
+
+	// txSlotSize is used to calculate how many data slots a single transaction
+	// takes up based on its size. The slots are used as DoS protection, ensuring
+	// that validating a new transaction remains a constant operation (in reality
+	// O(maxslots), where max slots are 4 currently).
+	txSlotSize = 32 * 1024
+
+	// txMaxSize is the maximum size a single transaction can have. This field has
+	// non-trivial consequences: larger transactions are significantly harder and
+	// more expensive to propagate; larger transactions also take more resources
+	// to validate whether they fit into the pool or not.
+	txMaxSize = 4 * txSlotSize // 128KB
+)
+
+
+
+// validateTx checks whether a transaction is valid according to the consensus
+// rules and adheres to some heuristic limits of the local node (price and size).
+func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
+	// Reject transactions over defined size to prevent DOS attacks
+	if uint64(tx.Size()) > txMaxSize {
+		return SimErrOversizedData
+	}
+	// Transactions can't be negative. This may never happen using RLP decoded
+	// transactions but may occur if you create a transaction using the RPC.
+	if tx.Value().Sign() < 0 {
+		return SimErrNegativeValue
+	}
+	// Ensure the transaction doesn't exceed the current block limit gas.
+	if pool.currentMaxGas < tx.Gas() {
+		return SimErrGasLimit
+	}
+	// Make sure the transaction is signed properly
+	from, err := types.Sender(pool.signer, tx)
+	if err != nil {
+		return SimErrInvalidSender
+	}
+	// // Drop non-local transactions under our own minimal accepted gas price
+	// if !local && tx.GasPriceIntCmp(pool.gasPrice) < 0 {
+	// 	return ErrUnderpriced
+	// }
+
+	// Ensure the transaction adheres to nonce ordering
+	if pool.currentState.GetNonce(from) > tx.Nonce() {
+		return ErrNonceTooLow
+	}
+
+	// Transactor should have enough funds to cover the costs
+	// cost == V + GP * GL
+	if pool.currentState.GetBalance(from).Cmp(tx.Cost()) < 0 {
+		return ErrInsufficientFunds
+	}
+	// Ensure the transaction has more gas than the basic tx fee.
+	intrGas, err := IntrinsicGas(tx.Data(), tx.To() == nil, true, pool.istanbul)
+	if err != nil {
+		return err
+	}
+	if tx.Gas() < intrGas {
+		return ErrIntrinsicGas
+	}
+	return nil
+}
+
+
+
+// addTxsLocked attempts to queue a batch of transactions if they are valid.
+// The transaction pool lock must be held.
+func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
+	errs := make([]error, len(txs))
+	for i, tx := range txs {
+		// already validated
+		from, _ := types.Sender(pool.signer, tx)
+		current_state := pool.chain.StateAt(chain.CurrentBlock().Root())
+		// should be listed in the queue?
+		if current_state.GetNonce(from) < tx.Nonce() {
+			pool.queue[tx.Hash()] = tx
+			pool.all.Add(tx, false)
+			continue
+		}
+		pool.pending[tx.Hash()] = tx
+		pool.all.Add(tx, true)
+		errs[i] = err
+	}
+	return errs
+}
+
+
+// txLookup is used internally by TxPool to track transactions while allowing
+// lookup without mutex contention.
+//
+// Note, although this type is properly protected against concurrent access, it
+// is **not** a type that should ever be mutated or even exposed outside of the
+// transaction pool, since its internal state is tightly coupled with the pools
+// internal mechanisms. The sole purpose of the type is to permit out-of-bound
+// peeking into the pool in TxPool.Get without having to acquire the widely scoped
+// TxPool.mu mutex.
+type txLookup struct {
+	// Mia add: do not understand the slots
+	// slots   int
+	lock    sync.RWMutex
+	pending  map[common.Hash]*types.Transaction
+	queue map[common.Hash]*types.Transaction
+}
+
+type TxStatus uint
+
+const (
+	TxStatusUnknown TxStatus = iota
+	TxStatusQueued
+	TxStatusPending
+	// TxStatusIncluded
+	// TxStatusExecuted
+
+)
+
+// Get returns a transaction if it exists in the lookup, or nil if not found.
+func (t *txLookup) Get(hash common.Hash) *types.Transaction {
+	t.lock.RLock()
+	defer t.lock.RUnlock()
+
+	if tx := t.pending[hash]; tx != nil {
+		return TxStatusPending
+	}
+
+	if tx := t.queue[hash]; tx != nil {
+		return TxStatusQueued
+	}
+
+	return TxStatusUnknown
+}
+
+
+// Add adds a transaction to the lookup.
+func (t *txLookup) Add(tx *types.Transaction, pending bool) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	// t.slots += numSlots(tx)
+	// slotsGauge.Update(int64(t.slots))
+
+	if pending {
+		t.pending[tx.Hash()] = tx
+	} else {
+		t.queue[tx.Hash()] = tx
+	}
+}
+
+
+// Remove removes a transaction from the lookup.
+func (t *txLookup) Remove(hash common.Hash) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	tx, ok := t.pending[hash]
+	if !ok {
+		tx, ok = t.queue[hash]
+	}
+	if !ok {
+		log.Error("No transaction found to be deleted", "hash", hash)
+		return
+	}
+	// t.slots -= numSlots(tx)
+	// slotsGauge.Update(int64(t.slots))
+
+	delete(t.pending, hash)
+	delete(t.queue, hash)
+}
