@@ -248,7 +248,7 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	} 
 
 	// fmt.Printf("ExecuteTransaction end time %s \n", time.Now())
-	fmt.Printf("ExecuteTransaction time %s tx hash %s execution time %s  current number %d\n", time.Now(), tx.Hash().String(), time.Since(start), num)
+	fmt.Printf("time %s tx hash %s execution time %s  current number %d\n", time.Now(), tx.Hash().String(), time.Since(start), num)
 	// fmt.Println("test simulation end")
 	// trace.SimFlag = false
 	// os.Exit(1)

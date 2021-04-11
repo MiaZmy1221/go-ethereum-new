@@ -247,13 +247,6 @@ func ApplyTransaction(config *params.ChainConfig, bc ChainContext, author *commo
 
 
 func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
-	// fmt.Println("rtapplyTransaction function")
-	// if trace.SyncFlag == true {
-	// 	fmt.Println("has conflicts")
-	// 	os.Exit(1)
-	// }
-	
-
 	// borrow the settings from the trace for now, 
 	// assuming the replay does not work
 	trace.SimCurrentTxIndex += 1
@@ -329,13 +322,17 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	receipt.TransactionIndex = uint(statedb.TxIndex())
 
 	// Test for the mining process
-	trace.SimGTxReceipt.BlockNum = receipt.BlockNumber.String()
+	trace.SimGTxReceipt.BlockNum = header.Number
+	// fmt.Printf("block number %d\n", header.Number)
 	trace.SimGTxReceipt.FromAddr = msg.From().String()
+	// fmt.Printf("from address %s\n", msg.From().String())
 	if msg.To() == nil {
 		trace.SimGTxReceipt.ToAddr = "0x"
 	} else {
-		trace.SimGTxReceipt.ToAddr = msg.To().String()
+		trace.SimGTxReceipt.ToAddr = trace.SimGTxReceipt.ToAddr
 	}
+	// fmt.Printf("to address %s\n", msg.From().String())
+
 	trace.SimGTxReceipt.Gas = strconv.FormatUint(msg.Gas(), 10)
 	trace.SimGTxReceipt.GasUsed = strconv.FormatUint(receipt.GasUsed, 10)
 	trace.SimGTxReceipt.GasPrice = msg.GasPrice().String()
@@ -350,10 +347,10 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 	}
 
 	// fmt.Println("test4")
-	json_receipt, _ := json.Marshal(trace.GTxReceipt)
-	json_transferlogs, _ := json.Marshal(trace.TransferLogs)
-	json_traces, _ := json.Marshal(trace.Traces)
-	json_createdsc, _ := json.Marshal(trace.CreatedSC)
+	json_receipt, _ := json.Marshal(trace.SimGTxReceipt)
+	json_transferlogs, _ := json.Marshal(trace.SimTransferLogs)
+	json_traces, _ := json.Marshal(trace.SimTraces)
+	json_createdsc, _ := json.Marshal(trace.SimCreatedSC)
 
 	current_tx := trace.TransactionAll{
 		TxHash: receipt.TxHash.String(),
@@ -362,13 +359,6 @@ func rtapplyTransaction(msg types.Message, config *params.ChainConfig, bc ChainC
 		TxTraces: string(json_traces),
 		TxCreatedSC: string(json_createdsc),
 	}
-
-
-	// single insert
-	// session_err := trace.Realtime.Insert(&current_tx) 
-	// if session_err != nil {
-	// 	fmt.Printf("insert error %s\n", receipt.TxHash)
-	// }
 
 	// // Does not insert for now
 	// bash insert
