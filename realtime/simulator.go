@@ -110,7 +110,7 @@ func (simulator *Simulator) loop() {
 			}
 			fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(newTxs))
 
-			return
+			// return
 		}
 	}
 }
@@ -177,22 +177,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 	// notify the loop to execute the transactions???????
 	// why only once????????????
-	// simulator.newTxsCh <- news
-
-	if simulator.isRunning() == true {
-		// simulator.exe.RLock()
-		for _, tx := range news {
-			simulator.ExecuteTransaction(tx)
-		}
-		// simulator.exe.RUnlock()
-
-		// remove from the pending transactions and add to the executed
-		for _, tx := range news {
-			simulator.simTxPool.all.Remove(tx.Hash())
-		}
-	}
-	fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(news))
-
+	simulator.newTxsCh <- news
 
 	fmt.Println("HandleMessages after notify")
 
