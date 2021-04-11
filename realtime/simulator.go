@@ -321,11 +321,10 @@ type SimTxPool struct {
 	queue  map[common.Hash]*types.Transaction
 	// already been executed?
 	// In this level, excludes the transactions have been executed
-	executed map[common.Hash]*types.Transaction
+	// executed map[common.Hash]*types.Transaction
 	// all the tx in pool
 	// find whether in the pending or the queue, or the executed
 	all     *txLookup                    // All transactions to allow lookup
-
 	// add pool
 	mu          sync.RWMutex
 
@@ -348,7 +347,7 @@ func NewSimTxPool(chainconfig *params.ChainConfig, chain *core.BlockChain) *SimT
 
 		pending:         make(map[common.Hash]*types.Transaction),
 		queue:           make(map[common.Hash]*types.Transaction),
-		executed: 		 make(map[common.Hash]*types.Transaction),
+		// executed: 		 make(map[common.Hash]*types.Transaction),
 		all:             newTxLookup(),
 
 		currentMaxGas:   chain.CurrentBlock().Header().GasLimit, 
@@ -481,6 +480,7 @@ func newTxLookup() *txLookup {
 	return &txLookup{
 		pending:  make(map[common.Hash]*types.Transaction),
 		queue:    make(map[common.Hash]*types.Transaction),
+		executed:    make(map[common.Hash]*types.Transaction),
 	}
 }
 
