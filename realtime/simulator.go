@@ -17,7 +17,7 @@ import (
 	"errors"
 	"sync"
 	"sync/atomic"
-	// "github.com/ethereum/go-ethereum/core/state"
+	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/log"
 )
 
@@ -48,6 +48,10 @@ type Simulator struct {
 	// to pretect the execution????	
 	exe          sync.RWMutex
 
+
+	chainHeadCh  chan core.ChainHeadEvent
+	chainHeadSub event.Subscription
+
 }
 
 // New the simulator, do not worry 
@@ -58,12 +62,18 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 		eth:                eth,
 		chain:              eth.BlockChain(),	
 		simTxPool:   		NewSimTxPool(chainConfig, eth.BlockChain()),
-		// running:			uint64(0),	
-		// startCh: 			make(chan struct{}),
 		startCh:            make(chan struct{}, 1),
 		stopCh:  			make(chan struct{}),
+
+		// case 1.1: does not have buffer now
 		newTxsCh:			make(chan []*types.Transaction),
+
+		chainHeadCh:        make(chan core.ChainHeadEvent, chainHeadChanSize),
 	}
+
+	simulator.chainHeadSub = pool.chain.SubscribeChainHeadEvent(pool.chainHeadCh)
+
+
 	go simulator.loop()
 
 	simulator.startCh <- struct{}{}
@@ -78,6 +88,7 @@ func (simulator *Simulator) isRunning() bool {
 }
 
 
+
 func (simulator *Simulator) loop() {
 	for {
 		select {
@@ -86,31 +97,28 @@ func (simulator *Simulator) loop() {
 		case <-simulator.stopCh:
 			atomic.StoreInt32(&simulator.running, 0)
 		case newTxs := <-simulator.newTxsCh:
-			// for i, tx := range newTxs {
-			// 	receipt_logs, newerr := simulator.ExecuteTransaction(tx)
-			// }
-			
-
-			// How to deal with this area??????????????????????????????????????
-			// like dealing with the first 100 transactions,????? by order???? 
-			// right now, just execute the new added txs
-
-			// do we need to add lock? on the execution
+			// we do not need the lock right now
 			if simulator.isRunning() == true {
-				simulator.exe.RLock()
 				for _, tx := range newTxs {
 					simulator.ExecuteTransaction(tx)
+					simulator.RemoveExecuted(tx)
 				}
-				simulator.exe.RUnlock()
-
-				// remove from the pending transactions and add to the executed
-				for _, tx := range newTxs {
-					simulator.simTxPool.all.Remove(tx.Hash())
+				fmt.Printf("finished execution newTxs coming %s length %d\n", time.Now(), len(newTxs))
+			}
+		case head := <-simulator.chainHeadCh:
+			// get highest head  if not euqal, continue, if equal, promote
+			if head.Number() == simulator.eth.Downloader().Progress().HighestBlock {
+				fmt.Printf("before PromoteQueue current block %d\n", head.Number())
+				promoted_txs := simulator.PromoteQueue()
+				if simulator.isRunning() == true {
+					for _, tx := range promoted_txs {
+						simulator.ExecuteTransaction(tx)
+						simulator.RemoveExecuted(tx)
+					}
+					fmt.Printf("finished execution promoted_txs coming %s length %d\n", time.Now(), len(newTxs))
 				}
 			}
-			fmt.Printf("finished execution newTxs coming %s isRunning %t length %d\n", time.Now(), simulator.isRunning(), len(newTxs))
-
-			// return
+			
 		}
 	}
 }
@@ -123,66 +131,69 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		news = make([]*types.Transaction, 0, len(txs))
 	)
 	for i, tx := range txs {
-		// If a transaction has already been executed
-		// if txres := simulator.simTxPool.executed[tx.Hash()]; txres != nil {
-		// 	errs[i] = SimErrAlreadyExecuted
-		// 	continue
-		// }
-
-		// If the transaction is known, pre-set the error slot
-		tempt_status := simulator.simTxPool.all.Get(tx.Hash())
-		if tempt_status == TxStatusPending || tempt_status == TxStatusQueued {
+		// Setp 1: If the transaction already exists
+		tempt_status := simulator.simTxPool.Get(tx.Hash())
+		if tempt_status == TxStatusQueued || TxStatusExecuting {
 			errs[i] = SimErrAlreadyKnown
 			continue
 		}
-
 		if tempt_status == TxStatusExecuted {
 			errs[i] = SimErrAlreadyExecuted
 			continue
 		}
 
-		// If the transaction fails basic validation, discard it
-		if valerr := simulator.simTxPool.validateTx(tx); valerr != nil {
+		// Step extra: check whether the transaction has already been mined?????
+
+
+		// Step 2: If the transaction fails basic validation, discard it, cheks whether the nonce too low
+		current_state, state_err := simulator.chain.StateAt(imulator.chain.CurrentBlock().Root())
+		if state_err != nil {
+			fmt.Println("Get current state error")
+			return []
+		}
+		if valerr := simulator.simTxPool.validateTx(tx, current_state); valerr != nil {
+			errs[i] = SimErrFailedBasicVal
 			errs[i] = valerr
+			continue
+		}
+
+		// Stpe 3: If the to address is EOA, discard it.
+		code := current_state.GetCode(tx.To())
+		if len(code) == 0 {
+			errs[i] = SimErrToEOA
+			continue
+		}
+
+		// Step 5: replaced tx????
+		// let us forget the replaced for now,
+
+
+		// Step 4: If the nonce is too high, add it to the queue
+		from, _ := types.Sender(pool.signer, tx) // already passed in the Step2 ValidateTx
+		if current_state.GetNonce(from) < tx.Nonce() { // nonce is too high, add it to the queue
+			simulator.simTxPool.Add(tx, 1)
+			// Simulator.AddbyFrom(from, tx)
 			continue
 		}
 
 		// Accumulate all unknown transactions for deeper processing
 		news = append(news, tx)
 	}
+
 	if len(news) == 0 {
 		return errs
 	}
-	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
 
-
-	// process by using the pool
-	simulator.simTxPool.mu.Lock()
-	newErrs := simulator.simTxPool.addTxsLocked(news)
-	fmt.Printf("How many txs after added to the pending %s %d\n", time.Now(), len(simulator.simTxPool.pending))
-	simulator.simTxPool.mu.Unlock()
-
-	// add other errors
-	var nilSlot = 0
-	for _, err := range newErrs {
-		for errs[nilSlot] != nil {
-			nilSlot++
-		}
-		errs[nilSlot] = err
-		nilSlot++
+	for i, newtx := range news{
+		simulator.simTxPool.Add(tx, 0)
 	}
 
-	fmt.Println("HandleMessages before notify")
+	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
 
-
-	// notify the loop to execute the transactions???????
-	// why only once????????????
+	// we do not use the pending pool, 
 	simulator.newTxsCh <- news
 
-	fmt.Println("HandleMessages after notify")
-
 	return errs
-
 }
 
 
@@ -267,6 +278,11 @@ var (
 	// within the pool.
 	SimErrAlreadyExecuted = errors.New("already executed")
 
+
+	SimErrFailedBasicVal = errors.New("failed basic validation")
+
+	SimErrToEOA = errors.New("To address is EOA")
+
 	// ErrInvalidSender is returned if the transaction contains an invalid signature.
 	SimErrInvalidSender = errors.New("invalid sender")
 
@@ -321,24 +337,26 @@ type SimTxPool struct {
 	signer      types.Signer
 
 
+	// case 1: remove the pending for now
 	// pending transactions are ones to be executed
-	pending  map[common.Hash]*types.Transaction
+	// pending  map[common.Hash]*types.Transaction
+
 	// queue transactions have not reached requirements, like the message nonce, 
+	// queue and executed should be trucated from time to time
 	queue  map[common.Hash]*types.Transaction
-	// already been executed?
-	// In this level, excludes the transactions have been executed
-	// executed map[common.Hash]*types.Transaction
-	// all the tx in pool
-	// find whether in the pending or the queue, or the executed
-	all     *txLookup                    // All transactions to allow lookup
-	// add pool
-	mu          sync.RWMutex
+	executed  map[common.Hash]*types.Transaction
+	// current executing transactions (in the executing phase)
+	// just the messages related newTxs
+	currentExecuting map[common.Hash]*types.Transaction
+	lock          sync.RWMutex // to protect all
+
+
+	// sort by the from address
+	// sortedQueue   map[common.Address][]*types.Transaction
+	// queLock       sync.RWMutex // to protect sortedQueue
 
 	// Current gas limit for transaction caps
-	currentMaxGas uint64       
-
-	// the current state to check the transaction might be different from the execution environment???????????????????????????????????????
-	// currentState  *state.StateDB // Current state in the blockchain head  
+	currentMaxGas uint64 
 }
 
 
@@ -351,13 +369,14 @@ func NewSimTxPool(chainconfig *params.ChainConfig, chain *core.BlockChain) *SimT
 		chain:           chain,
 		signer:          types.NewEIP155Signer(chainconfig.ChainID),
 
-		pending:         make(map[common.Hash]*types.Transaction),
+		currentExecuting:         make(map[common.Hash]*types.Transaction),
 		queue:           make(map[common.Hash]*types.Transaction),
-		// executed: 		 make(map[common.Hash]*types.Transaction),
-		all:             newTxLookup(),
+		executed: 		 make(map[common.Hash]*types.Transaction),
 
 		currentMaxGas:   chain.CurrentBlock().Header().GasLimit, 
 	}
+
+	
 
 	return pool
 }
@@ -381,10 +400,100 @@ const (
 )
 
 
+type TxStatus uint
+
+const (
+	TxStatusUnknown TxStatus = iota
+	TxStatusExecuting
+	TxStatusQueued
+	TxStatusExecuted
+)
+
+
+// Get returns a transaction if it exists in the lookup, or nil if not found.
+func (pool *SimTxPool) Get(hash common.Hash) TxStatus {
+	pool.lock.RLock()
+	defer pool.lock.RUnlock()
+
+	if tx := pool.currentExecuting[hash]; tx != nil {
+		return TxStatusExecuting
+	}
+
+	if tx := pool.queue[hash]; tx != nil {
+		return TxStatusQueued
+	}
+
+	if tx := pool.executed[hash]; tx != nil {
+		return TxStatusExecuted
+	}
+
+	return TxStatusUnknown
+}
+
+
+// Add adds a transaction to the lookup.
+func (pool *SimTxPool) Add(tx *types.Transaction, status int) {
+	pool.lock.Lock()
+	defer pool.lock.Unlock()
+
+	if status == 0 {
+		pool.currentExecuting[tx.Hash()] = tx
+	}
+
+	if status == 1 {
+		pool.queue[tx.Hash()] = tx
+	}
+
+	if status == 2 {
+		pool.executed[tx.Hash()] = tx
+	} 
+}
+
+
+// Remove a transaction from the executing
+func (pool *SimTxPool) RemoveExecuted(tx *types.Transaction) {
+	pool.lock.Lock()
+	defer pool.lock.Unlock()
+
+
+	delete(pool.currentExecuting, tx.Hash())
+	pool.executed[tx.Hash()] = tx
+}
+
+
+// Promote transactions
+func (pool *SimTxPool) PromoteQueue() []*types.Transaction {
+	pool.lock.Lock()
+	defer pool.lock.Unlock()
+
+	news = make([]*types.Transaction)
+
+	// check the queue one by one 
+	current_block := pool.chain.CurrentBlock()
+	fmt.Printf("PromoteQueue current block %d\n", current_block.Number())
+	current_state, err := pool.chain.StateAt(current_block.Root())
+	if !err {
+		fmt.Println("Get current state error")
+		return []
+	}
+
+	for _, tx := range pool.queue {
+		from, _ := types.Sender(pool.signer, tx)
+		if tx.Nonce() == current_state.GetNonce(from) {
+			news = append(news, tx)
+		}
+		if tx.Nonce() < current_state.GetNonce(from) {
+			delete(poo.queue, tx.Hash())
+		}
+	}
+	return news
+	
+}
+
 
 // validateTx checks whether a transaction is valid according to the consensus
 // rules and adheres to some heuristic limits of the local node (price and size).
-func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
+func (pool *SimTxPool) validateTx(tx *types.Transaction, current_state *state.StateDB) error {
 	// Reject transactions over defined size to prevent DOS attacks
 	if uint64(tx.Size()) > txMaxSize {
 		return SimErrOversizedData
@@ -403,15 +512,6 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 	if err != nil {
 		return SimErrInvalidSender
 	}
-
-	// // Drop non-local transactions under our own minimal accepted gas price
-	// if !local && tx.GasPriceIntCmp(pool.gasPrice) < 0 {
-	// 	return ErrUnderpriced
-	// }
-	current_block := pool.chain.CurrentBlock()
-	current_state, _ := pool.chain.StateAt(current_block.Root())
-	current_state = current_state.Copy()
-	fmt.Printf("validateTx time %s tx hash %s block %d \n", time.Now(), tx.Hash(), current_block.Number())
 
 	// Ensure the transaction adheres to nonce ordering
 	if current_state.GetNonce(from) > tx.Nonce() {
@@ -433,127 +533,4 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction) error {
 		return SimErrIntrinsicGas
 	}
 	return nil
-}
-
-
-
-// addTxsLocked attempts to queue a batch of transactions if they are valid.
-// The transaction pool lock must be held.
-func (pool *SimTxPool) addTxsLocked(txs []*types.Transaction) []error {
-	errs := make([]error, len(txs))
-	for i, tx := range txs {
-		// already validated
-		from, _ := types.Sender(pool.signer, tx)
-		// should be listed in the queue?
-		current_block := pool.chain.CurrentBlock()
-		current_state, _ := pool.chain.StateAt(current_block.Root())
-		current_state = current_state.Copy()
-		fmt.Printf("addTxs time %s tx hash %s block %d\n", time.Now(), tx.Hash(), current_block.Number())
-		if current_state.GetNonce(from) < tx.Nonce() {
-			pool.queue[tx.Hash()] = tx
-			pool.all.Add(tx, false)
-			continue
-		}
-		pool.pending[tx.Hash()] = tx
-		pool.all.Add(tx, true)
-		errs[i] = nil
-	}
-	return errs
-}
-
-
-// txLookup is used internally by TxPool to track transactions while allowing
-// lookup without mutex contention.
-//
-// Note, although this type is properly protected against concurrent access, it
-// is **not** a type that should ever be mutated or even exposed outside of the
-// transaction pool, since its internal state is tightly coupled with the pools
-// internal mechanisms. The sole purpose of the type is to permit out-of-bound
-// peeking into the pool in TxPool.Get without having to acquire the widely scoped
-// TxPool.mu mutex.
-type txLookup struct {
-	// Mia add: do not understand the slots
-	// slots   int
-	lock     sync.RWMutex
-	pending  map[common.Hash]*types.Transaction
-	queue    map[common.Hash]*types.Transaction
-	executed    map[common.Hash]*types.Transaction
-}
-
-
-// newTxLookup returns a new txLookup structure.
-func newTxLookup() *txLookup {
-	return &txLookup{
-		pending:  make(map[common.Hash]*types.Transaction),
-		queue:    make(map[common.Hash]*types.Transaction),
-		executed:    make(map[common.Hash]*types.Transaction),
-	}
-}
-
-
-type TxStatus uint
-
-const (
-	TxStatusUnknown TxStatus = iota
-	TxStatusQueued
-	TxStatusPending
-	TxStatusExecuted
-)
-
-// Get returns a transaction if it exists in the lookup, or nil if not found.
-func (t *txLookup) Get(hash common.Hash) TxStatus {
-	t.lock.RLock()
-	defer t.lock.RUnlock()
-
-	if tx := t.pending[hash]; tx != nil {
-		return TxStatusPending
-	}
-
-	if tx := t.queue[hash]; tx != nil {
-		return TxStatusQueued
-	}
-
-	if tx := t.executed[hash]; tx != nil {
-		return TxStatusExecuted
-	}
-
-	return TxStatusUnknown
-}
-
-
-// Add adds a transaction to the lookup.
-func (t *txLookup) Add(tx *types.Transaction, pending bool) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-
-	// t.slots += numSlots(tx)
-	// slotsGauge.Update(int64(t.slots))
-
-	if pending {
-		t.pending[tx.Hash()] = tx
-	} else {
-		t.queue[tx.Hash()] = tx
-	}
-}
-
-
-// Remove removes a transaction from the lookup.
-func (t *txLookup) Remove(hash common.Hash) {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-
-	tx, ok := t.pending[hash]
-	if !ok {
-		tx, ok = t.queue[hash]
-	}
-	if !ok {
-		log.Error("No transaction found to be deleted", "hash", hash)
-		return
-	}
-	t.executed[hash] = tx
-	// t.slots -= numSlots(tx)
-	// slotsGauge.Update(int64(t.slots))
-
-	delete(t.pending, hash)
-	delete(t.queue, hash)
 }
