@@ -18,7 +18,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/log"
+	// "github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/event"
 )
 
 // Backend wraps all methods required for mining.
@@ -71,7 +72,7 @@ func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) 
 		chainHeadCh:        make(chan core.ChainHeadEvent, chainHeadChanSize),
 	}
 
-	simulator.chainHeadSub = pool.chain.SubscribeChainHeadEvent(pool.chainHeadCh)
+	simulator.chainHeadSub = simulator.chain.SubscribeChainHeadEvent(simulator.chainHeadCh)
 
 
 	go simulator.loop()
@@ -101,21 +102,21 @@ func (simulator *Simulator) loop() {
 			if simulator.isRunning() == true {
 				for _, tx := range newTxs {
 					simulator.ExecuteTransaction(tx)
-					simulator.RemoveExecuted(tx)
+					simulator.simTxPool.RemoveExecuted(tx)
 				}
 				fmt.Printf("finished execution newTxs coming %s length %d\n", time.Now(), len(newTxs))
 			}
 		case head := <-simulator.chainHeadCh:
 			// get highest head  if not euqal, continue, if equal, promote
-			if head.Number() == simulator.eth.Downloader().Progress().HighestBlock {
-				fmt.Printf("before PromoteQueue current block %d\n", head.Number())
-				promoted_txs := simulator.PromoteQueue()
+			if head.Block.NumberU64() == simulator.eth.Downloader().Progress().HighestBlock {
+				fmt.Printf("before PromoteQueue current block %d\n", head.Block.NumberU64())
+				promoted_txs := simulator.simTxPool.PromoteQueue()
 				if simulator.isRunning() == true {
 					for _, tx := range promoted_txs {
 						simulator.ExecuteTransaction(tx)
-						simulator.RemoveExecuted(tx)
+						simulator.simTxPool.RemoveExecuted(tx)
 					}
-					fmt.Printf("finished execution promoted_txs coming %s length %d\n", time.Now(), len(newTxs))
+					fmt.Printf("finished execution promoted_txs coming %s length %d\n", time.Now(), len(promoted_txs))
 				}
 			}
 			
@@ -133,7 +134,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	for i, tx := range txs {
 		// Setp 1: If the transaction already exists
 		tempt_status := simulator.simTxPool.Get(tx.Hash())
-		if tempt_status == TxStatusQueued || TxStatusExecuting {
+		if tempt_status == TxStatusQueued || tempt_status == TxStatusExecuting {
 			errs[i] = SimErrAlreadyKnown
 			continue
 		}
@@ -146,19 +147,20 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 
 		// Step 2: If the transaction fails basic validation, discard it, cheks whether the nonce too low
-		current_state, state_err := simulator.chain.StateAt(imulator.chain.CurrentBlock().Root())
+		current_state, state_err := simulator.chain.StateAt(simulator.chain.CurrentBlock().Root())
 		if state_err != nil {
 			fmt.Println("Get current state error")
-			return []
+			return nil
 		}
-		if valerr := simulator.simTxPool.validateTx(tx, current_state); valerr != nil {
+
+		if valerr := simulator.simTxPool.validateTx(tx, current_state, simulator.chain.CurrentBlock().Number()); valerr != nil {
 			errs[i] = SimErrFailedBasicVal
 			errs[i] = valerr
 			continue
 		}
 
 		// Stpe 3: If the to address is EOA, discard it.
-		code := current_state.GetCode(tx.To())
+		code := current_state.GetCode(*tx.To())
 		if len(code) == 0 {
 			errs[i] = SimErrToEOA
 			continue
@@ -169,7 +171,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 
 		// Step 4: If the nonce is too high, add it to the queue
-		from, _ := types.Sender(pool.signer, tx) // already passed in the Step2 ValidateTx
+		from, _ := types.Sender(simulator.simTxPool.signer, tx) // already passed in the Step2 ValidateTx
 		if current_state.GetNonce(from) < tx.Nonce() { // nonce is too high, add it to the queue
 			simulator.simTxPool.Add(tx, 1)
 			// Simulator.AddbyFrom(from, tx)
@@ -184,8 +186,8 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		return errs
 	}
 
-	for i, newtx := range news{
-		simulator.simTxPool.Add(tx, 0)
+	for _, newtx := range news{
+		simulator.simTxPool.Add(newtx, 0)
 	}
 
 	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
@@ -466,15 +468,15 @@ func (pool *SimTxPool) PromoteQueue() []*types.Transaction {
 	pool.lock.Lock()
 	defer pool.lock.Unlock()
 
-	news = make([]*types.Transaction)
+	news := []*types.Transaction{}
 
 	// check the queue one by one 
 	current_block := pool.chain.CurrentBlock()
 	fmt.Printf("PromoteQueue current block %d\n", current_block.Number())
 	current_state, err := pool.chain.StateAt(current_block.Root())
-	if !err {
+	if err != nil {
 		fmt.Println("Get current state error")
-		return []
+		return nil
 	}
 
 	for _, tx := range pool.queue {
@@ -483,7 +485,7 @@ func (pool *SimTxPool) PromoteQueue() []*types.Transaction {
 			news = append(news, tx)
 		}
 		if tx.Nonce() < current_state.GetNonce(from) {
-			delete(poo.queue, tx.Hash())
+			delete(pool.queue, tx.Hash())
 		}
 	}
 	return news
@@ -493,7 +495,7 @@ func (pool *SimTxPool) PromoteQueue() []*types.Transaction {
 
 // validateTx checks whether a transaction is valid according to the consensus
 // rules and adheres to some heuristic limits of the local node (price and size).
-func (pool *SimTxPool) validateTx(tx *types.Transaction, current_state *state.StateDB) error {
+func (pool *SimTxPool) validateTx(tx *types.Transaction, current_state *state.StateDB, cbn *big.Int) error {
 	// Reject transactions over defined size to prevent DOS attacks
 	if uint64(tx.Size()) > txMaxSize {
 		return SimErrOversizedData
@@ -524,7 +526,7 @@ func (pool *SimTxPool) validateTx(tx *types.Transaction, current_state *state.St
 		return SimErrInsufficientFunds
 	}
 	// Ensure the transaction has more gas than the basic tx fee.
-	istanbul := pool.chainconfig.IsIstanbul(current_block.Number())
+	istanbul := pool.chainconfig.IsIstanbul(cbn)
 	intrGas, err := core.IntrinsicGas(tx.Data(), tx.To() == nil, true, istanbul)
 	if err != nil {
 		return err
