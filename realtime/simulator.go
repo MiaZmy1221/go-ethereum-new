@@ -57,6 +57,7 @@ type Simulator struct {
 
 // New the simulator, do not worry 
 func New(eth Backend, chainConfig *params.ChainConfig, engine consensus.Engine) *Simulator {
+	fmt.Println("New the simulator")
 	simulator := &Simulator{
 		chainConfig:        chainConfig,
 		engine:             engine,
@@ -94,29 +95,38 @@ func (simulator *Simulator) loop() {
 	for {
 		select {
 		case <-simulator.startCh:
+			fmt.Println("%s start the simulator in the loop\n", time.Now())
 			atomic.StoreInt32(&simulator.running, 1)
 		case <-simulator.stopCh:
+			fmt.Println("%s stop the simulator in the loop\n", time.Now())
 			atomic.StoreInt32(&simulator.running, 0)
 		case newTxs := <-simulator.newTxsCh:
 			// we do not need the lock right now
+			fmt.Printf("%s handle coming newTxs in the loop\n", time.Now())
 			if simulator.isRunning() == true {
 				for _, tx := range newTxs {
 					simulator.ExecuteTransaction(tx)
 					simulator.simTxPool.RemoveExecuted(tx)
 				}
-				fmt.Printf("finished execution newTxs coming %s length %d\n", time.Now(), len(newTxs))
+				fmt.Printf("%s finished execution newTxs coming in the loop length %d\n", time.Now(), len(newTxs))
 			}
+			// test for once
+			if len(newTxs) > 0 {
+				return 
+			} 
+
 		case head := <-simulator.chainHeadCh:
+			fmt.Printf("%s new mined block number in the loop %d\n", time.Now(), head.Block.NumberU64())
 			// get highest head  if not euqal, continue, if equal, promote
 			if head.Block.NumberU64() == simulator.eth.Downloader().Progress().HighestBlock {
-				fmt.Printf("before PromoteQueue current block %d\n", head.Block.NumberU64())
+				fmt.Printf("%s before PromoteQueue current block in the loop %d\n", time.Now(), head.Block.NumberU64())
 				promoted_txs := simulator.simTxPool.PromoteQueue()
 				if simulator.isRunning() == true {
 					for _, tx := range promoted_txs {
 						simulator.ExecuteTransaction(tx)
 						simulator.simTxPool.RemoveExecuted(tx)
 					}
-					fmt.Printf("finished execution promoted_txs coming %s length %d\n", time.Now(), len(promoted_txs))
+					fmt.Printf("%s finished execution promoted_txs coming in the loop length %d\n", time.Now(), len(promoted_txs))
 				}
 			}
 			
@@ -126,7 +136,8 @@ func (simulator *Simulator) loop() {
 
 
 func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
-	// Filter out known ones without obtaining the pool lock or recovering signatures
+	fmt.Println("%s begin in the HandleMessages\n", time.Now())
+
 	var (
 		errs = make([]error, len(txs))
 		news = make([]*types.Transaction, 0, len(txs))
@@ -149,7 +160,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		// Step 2: If the transaction fails basic validation, discard it, cheks whether the nonce too low
 		current_state, state_err := simulator.chain.StateAt(simulator.chain.CurrentBlock().Root())
 		if state_err != nil {
-			fmt.Println("Get current state error")
+			fmt.Printf("%s Get current state error \n", time.Now())
 			return nil
 		}
 
@@ -174,7 +185,6 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		from, _ := types.Sender(simulator.simTxPool.signer, tx) // already passed in the Step2 ValidateTx
 		if current_state.GetNonce(from) < tx.Nonce() { // nonce is too high, add it to the queue
 			simulator.simTxPool.Add(tx, 1)
-			// Simulator.AddbyFrom(from, tx)
 			continue
 		}
 
@@ -190,7 +200,11 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		simulator.simTxPool.Add(newtx, 0)
 	}
 
-	fmt.Printf("How many time %s messages %d new txs %d\n", time.Now(), len(txs), len(news))
+	fmt.Printf("%s How many time messages %d new txs %d\n", time.Now(), len(txs), len(news))
+
+	for i, tempt_err := range errs {
+		fmt.Printf("%s txhash %s error %s \n", time.Now(), txs[i].Hash().String(), tempt_err.Error())
+	}
 
 	// we do not use the pending pool, 
 	simulator.newTxsCh <- news
@@ -211,6 +225,9 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	parent := simulator.chain.CurrentBlock()
 	// fmt.Println("ExecuteTransaction??")
 	current_state, err := simulator.chain.StateAt(parent.Root())
+	if err != nil {
+		fmt.Printf("%s Get current state error \n", time.Now())
+	}
 	current_state = current_state.Copy()
 	// fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
 	// fmt.Println("ExecuteTransaction???")
