@@ -95,10 +95,10 @@ func (simulator *Simulator) loop() {
 	for {
 		select {
 		case <-simulator.startCh:
-			fmt.Println("%s start the simulator in the loop\n", time.Now())
+			fmt.Printf("%s start the simulator in the loop\n", time.Now())
 			atomic.StoreInt32(&simulator.running, 1)
 		case <-simulator.stopCh:
-			fmt.Println("%s stop the simulator in the loop\n", time.Now())
+			fmt.Printf("%s stop the simulator in the loop\n", time.Now())
 			atomic.StoreInt32(&simulator.running, 0)
 		case newTxs := <-simulator.newTxsCh:
 			// we do not need the lock right now
@@ -110,10 +110,7 @@ func (simulator *Simulator) loop() {
 				}
 				fmt.Printf("%s finished execution newTxs coming in the loop length %d\n", time.Now(), len(newTxs))
 			}
-			// test for once
-			if len(newTxs) > 0 {
-				return 
-			} 
+			fmt.Println("\n\n\n\n\n\n")
 
 		case head := <-simulator.chainHeadCh:
 			fmt.Printf("%s new mined block number in the loop %d\n", time.Now(), head.Block.NumberU64())
@@ -129,7 +126,7 @@ func (simulator *Simulator) loop() {
 					fmt.Printf("%s finished execution promoted_txs coming in the loop length %d\n", time.Now(), len(promoted_txs))
 				}
 			}
-			
+			fmt.Println("\n\n\n\n\n\n")
 		}
 	}
 }
@@ -492,7 +489,7 @@ func (pool *SimTxPool) PromoteQueue() []*types.Transaction {
 	fmt.Printf("PromoteQueue current block %d\n", current_block.Number())
 	current_state, err := pool.chain.StateAt(current_block.Root())
 	if err != nil {
-		fmt.Println("Get current state error")
+		fmt.Printf("%s Get current state error\n", time.Now())
 		return nil
 	}
 
