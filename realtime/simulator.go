@@ -217,7 +217,7 @@ var (
 
 
 func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
-	fmt.Println("%s begin in the HandleMessages\n", time.Now())
+	fmt.Printf("%s begin in the HandleMessages\n", time.Now())
 
 	var (
 		errs = make([]error, len(txs))
@@ -282,6 +282,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 
 	if len(news) == 0 {
+		fmt.Printf("%s How many time messages %d new txs %d\n", time.Now(), len(txs), 0)
 		return errs
 	}
 
@@ -290,8 +291,6 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 	}
 
 	fmt.Printf("%s How many time messages %d new txs %d\n", time.Now(), len(txs), len(news))
-
-	
 
 	// we do not use the pending pool, 
 	simulator.newTxsCh <- news
