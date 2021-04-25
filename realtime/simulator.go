@@ -1,5 +1,7 @@
 package realtime
 
+// import "C"
+
 import (
 	"fmt"
 	"time"
@@ -274,6 +276,11 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 		news = append(news, tx)
 	}
 
+	for i, tempt_err := range errs {
+		fmt.Printf("%s txhash %s error %s \n", time.Now(), txs[i].Hash().String(), tempt_err.Error())
+	}
+
+
 	if len(news) == 0 {
 		return errs
 	}
@@ -284,9 +291,7 @@ func (simulator *Simulator) HandleMessages(txs []*types.Transaction) []error {
 
 	fmt.Printf("%s How many time messages %d new txs %d\n", time.Now(), len(txs), len(news))
 
-	for i, tempt_err := range errs {
-		fmt.Printf("%s txhash %s error %s \n", time.Now(), txs[i].Hash().String(), tempt_err.Error())
-	}
+	
 
 	// we do not use the pending pool, 
 	simulator.newTxsCh <- news
@@ -348,6 +353,8 @@ func (simulator *Simulator) ExecuteTransaction(tx *types.Transaction) ([]*types.
 	receipt, err := core.RTApplyTransaction(simulator.chainConfig, simulator.chain, nil, gasPool, current_state, header, tx, &header.GasUsed, *simulator.chain.GetVMConfig())
 	// fmt.Printf("End RTApplyTransaction\n")
 
+	// detect the attacks
+	// C.SayHello(C.CString("Hello, World"))
 	
 	// fmt.Printf("ExecuteTransaction current parent num %s %d\n", time.Now(), simulator.chain.CurrentBlock().Number())
 	// fmt.Printf("ExecuteTransaction Curent len of revisions %s %s %d\n", time.Now(), current_state.GetOriginalRoot().String(), len(current_state.GetRevisionList()))
