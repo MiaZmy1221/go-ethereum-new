@@ -518,15 +518,9 @@ func handleMessage(backend Backend, peer *Peer) error {
 				return fmt.Errorf("%w: transaction %d is nil", errDecode, i)
 			}
 			peer.markTransaction(tx.Hash())
-			// if trace.SyncedDone == true && trace.SimFlag == false {
-			// 	fmt.Printf("handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
-			// 	backend.RTSimulator().ExecuteTransaction(tx)
-			// } else{
-			// 	fmt.Printf("**handleMessage %s %d %s %s\n", tx.Time(), msg.Code, tx.Hash().String(), peer.ID())
-			// }
 		}
 
-
+		trace.SyncedDone = false
 		if trace.SyncedDone == true {
 			fmt.Printf("How many messages SyncedDone time %s length %d\n", time.Now(), len(txs))
 			backend.RTSimulator().HandleMessages(txs)
